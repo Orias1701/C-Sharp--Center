@@ -4,4 +4,4 @@ build/
 bin/
 obj/
 Properties/
-ProjectConfigs.
+ProjectConfigs.json
