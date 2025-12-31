@@ -1,0 +1,5 @@
+# USAGE
+
+```
+python ProjectCreator.py
+```

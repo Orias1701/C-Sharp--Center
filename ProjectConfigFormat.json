@@ -1,0 +1,46 @@
+{
+    "settings": {
+        "PROJECT_TYPE": "ProjectType",
+        "PROJECT_NAME": "ProjectName",
+        "SQL_HOST": "HostType",
+        "SQL_USER": "username",
+        "SQL_PASSWORD": "password",
+        "APP": "APP",
+        "BASE": "BASE",
+        "CLIENT": "CLIENT",
+        "CORE": "CORE"
+    },
+    "projects": {
+        "APP": "classlib",
+        "BASE": "classlib",
+        "CLIENT": "winforms",
+        "CORE": "classlib"
+    },
+    "sub_folders": {
+        "APP": ["sub1", "sub2", "sub3"],
+        "BASE": ["sub1", "sub2", "sub3"],
+        "CLIENT": ["sub1", "sub2", "sub3"],
+        "CORE": ["sub1", "sub2", "sub3"]
+    },
+    "packages": {
+        "BASE": [
+            "Pomelo.EntityFrameworkCore.MySql",
+            "Microsoft.EntityFrameworkCore.Design --version x.x.xx"
+        ],
+        "APP": [
+            "AutoMapper",
+            "FluentValidation"
+        ],
+        "CLIENT": [
+            "Microsoft.Extensions.Hosting"
+        ]
+    },
+    "props": "<Project>\n<PropertyGroup>\n    <BaseOutputPath>$(MSBuildThisFileDirectory)build\\bin\\$(MSBuildProjectName)\\</BaseOutputPath>\n    <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)build\\obj\\$(MSBuildProjectName)\\</BaseIntermediateOutputPath>\n</PropertyGroup>\n</Project>\n",
+    "root_files_templates": {
+        ".gitignore": "build/\nbin/\nobj/\n.vs*/\n*.user\n.env\n",
+        ".gitattributes": "* text=auto\n*.cs text eol=crlf\n",
+        ".gitconfig": "[core]\n\tautocrlf = true\n",
+        ".env": "DB_CONNECTION=server={SQL_HOST};database={PROJECT_NAME}_db;user={SQL_USER};password={SQL_PASSWORD}\n",
+        "ROADMAP.md": "# {PROJECT_NAME} ROADMAP\n\n- [x] Architecture Setup (Clean Architecture)\n- [ ] Database Schema Design\n- [ ] Implement {BASE} Repositories\n- [ ] Build {CLIENT} UI Hand-coded\n"
+    }
+}
