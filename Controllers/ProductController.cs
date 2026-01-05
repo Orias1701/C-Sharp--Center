@@ -44,9 +44,17 @@ namespace WarehouseManagement.Controllers
         /// <summary>
         /// Lấy sản phẩm theo ID
         /// </summary>
-        public Product GetProduct(int productId)
+        public Product GetProductById(int productId)
         {
             return _productService.GetProductById(productId);
+        }
+
+        /// <summary>
+        /// Thêm sản phẩm mới (overload)
+        /// </summary>
+        public int AddProduct(Product product)
+        {
+            return _productService.AddProduct(product.ProductName, product.CategoryID, product.Price, product.Quantity, product.MinThreshold);
         }
 
         /// <summary>
@@ -58,9 +66,17 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
+        /// Cập nhật sản phẩm (overload)
+        /// </summary>
+        public bool UpdateProduct(Product product)
+        {
+            return _productService.UpdateProduct(product.ProductID, product.ProductName, product.CategoryID, product.Price, product.Quantity, product.MinThreshold);
+        }
+
+        /// <summary>
         /// Cập nhật sản phẩm
         /// </summary>
-        public bool UpdateProduct(int productId, string name, int categoryId, decimal price, int quantity, int minThreshold)
+        public bool UpdateProductFull(int productId, string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
             return _productService.UpdateProduct(productId, name, categoryId, price, quantity, minThreshold);
         }

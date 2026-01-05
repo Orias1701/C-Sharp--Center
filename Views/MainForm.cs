@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Windows.Forms;
+using WarehouseManagement.Controllers;
+using WarehouseManagement.Models;
 
 namespace WarehouseManagement.Views
 {
@@ -8,22 +12,167 @@ namespace WarehouseManagement.Views
     /// </summary>
     public partial class MainForm : Form
     {
+        private ProductController _productController;
+        private InventoryController _inventoryController;
+        private TabControl tabControl;
+        private DataGridView dgvProducts;
+        private DataGridView dgvTransactions;
+        private TextBox txtSearch;
+        private Button btnAddProduct, btnEditProduct, btnDeleteProduct;
+        private Button btnImport, btnExport, btnUndo, btnReport;
+        private Label lblTotalValue;
+
         public MainForm()
         {
             InitializeComponent();
             Text = "Quản Lý Kho Hàng";
             WindowState = FormWindowState.Maximized;
+            _productController = new ProductController();
+            _inventoryController = new InventoryController();
         }
 
         private void InitializeComponent()
         {
-            // TODO: Thêm các control như TabControl, DataGridView, Button, etc.
-            // 1. TabControl chứa các tab: Sản phẩm, Phiếu, Báo cáo
-            // 2. Tab Sản phẩm: Hiển thị danh sách SP, nút Thêm/Sửa/Xóa
-            // 3. Tab Phiếu: Hiển thị danh sách phiếu Nhập/Xuất
-            // 4. Tab Báo cáo: Biểu đồ, thống kê
             SuspendLayout();
+
+            // TabControl
+            tabControl = new TabControl
+            {
+                Dock = DockStyle.Fill,
+                Location = new Point(0, 60)
+            };
+
+            // Tab 1: Sản phẩm
+            TabPage tabProducts = new TabPage("Sản Phẩm");
+            tabProducts.Controls.Add(CreateProductsTab());
+            tabControl.TabPages.Add(tabProducts);
+
+            // Tab 2: Giao dịch
+            TabPage tabTransactions = new TabPage("Giao Dịch");
+            tabTransactions.Controls.Add(CreateTransactionsTab());
+            tabControl.TabPages.Add(tabTransactions);
+
+            // Tab 3: Báo cáo
+            TabPage tabReport = new TabPage("Báo Cáo");
+            tabReport.Controls.Add(CreateReportTab());
+            tabControl.TabPages.Add(tabReport);
+
+            // Toolbar
+            Panel toolbar = new Panel
+            {
+                Dock = DockStyle.Top,
+                Height = 60,
+                BackColor = Color.LightGray,
+                BorderStyle = BorderStyle.FixedSingle
+            };
+
+            btnAddProduct = new Button { Text = "➕ Thêm SP", Left = 10, Top = 15, Width = 80, Height = 30 };
+            btnEditProduct = new Button { Text = "✏️ Sửa SP", Left = 100, Top = 15, Width = 80, Height = 30 };
+            btnDeleteProduct = new Button { Text = "🗑️ Xóa SP", Left = 190, Top = 15, Width = 80, Height = 30 };
+            btnImport = new Button { Text = "📥 Nhập", Left = 280, Top = 15, Width = 70, Height = 30 };
+            btnExport = new Button { Text = "📤 Xuất", Left = 360, Top = 15, Width = 70, Height = 30 };
+            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 440, Top = 15, Width = 80, Height = 30 };
+            btnReport = new Button { Text = "📊 Báo cáo", Left = 530, Top = 15, Width = 80, Height = 30 };
+
+            btnAddProduct.Click += BtnAddProduct_Click;
+            btnEditProduct.Click += BtnEditProduct_Click;
+            btnDeleteProduct.Click += BtnDeleteProduct_Click;
+            btnImport.Click += BtnImport_Click;
+            btnExport.Click += BtnExport_Click;
+            btnUndo.Click += BtnUndo_Click;
+            btnReport.Click += BtnReport_Click;
+
+            toolbar.Controls.Add(btnAddProduct);
+            toolbar.Controls.Add(btnEditProduct);
+            toolbar.Controls.Add(btnDeleteProduct);
+            toolbar.Controls.Add(btnImport);
+            toolbar.Controls.Add(btnExport);
+            toolbar.Controls.Add(btnUndo);
+            toolbar.Controls.Add(btnReport);
+
+            Controls.Add(tabControl);
+            Controls.Add(toolbar);
+
+            Load += MainForm_Load;
             ResumeLayout(false);
+        }
+
+        private Control CreateProductsTab()
+        {
+            Panel panel = new Panel { Dock = DockStyle.Fill };
+
+            // Search box
+            txtSearch = new TextBox
+            {
+                Dock = DockStyle.Top,
+                Height = 30,
+                Margin = new Padding(5),
+                Text = ""
+            };
+            txtSearch.TextChanged += TxtSearch_TextChanged;
+            panel.Controls.Add(txtSearch);
+
+            // DataGridView
+            dgvProducts = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AutoGenerateColumns = false,
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                BackgroundColor = Color.White
+            };
+
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ProductID", Width = 50 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Sản Phẩm", DataPropertyName = "ProductName", Width = 200 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Danh Mục", DataPropertyName = "CategoryID", Width = 80 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Giá", DataPropertyName = "Price", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Kho", DataPropertyName = "Quantity", Width = 80 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngưỡng Min", DataPropertyName = "MinThreshold", Width = 100 });
+
+            dgvProducts.CellFormatting += DgvProducts_CellFormatting;
+
+            panel.Controls.Add(dgvProducts);
+            return panel;
+        }
+
+        private Control CreateTransactionsTab()
+        {
+            Panel panel = new Panel { Dock = DockStyle.Fill };
+
+            dgvTransactions = new DataGridView
+            {
+                Dock = DockStyle.Fill,
+                AutoGenerateColumns = false,
+                AllowUserToAddRows = false,
+                ReadOnly = true,
+                BackgroundColor = Color.White
+            };
+
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID Phiếu", DataPropertyName = "TransactionID", Width = 80 });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loại", DataPropertyName = "Type", Width = 80 });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày", DataPropertyName = "DateCreated", Width = 150 });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chú", DataPropertyName = "Note", Width = 300 });
+
+            panel.Controls.Add(dgvTransactions);
+            return panel;
+        }
+
+        private Control CreateReportTab()
+        {
+            Panel panel = new Panel { Dock = DockStyle.Fill };
+
+            lblTotalValue = new Label
+            {
+                Dock = DockStyle.Top,
+                Text = "Tổng giá trị tồn kho: 0 VNĐ",
+                Height = 40,
+                Font = new Font("Arial", 14, FontStyle.Bold),
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(10)
+            };
+
+            panel.Controls.Add(lblTotalValue);
+            return panel;
         }
 
         /// <summary>
@@ -31,57 +180,144 @@ namespace WarehouseManagement.Views
         /// </summary>
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // Kiểm tra kết nối database
-            // Tải dữ liệu sản phẩm
-            // Hiển thị danh sách sản phẩm
+            LoadProducts();
+            UpdateTotalValue();
         }
 
-        /// <summary>
-        /// Nút Thêm sản phẩm
-        /// </summary>
+        private void LoadProducts()
+        {
+            try
+            {
+                List<Product> products = _productController.GetAllProducts();
+                dgvProducts.DataSource = products;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
+        }
+
+        private void TxtSearch_TextChanged(object sender, EventArgs e)
+        {
+            string searchText = txtSearch.Text.ToLower();
+            try
+            {
+                List<Product> allProducts = _productController.GetAllProducts();
+                List<Product> filtered = allProducts.FindAll(p => p.ProductName.ToLower().Contains(searchText));
+                dgvProducts.DataSource = filtered;
+            }
+            catch { }
+        }
+
+        private void DgvProducts_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (dgvProducts.Rows[e.RowIndex].DataBoundItem is Product product)
+            {
+                if (product.IsLowStock)
+                {
+                    e.CellStyle.BackColor = Color.LightCoral;
+                    e.CellStyle.ForeColor = Color.DarkRed;
+                }
+                else
+                {
+                    e.CellStyle.BackColor = Color.White;
+                    e.CellStyle.ForeColor = Color.Black;
+                }
+            }
+        }
+
+        private void UpdateTotalValue()
+        {
+            try
+            {
+                decimal total = _inventoryController.GetTotalInventoryValue();
+                lblTotalValue.Text = $"Tổng giá trị tồn kho: {total:C}";
+            }
+            catch { }
+        }
+
         private void BtnAddProduct_Click(object sender, EventArgs e)
         {
-            // Mở form ProductForm để thêm sản phẩm mới
+            ProductForm form = new ProductForm();
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                LoadProducts();
+                UpdateTotalValue();
+            }
         }
 
-        /// <summary>
-        /// Nút Sửa sản phẩm
-        /// </summary>
         private void BtnEditProduct_Click(object sender, EventArgs e)
         {
-            // Mở form ProductForm để chỉnh sửa sản phẩm chọn
+            if (dgvProducts.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn sản phẩm");
+                return;
+            }
+
+            int productId = (int)dgvProducts.SelectedRows[0].Cells["ProductID"].Value;
+            ProductForm form = new ProductForm(productId);
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                LoadProducts();
+                UpdateTotalValue();
+            }
         }
 
-        /// <summary>
-        /// Nút Xóa sản phẩm
-        /// </summary>
         private void BtnDeleteProduct_Click(object sender, EventArgs e)
         {
-            // Xóa sản phẩm chọn (có xác nhận)
+            if (dgvProducts.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn sản phẩm");
+                return;
+            }
+
+            if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                int productId = (int)dgvProducts.SelectedRows[0].Cells["ProductID"].Value;
+                _productController.DeleteProduct(productId);
+                LoadProducts();
+                UpdateTotalValue();
+            }
         }
 
-        /// <summary>
-        /// Nút Nhập kho
-        /// </summary>
         private void BtnImport_Click(object sender, EventArgs e)
         {
-            // Mở form TransactionForm để tạo phiếu nhập
+            TransactionForm form = new TransactionForm("Import");
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                LoadProducts();
+                UpdateTotalValue();
+            }
         }
 
-        /// <summary>
-        /// Nút Xuất kho
-        /// </summary>
         private void BtnExport_Click(object sender, EventArgs e)
         {
-            // Mở form TransactionForm để tạo phiếu xuất
+            TransactionForm form = new TransactionForm("Export");
+            if (form.ShowDialog() == DialogResult.OK)
+            {
+                LoadProducts();
+                UpdateTotalValue();
+            }
         }
 
-        /// <summary>
-        /// Nút Báo cáo
-        /// </summary>
+        private void BtnUndo_Click(object sender, EventArgs e)
+        {
+            if (_inventoryController.UndoLastAction())
+            {
+                MessageBox.Show("Hoàn tác thành công!");
+                LoadProducts();
+                UpdateTotalValue();
+            }
+            else
+            {
+                MessageBox.Show("Không có hành động để hoàn tác");
+            }
+        }
+
         private void BtnReport_Click(object sender, EventArgs e)
         {
-            // Mở form ReportForm để xem biểu đồ
+            ReportForm form = new ReportForm();
+            form.ShowDialog();
         }
     }
 }
