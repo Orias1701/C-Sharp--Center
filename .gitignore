@@ -1,7 +1,41 @@
-.vs*/
-.env
+# Build results
 build/
 bin/
 obj/
-Properties/
-ProjectConfigs.json
+
+# Visual Studio Cache/Option Files
+.vs/
+.vscode/
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.config
+*.userosscache
+*.sln.docstates
+
+# Local history for Visual Studio
+.localhistory/
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# OS Files
+.DS_Store
+Thumbs.db
+*.log
+
+# NuGet
+.nuget/
+*.nupkg
+*.snupkg
+
+# Runtime
+*.dll
+*.pdb
+*.exe
