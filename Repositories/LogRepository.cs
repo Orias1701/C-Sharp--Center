@@ -53,6 +53,7 @@ namespace WarehouseManagement.Repositories
         /// </summary>
         public bool LogAction(string actionType, string descriptions, string dataBefore = "")
         {
+            if (string.IsNullOrEmpty(dataBefore)) dataBefore = "{}";
             try
             {
                 using (var conn = GetConnection())

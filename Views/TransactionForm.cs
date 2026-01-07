@@ -99,24 +99,23 @@ namespace WarehouseManagement.Views
             ResumeLayout(false);
         }
 
-        private void TransactionForm_Load(object sender, EventArgs e)
+    private void TransactionForm_Load(object sender, EventArgs e)
+    {
+        try
         {
-            try
-            {
-                List<Product> products = _productController.GetAllProducts();
-                foreach (var product in products)
-                {
-                    cmbProduct.Items.Add(new { Text = product.ProductName, Value = product.ProductID });
-                }
-                cmbProduct.DisplayMember = "Text";
-                cmbProduct.ValueMember = "Value";
-                if (cmbProduct.Items.Count > 0) cmbProduct.SelectedIndex = 0;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi tải sản phẩm: " + ex.Message);
-            }
+            List<Product> products = _productController.GetAllProducts();
+            
+            cmbProduct.DataSource = products;
+            cmbProduct.DisplayMember = "ProductName";
+            cmbProduct.ValueMember = "ProductID";
+
+            if (cmbProduct.Items.Count > 0) cmbProduct.SelectedIndex = 0;
         }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Lỗi tải sản phẩm: " + ex.Message);
+        }
+    }
 
         private void BtnAddDetail_Click(object sender, EventArgs e)
         {
@@ -138,12 +137,22 @@ namespace WarehouseManagement.Views
                 return;
             }
 
+            if (cmbProduct.SelectedValue == null)
+            {
+                MessageBox.Show("Vui lòng chọn sản phẩm hợp lệ từ danh sách.");
+                return;
+            }
             int productId = (int)cmbProduct.SelectedValue;
             
             // Kiểm tra tồn kho nếu là Xuất
             if (_transactionType == "Export")
             {
                 Product product = _productController.GetProductById(productId);
+                if (product == null)
+                {
+                    MessageBox.Show("Không tìm thấy thông tin sản phẩm.");
+                    return;
+                }
                 if (product.Quantity < quantity)
                 {
                     MessageBox.Show($"Tồn kho không đủ (hiện có: {product.Quantity})");
