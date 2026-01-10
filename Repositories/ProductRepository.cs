@@ -299,5 +299,32 @@ namespace WarehouseManagement.Repositories
                 throw new Exception("Lỗi khi xóa danh mục: " + ex.Message);
             }
         }
+
+        /// <summary>
+        /// Kiểm tra xem sản phẩm với ID đã tồn tại hay chưa
+        /// </summary>
+        public bool ProductIdExists(int productId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "SELECT COUNT(*) FROM Products WHERE ProductID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
+                        System.Diagnostics.Debug.WriteLine($"[ProductRepository] ProductIdExists({productId}): {count > 0}");
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi kiểm tra tồn tại sản phẩm: " + ex.Message);
+            }
+        }
     }
 }
+

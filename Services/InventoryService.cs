@@ -159,6 +159,187 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
+        /// Thực hiện phiếu nhập kho batch (nhiều sản phẩm, 1 transaction)
+        /// </summary>
+        public bool ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
+        {
+            try
+            {
+                if (details == null || details.Count == 0)
+                    throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
+
+                // Kiểm tra trùng lặp ID trong list và kiểm tra xem sản phẩm tồn tại trước khi thực hiện
+                var productIds = new List<int>();
+                foreach (var (productId, quantity, unitPrice) in details)
+                {
+                    if (productIds.Contains(productId))
+                    {
+                        throw new ArgumentException($"Sản phẩm ID {productId} bị trùng lặp trong phiếu nhập");
+                    }
+                    
+                    if (!_productRepo.ProductIdExists(productId))
+                    {
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại trong hệ thống");
+                    }
+                    
+                    productIds.Add(productId);
+                }
+
+                // Tạo transaction
+                var transaction = new StockTransaction
+                {
+                    Type = "Import",
+                    DateCreated = DateTime.Now,
+                    CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
+                    Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim()
+                };
+                int transId = _transactionRepo.CreateTransaction(transaction);
+
+                // Xử lý từng sản phẩm
+                foreach (var (productId, quantity, unitPrice) in details)
+                {
+                    // Validation
+                    if (productId <= 0)
+                        throw new ArgumentException("ID sản phẩm không hợp lệ");
+                    if (quantity <= 0)
+                        throw new ArgumentException("Số lượng nhập phải lớn hơn 0");
+                    if (quantity > 999999)
+                        throw new ArgumentException("Số lượng quá lớn");
+                    if (unitPrice < 0)
+                        throw new ArgumentException("Đơn giá không được âm");
+                    if (unitPrice > 999999999)
+                        throw new ArgumentException("Đơn giá quá lớn");
+
+                    var product = _productRepo.GetProductById(productId);
+                    if (product == null)
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại");
+
+                    // Thêm chi tiết
+                    var detail = new TransactionDetail
+                    {
+                        TransactionID = transId,
+                        ProductID = productId,
+                        ProductName = product.ProductName,
+                        Quantity = quantity,
+                        UnitPrice = unitPrice
+                    };
+                    _transactionRepo.AddTransactionDetail(detail);
+
+                    // Cập nhật tồn kho
+                    int newQuantity = product.Quantity + quantity;
+                    if (newQuantity > 999999)
+                        throw new Exception("Tồn kho sẽ vượt quá giới hạn cho phép");
+
+                    _productRepo.UpdateQuantity(productId, newQuantity);
+                }
+
+                // Ghi nhật ký
+                _logRepo.LogAction("IMPORT_BATCH", 
+                    $"Nhập {details.Count} sản phẩm, Transaction ID {transId}",
+                    "");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi nhập kho batch: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Thực hiện phiếu xuất kho batch (nhiều sản phẩm, 1 transaction)
+        /// </summary>
+        public bool ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
+        {
+            try
+            {
+                
+                if (details == null || details.Count == 0)
+                    throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
+
+                // Kiểm tra trùng lặp ID trong list
+                var productIds = new List<int>();
+                foreach (var (productId, quantity, unitPrice) in details)
+                {
+                    if (productIds.Contains(productId))
+                    {
+                        throw new ArgumentException($"Sản phẩm ID {productId} bị trùng lặp trong phiếu xuất");
+                    }
+                    productIds.Add(productId);
+                }
+
+                // Kiểm tra tồn kho trước
+                foreach (var (productId, quantity, unitPrice) in details)
+                {
+                    if (!_productRepo.ProductIdExists(productId))
+                    {
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại trong hệ thống");
+                    }
+
+                    var product = _productRepo.GetProductById(productId);
+                    if (product == null)
+                        throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại");
+                    if (product.Quantity < quantity)
+                        throw new Exception($"Tồn kho {product.ProductName} không đủ (hiện có: {product.Quantity}, cần xuất: {quantity})");
+                }
+
+                // Tạo transaction
+                var transaction = new StockTransaction
+                {
+                    Type = "Export",
+                    DateCreated = DateTime.Now,
+                    CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
+                    Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim()
+                };
+                int transId = _transactionRepo.CreateTransaction(transaction);
+
+                // Xử lý từng sản phẩm
+                foreach (var (productId, quantity, unitPrice) in details)
+                {
+                    // Validation
+                    if (productId <= 0)
+                        throw new ArgumentException("ID sản phẩm không hợp lệ");
+                    if (quantity <= 0)
+                        throw new ArgumentException("Số lượng xuất phải lớn hơn 0");
+                    if (quantity > 999999)
+                        throw new ArgumentException("Số lượng quá lớn");
+                    if (unitPrice < 0)
+                        throw new ArgumentException("Đơn giá không được âm");
+                    if (unitPrice > 999999999)
+                        throw new ArgumentException("Đơn giá quá lớn");
+
+                    var product = _productRepo.GetProductById(productId);
+                    
+                    // Thêm chi tiết
+                    var detail = new TransactionDetail
+                    {
+                        TransactionID = transId,
+                        ProductID = productId,
+                        ProductName = product.ProductName,
+                        Quantity = quantity,
+                        UnitPrice = unitPrice
+                    };
+                    _transactionRepo.AddTransactionDetail(detail);
+
+                    // Cập nhật tồn kho
+                    int newQuantity = product.Quantity - quantity;
+                    _productRepo.UpdateQuantity(productId, newQuantity);
+                    System.Diagnostics.Debug.WriteLine($"[InventoryService] Export sản phẩm {productId}: {quantity} (kho từ {product.Quantity} → {newQuantity})");
+                }
+
+                // Ghi nhật ký
+                _logRepo.LogAction("EXPORT_BATCH",
+                    $"Xuất {details.Count} sản phẩm, Transaction ID {transId}",
+                    "");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xuất kho batch: " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Lấy danh sách sản phẩm cảnh báo (tồn kho thấp)
         /// </summary>
         public List<Product> GetLowStockProducts()
@@ -198,17 +379,34 @@ namespace WarehouseManagement.Services
             try
             {
                 var logs = _logRepo.GetAllLogs();
-                if (logs.Count == 0)
+                if (logs == null || logs.Count == 0)
+                {
                     return false;
+                }
 
                 var lastLog = logs.First();
-                if (lastLog.DataBefore == "")
+                
+                // Check both null and empty string
+                if (lastLog == null || string.IsNullOrWhiteSpace(lastLog.DataBefore))
+                {
                     return false;
+                }
 
-                // Deserialize JSON thành JObject thay vì dynamic
-                var jsonObj = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(lastLog.DataBefore);
-                if (jsonObj == null)
+                // Deserialize JSON thành JObject
+                Newtonsoft.Json.Linq.JObject jsonObj = null;
+                try
+                {
+                    jsonObj = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(lastLog.DataBefore);
+                }
+                catch (Exception)
+                {
                     return false;
+                }
+
+                if (jsonObj == null || !jsonObj.ContainsKey("ProductID") || !jsonObj.ContainsKey("Quantity"))
+                {
+                    return false;
+                }
 
                 int productId = (int)jsonObj["ProductID"];
                 int oldQuantity = (int)jsonObj["Quantity"];
@@ -240,6 +438,23 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
+        /// Lấy giao dịch theo ID (bao gồm chi tiết)
+        /// </summary>
+        public StockTransaction GetTransactionById(int transactionId)
+        {
+            try
+            {
+                var result = _transactionRepo.GetTransactionById(transactionId);
+                System.Diagnostics.Debug.WriteLine($"[InventoryService] GetTransactionById trả về kết quả: {(result != null ? "OK" : "NULL")}");
+                return result;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Lỗi khi lấy giao dịch ID {transactionId}: " + ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Lấy danh sách nhật ký hành động
         /// </summary>
         public List<ActionLog> GetAllLogs()
@@ -255,3 +470,4 @@ namespace WarehouseManagement.Services
         }
     }
 }
+

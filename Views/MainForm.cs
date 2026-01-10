@@ -19,7 +19,7 @@ namespace WarehouseManagement.Views
         private DataGridView dgvCategories;
         private DataGridView dgvTransactions;
         private TextBox txtSearch;
-        private Button btnAddProduct, btnEditProduct, btnDeleteProduct;
+        private Button btnAddProduct;
         private Button btnImport, btnExport, btnUndo, btnReport;
         private Label lblTotalValue;
 
@@ -42,6 +42,7 @@ namespace WarehouseManagement.Views
                 Dock = DockStyle.Fill,
                 Location = new Point(0, 60)
             };
+            tabControl.SelectedIndexChanged += TabControl_SelectedIndexChanged;
 
             // Tab 1: Sản phẩm
             TabPage tabProducts = new TabPage("Sản Phẩm");
@@ -73,24 +74,18 @@ namespace WarehouseManagement.Views
             };
 
             btnAddProduct = new Button { Text = "➕ Thêm", Left = 10, Top = 15, Width = 80, Height = 30 };
-            btnEditProduct = new Button { Text = "✏️ Sửa", Left = 100, Top = 15, Width = 80, Height = 30 };
-            btnDeleteProduct = new Button { Text = "🗑️ Xóa", Left = 190, Top = 15, Width = 80, Height = 30 };
-            btnImport = new Button { Text = "📥 Nhập", Left = 280, Top = 15, Width = 80, Height = 30 };
-            btnExport = new Button { Text = "📤 Xuất", Left = 370, Top = 15, Width = 80, Height = 30 };
-            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 460, Top = 15, Width = 90, Height = 30 };
-            btnReport = new Button { Text = "📊 Báo cáo", Left = 560, Top = 15, Width = 90, Height = 30 };
+            btnImport = new Button { Text = "📥 Nhập", Left = 100, Top = 15, Width = 80, Height = 30 };
+            btnExport = new Button { Text = "📤 Xuất", Left = 190, Top = 15, Width = 80, Height = 30 };
+            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 280, Top = 15, Width = 90, Height = 30 };
+            btnReport = new Button { Text = "📊 Báo cáo", Left = 380, Top = 15, Width = 90, Height = 30 };
 
             btnAddProduct.Click += BtnAddProduct_Click;
-            btnEditProduct.Click += BtnEditProduct_Click;
-            btnDeleteProduct.Click += BtnDeleteProduct_Click;
             btnImport.Click += BtnImport_Click;
             btnExport.Click += BtnExport_Click;
             btnUndo.Click += BtnUndo_Click;
             btnReport.Click += BtnReport_Click;
 
             toolbar.Controls.Add(btnAddProduct);
-            toolbar.Controls.Add(btnEditProduct);
-            toolbar.Controls.Add(btnDeleteProduct);
             toolbar.Controls.Add(btnImport);
             toolbar.Controls.Add(btnExport);
             toolbar.Controls.Add(btnUndo);
@@ -134,8 +129,16 @@ namespace WarehouseManagement.Views
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Giá", DataPropertyName = "Price", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Kho", DataPropertyName = "Quantity", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngưỡng Min", DataPropertyName = "MinThreshold", Width = 100, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
+            
+            // Add action buttons
+            DataGridViewButtonColumn editBtn = new DataGridViewButtonColumn { HeaderText = "✏️", Text = "Sửa", Width = 50, UseColumnTextForButtonValue = true };
+            DataGridViewButtonColumn deleteBtn = new DataGridViewButtonColumn { HeaderText = "🗑️", Text = "Xóa", Width = 50, UseColumnTextForButtonValue = true };
+            dgvProducts.Columns.Add(editBtn);
+            dgvProducts.Columns.Add(deleteBtn);
 
             dgvProducts.CellFormatting += DgvProducts_CellFormatting;
+            dgvProducts.CellClick += DgvProducts_CellClick;
+            dgvProducts.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             panel.Controls.Add(dgvProducts);
             return panel;
@@ -157,6 +160,15 @@ namespace WarehouseManagement.Views
 
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "CategoryID", Width = 50 });
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Danh Mục", DataPropertyName = "CategoryName", Width = 400 });
+            
+            // Add action buttons
+            DataGridViewButtonColumn catEditBtn = new DataGridViewButtonColumn { HeaderText = "✏️", Text = "Sửa", Width = 50, UseColumnTextForButtonValue = true };
+            DataGridViewButtonColumn catDeleteBtn = new DataGridViewButtonColumn { HeaderText = "🗑️", Text = "Xóa", Width = 50, UseColumnTextForButtonValue = true };
+            dgvCategories.Columns.Add(catEditBtn);
+            dgvCategories.Columns.Add(catDeleteBtn);
+
+            dgvCategories.CellClick += DgvCategories_CellClick;
+            dgvCategories.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             panel.Controls.Add(dgvCategories);
             return panel;
@@ -179,9 +191,44 @@ namespace WarehouseManagement.Views
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loại", DataPropertyName = "Type", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } });
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày", DataPropertyName = "DateCreated", Width = 150, DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } });
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chú", DataPropertyName = "Note", Width = 400 });
+            
+            // Add view button
+            DataGridViewButtonColumn viewBtn = new DataGridViewButtonColumn { HeaderText = "👁️", Text = "Xem", Width = 50, UseColumnTextForButtonValue = true };
+            dgvTransactions.Columns.Add(viewBtn);
+
+            // Double-click để xem chi tiết
+            dgvTransactions.CellDoubleClick += DgvTransactions_CellDoubleClick;
+            dgvTransactions.CellClick += DgvTransactions_CellClick;
+            dgvTransactions.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
 
             panel.Controls.Add(dgvTransactions);
             return panel;
+        }
+
+        private void DgvTransactions_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+            int transactionId = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
+            
+            try
+            {
+                StockTransaction transaction = _inventoryController.GetTransactionById(transactionId);
+                System.Diagnostics.Debug.WriteLine($"[MainForm] Nhận được transaction: {(transaction != null ? "OK" : "NULL")}");
+                
+                if (transaction != null)
+                {
+                    TransactionDetailForm form = new TransactionDetailForm(transaction);
+                    form.ShowDialog();
+                }
+                else
+                {
+                    MessageBox.Show("Không tìm thấy giao dịch");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
+            }
         }
 
         private Control CreateReportTab()
@@ -317,78 +364,6 @@ namespace WarehouseManagement.Views
             }
         }
 
-        private void BtnEditProduct_Click(object sender, EventArgs e)
-        {
-            if (tabControl.SelectedIndex == 0) // Sản Phẩm
-            {
-                if (dgvProducts.SelectedRows.Count == 0)
-                {
-                    MessageBox.Show("Vui lòng chọn sản phẩm");
-                    return;
-                }
-
-                int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
-                ProductForm form = new ProductForm(productId);
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    LoadProducts();
-                    UpdateTotalValue();
-                }
-            }
-            else if (tabControl.SelectedIndex == 1) // Danh Mục
-            {
-                if (dgvCategories.SelectedRows.Count == 0)
-                {
-                    MessageBox.Show("Vui lòng chọn danh mục");
-                    return;
-                }
-
-                int categoryId = (int)dgvCategories.SelectedRows[0].Cells[0].Value;
-                CategoryForm form = new CategoryForm(categoryId);
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    LoadCategories();
-                    LoadProducts();
-                }
-            }
-        }
-
-        private void BtnDeleteProduct_Click(object sender, EventArgs e)
-        {
-            if (tabControl.SelectedIndex == 0) // Sản Phẩm
-            {
-                if (dgvProducts.SelectedRows.Count == 0)
-                {
-                    MessageBox.Show("Vui lòng chọn sản phẩm");
-                    return;
-                }
-
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    int productId = (int)dgvProducts.SelectedRows[0].Cells[0].Value;
-                    _productController.DeleteProduct(productId);
-                    LoadProducts();
-                    UpdateTotalValue();
-                }
-            }
-            else if (tabControl.SelectedIndex == 1) // Danh Mục
-            {
-                if (dgvCategories.SelectedRows.Count == 0)
-                {
-                    MessageBox.Show("Vui lòng chọn danh mục");
-                    return;
-                }
-
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                {
-                    int categoryId = (int)dgvCategories.SelectedRows[0].Cells[0].Value;
-                    _productController.DeleteCategory(categoryId);
-                    LoadCategories();
-                    LoadProducts();
-                }
-            }
-        }
-
         private void BtnImport_Click(object sender, EventArgs e)
         {
             TransactionForm form = new TransactionForm("Import");
@@ -413,16 +388,23 @@ namespace WarehouseManagement.Views
 
         private void BtnUndo_Click(object sender, EventArgs e)
         {
-            if (_inventoryController.UndoLastAction())
+            try
             {
-                MessageBox.Show("Hoàn tác thành công!");
-                LoadProducts();
-                LoadTransactions();
-                UpdateTotalValue();
+                if (_inventoryController.UndoLastAction())
+                {
+                    MessageBox.Show("Hoàn tác thành công!");
+                    LoadProducts();
+                    LoadTransactions();
+                    UpdateTotalValue();
+                }
+                else
+                {
+                    MessageBox.Show("Không có hành động để hoàn tác");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Không có hành động để hoàn tác");
+                MessageBox.Show($"Lỗi khi hoàn tác: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -431,5 +413,119 @@ namespace WarehouseManagement.Views
             ReportForm form = new ReportForm();
             form.ShowDialog();
         }
+
+        private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+        }
+
+        /// <summary>
+        /// Row selection và button click handler cho Products
+        /// </summary>
+        private void DgvProducts_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;  // Header row
+            
+            // Check if button columns were clicked
+            if (e.ColumnIndex == 6) // Edit button
+            {
+                int productId = (int)dgvProducts.Rows[e.RowIndex].Cells[0].Value;
+                ProductForm form = new ProductForm(productId);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadProducts();
+                    UpdateTotalValue();
+                }
+                return;
+            }
+            else if (e.ColumnIndex == 7) // Delete button
+            {
+                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    int productId = (int)dgvProducts.Rows[e.RowIndex].Cells[0].Value;
+                    _productController.DeleteProduct(productId);
+                    LoadProducts();
+                    UpdateTotalValue();
+                }
+                return;
+            }
+            
+            // Normal row selection for other columns
+            dgvProducts.ClearSelection();
+            dgvProducts.Rows[e.RowIndex].Selected = true;
+        }
+
+        /// <summary>
+        /// Row selection cho Transactions - click any cell để select entire row
+        /// </summary>
+        private void DgvTransactions_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;  // Header row
+            
+            // Check if view button was clicked
+            if (e.ColumnIndex == 4) // View button
+            {
+                int transactionId = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
+                
+                try
+                {
+                    StockTransaction transaction = _inventoryController.GetTransactionById(transactionId);
+                    if (transaction != null)
+                    {
+                        TransactionDetailForm form = new TransactionDetailForm(transaction);
+                        form.ShowDialog();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không tìm thấy giao dịch");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
+                }
+                return;
+            }
+            
+            // Normal row selection for other columns
+            dgvTransactions.ClearSelection();
+            dgvTransactions.Rows[e.RowIndex].Selected = true;
+        }
+
+        /// <summary>
+        /// Row selection và button click handler cho Categories
+        /// </summary>
+        private void DgvCategories_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;  // Header row
+            
+            // Check if button columns were clicked
+            if (e.ColumnIndex == 2) // Edit button
+            {
+                int categoryId = (int)dgvCategories.Rows[e.RowIndex].Cells[0].Value;
+                CategoryForm form = new CategoryForm(categoryId);
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    LoadCategories();
+                    LoadProducts();
+                }
+                return;
+            }
+            else if (e.ColumnIndex == 3) // Delete button
+            {
+                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    int categoryId = (int)dgvCategories.Rows[e.RowIndex].Cells[0].Value;
+                    _productController.DeleteCategory(categoryId);
+                    LoadCategories();
+                    LoadProducts();
+                }
+                return;
+            }
+            
+            // Normal row selection for other columns
+            dgvCategories.ClearSelection();
+            dgvCategories.Rows[e.RowIndex].Selected = true;
+        }
     }
 }
+

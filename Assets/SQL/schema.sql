@@ -69,8 +69,9 @@ INSERT INTO Categories (CategoryName) VALUES
 ('Khác');
 
 -- Seed default users (password: 123, 456)
--- admin: username=admin, password=123
--- staff: username=staff, password=456
-INSERT INTO Users (Username, Password, FullName, Role) VALUES
-('admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Quản trị viên', 'Admin'),
-('staff', '8d969eef6ecad3c29a3a873fba6aa3285c080e8ad31a9ef313c52f53f7f0df9c', 'Nhân viên kho', 'Staff');
+-- admin: username=admin, password=123 (SHA256: a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3)
+-- staff: username=staff, password=456 (SHA256: 8d969eef6ecad3c29a3a873fba6aa3285c080e8ad31a9ef313c52f53f7f0df9c)
+-- NOTE: Passwords are stored as SHA256 hashes using IdGenerator.GenerateSHA256Hash()
+INSERT INTO Users (Username, Password, FullName, Role, IsActive, CreatedAt) VALUES
+('admin', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'Quản trị viên', 'Admin', TRUE, CURRENT_TIMESTAMP),
+('staff', '8d969eef6ecad3c29a3a873fba6aa3285c080e8ad31a9ef313c52f53f7f0df9c', 'Nhân viên kho', 'Staff', TRUE, CURRENT_TIMESTAMP);

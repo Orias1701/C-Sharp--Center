@@ -58,6 +58,10 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
+                    
+                    var transaction = new StockTransaction { TransactionID = transactionId };
+                    
+                    // Lấy thông tin giao dịch
                     using (var cmd = new MySqlCommand("SELECT * FROM StockTransactions WHERE TransactionID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", transactionId);
@@ -65,47 +69,45 @@ namespace WarehouseManagement.Repositories
                         {
                             if (reader.Read())
                             {
-                                var transaction = new StockTransaction
-                                {
-                                    TransactionID = reader.GetInt32("TransactionID"),
-                                    Type = reader.GetString("Type"),
-                                    DateCreated = reader.GetDateTime("DateCreated"),
-                                    CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
-                                    Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note")
-                                };
-
-                                // Lấy chi tiết
-                                using (var detailCmd = new MySqlCommand(
-                                    "SELECT * FROM TransactionDetails WHERE TransactionID=@transId", conn))
-                                {
-                                    detailCmd.Parameters.AddWithValue("@transId", transactionId);
-                                    using (var detailReader = detailCmd.ExecuteReader())
-                                    {
-                                        while (detailReader.Read())
-                                        {
-                                            transaction.Details.Add(new TransactionDetail
-                                            {
-                                                DetailID = detailReader.GetInt32("DetailID"),
-                                                TransactionID = detailReader.GetInt32("TransactionID"),
-                                                ProductID = detailReader.GetInt32("ProductID"),
-                                                ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
-                                                Quantity = detailReader.GetInt32("Quantity"),
-                                                UnitPrice = detailReader.GetDecimal("UnitPrice")
-                                            });
-                                        }
-                                    }
-                                }
-                                return transaction;
+                                transaction.TransactionID = reader.GetInt32("TransactionID");
+                                transaction.Type = reader.GetString("Type");
+                                transaction.DateCreated = reader.GetDateTime("DateCreated");
+                                transaction.CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID");
+                                transaction.Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note");
                             }
                         }
                     }
+
+                    // Lấy chi tiết giao dịch - reader cũ đã đóng
+                    using (var detailCmd = new MySqlCommand(
+                        "SELECT * FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                    {
+                        detailCmd.Parameters.AddWithValue("@transId", transactionId);
+                        using (var detailReader = detailCmd.ExecuteReader())
+                        {
+                            int detailCount = 0;
+                            while (detailReader.Read())
+                            {
+                                transaction.Details.Add(new TransactionDetail
+                                {
+                                    DetailID = detailReader.GetInt32("DetailID"),
+                                    TransactionID = detailReader.GetInt32("TransactionID"),
+                                    ProductID = detailReader.GetInt32("ProductID"),
+                                    ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
+                                    Quantity = detailReader.GetInt32("Quantity"),
+                                    UnitPrice = detailReader.GetDecimal("UnitPrice")
+                                });
+                                detailCount++;
+                            }
+                        }
+                    }
+                    return transaction;
                 }
             }
             catch (Exception ex)
             {
                 throw new Exception($"Lỗi khi lấy phiếu ID {transactionId}: " + ex.Message);
             }
-            return null;
         }
 
         /// <summary>
@@ -189,3 +191,4 @@ namespace WarehouseManagement.Repositories
         }
     }
 }
+

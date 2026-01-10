@@ -34,6 +34,22 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
+        /// Thực hiện phiếu nhập kho batch (nhiều sản phẩm, 1 transaction)
+        /// </summary>
+        public bool ImportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
+        {
+            return _inventoryService.ImportStockBatch(details, note);
+        }
+
+        /// <summary>
+        /// Thực hiện phiếu xuất kho batch (nhiều sản phẩm, 1 transaction)
+        /// </summary>
+        public bool ExportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
+        {
+            return _inventoryService.ExportStockBatch(details, note);
+        }
+
+        /// <summary>
         /// Lấy danh sách sản phẩm cảnh báo (tồn kho thấp)
         /// </summary>
         public List<Product> GetLowStockProducts()
@@ -66,6 +82,14 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
+        /// Lấy giao dịch theo ID (bao gồm chi tiết)
+        /// </summary>
+        public StockTransaction GetTransactionById(int transactionId)
+        {
+            return _inventoryService.GetTransactionById(transactionId);
+        }
+
+        /// <summary>
         /// Lấy danh sách nhật ký hành động
         /// </summary>
         public List<ActionLog> GetAllLogs()
@@ -74,3 +98,4 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
+

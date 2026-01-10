@@ -2,5 +2,7 @@
   <PropertyGroup>
     <BaseIntermediateOutputPath>$(MSBuildThisFileDirectory)Build\obj\</BaseIntermediateOutputPath>
     <OutputPath>$(MSBuildThisFileDirectory)Build\bin\$(Configuration)\</OutputPath>
+    <Encoding>utf-8</Encoding>
+    <FileEncoding>utf-8</FileEncoding>
   </PropertyGroup>
 </Project>

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
@@ -248,18 +249,16 @@ namespace WarehouseManagement.Views
 
             try
             {
-                foreach (var (productId, quantity, unitPrice) in _details)
+                System.Diagnostics.Debug.WriteLine($"[TransactionForm] Chi tiết: {string.Join(", ", _details.Select(d => $"P{d.ProductID}:Q{d.Quantity}"))}");
+                
+                if (_transactionType == "Import")
                 {
-                    if (_transactionType == "Import")
-                    {
-                        _inventoryController.Import(productId, quantity, unitPrice, txtNote.Text);
-                    }
-                    else
-                    {
-                        _inventoryController.Export(productId, quantity, unitPrice, txtNote.Text);
-                    }
+                    _inventoryController.ImportBatch(_details, txtNote.Text);
                 }
-
+                else
+                {
+                    _inventoryController.ExportBatch(_details, txtNote.Text);
+                }
                 MessageBox.Show("✅ Lưu phiếu thành công!");
                 DialogResult = DialogResult.OK;
                 Close();

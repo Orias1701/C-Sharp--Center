@@ -7,6 +7,9 @@
     <AssemblyName>WarehouseManagement</AssemblyName>
     <RootNamespace>WarehouseManagement</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <StartupObject>WarehouseManagement.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

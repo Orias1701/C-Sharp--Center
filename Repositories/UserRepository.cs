@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using WarehouseManagement.Models;
+using WarehouseManagement.Helpers;
 
 namespace WarehouseManagement.Repositories
 {
@@ -14,6 +15,7 @@ namespace WarehouseManagement.Repositories
             {
                 UserID = reader.GetInt32("UserID"),
                 Username = reader.GetString("Username"),
+                Password = reader.IsDBNull(reader.GetOrdinal("Password")) ? "" : reader.GetString("Password"),
                 FullName = reader.IsDBNull(reader.GetOrdinal("FullName")) ? "" : reader.GetString("FullName"),
                 Role = reader.GetString("Role"),
                 IsActive = reader.GetBoolean("IsActive"),
@@ -25,42 +27,45 @@ namespace WarehouseManagement.Repositories
         {
             try
             {
-                string passwordHash = HashSHA256(passwordRaw);
+                
+                if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(passwordRaw))
+                {
+                    return null;
+                }
+
                 using (var conn = GetConnection())
                 {
                     conn.Open();
                     // Query sử dụng tham số để chống SQL Injection
-                    string sql = "SELECT * FROM Users WHERE Username=@username AND Password=@password AND IsActive=1";
+                    string sql = "SELECT * FROM Users WHERE Username=@username AND IsActive=1";
                     using (var cmd = new MySqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@username", username);
-                        cmd.Parameters.AddWithValue("@password", passwordHash);
                         
                         using (var reader = cmd.ExecuteReader())
                         {
                             if (reader.Read()) 
                             {
-                                return MapUserFromReader(reader);
+                                var user = MapUserFromReader(reader);
+                                
+                                // Xác minh mật khẩu bằng IdGenerator
+                                if (user.VerifyPassword(passwordRaw))
+                                {
+                                    return user;
+                                }
+                                else
+                                {
+                                    return null;
+                                }
                             }
                         }
                     }
                 }
+                return null;
             }
             catch (Exception)
             {
-                // Log lỗi ở đây (ví dụ dùng NLog hoặc Serilog)
                 throw new Exception("Lỗi hệ thống khi đăng nhập."); 
-            }
-            return null;
-        }
-
-        private string HashSHA256(string input)
-        {
-            using (var sha256 = System.Security.Cryptography.SHA256.Create())
-            {
-                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(input);
-                byte[] hashBytes = sha256.ComputeHash(bytes);
-                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
             }
         }
 
