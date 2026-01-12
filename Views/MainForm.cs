@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
+using WarehouseManagement.Services;
 
 namespace WarehouseManagement.Views
 {
@@ -14,14 +15,16 @@ namespace WarehouseManagement.Views
     {
         private ProductController _productController;
         private InventoryController _inventoryController;
+        private SaveManager _saveManager;
         private TabControl tabControl;
         private DataGridView dgvProducts;
         private DataGridView dgvCategories;
         private DataGridView dgvTransactions;
         private TextBox txtSearch;
         private Button btnAddProduct;
-        private Button btnImport, btnExport, btnUndo, btnReport;
+        private Button btnImport, btnExport, btnUndo, btnReport, btnSave;
         private Label lblTotalValue;
+        private Label lblChangeStatus;
 
         public MainForm()
         {
@@ -30,6 +33,7 @@ namespace WarehouseManagement.Views
             WindowState = FormWindowState.Maximized;
             _productController = new ProductController();
             _inventoryController = new InventoryController();
+            _saveManager = SaveManager.Instance;
         }
 
         private void InitializeComponent()
@@ -76,25 +80,31 @@ namespace WarehouseManagement.Views
             btnAddProduct = new Button { Text = "➕ Thêm", Left = 10, Top = 15, Width = 80, Height = 30 };
             btnImport = new Button { Text = "📥 Nhập", Left = 100, Top = 15, Width = 80, Height = 30 };
             btnExport = new Button { Text = "📤 Xuất", Left = 190, Top = 15, Width = 80, Height = 30 };
-            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 280, Top = 15, Width = 90, Height = 30 };
-            btnReport = new Button { Text = "📊 Báo cáo", Left = 380, Top = 15, Width = 90, Height = 30 };
+            btnSave = new Button { Text = "💾 Lưu", Left = 280, Top = 15, Width = 80, Height = 30, BackColor = Color.LightGreen };
+            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 370, Top = 15, Width = 90, Height = 30 };
+            btnReport = new Button { Text = "📊 Báo cáo", Left = 470, Top = 15, Width = 90, Height = 30 };
+            lblChangeStatus = new Label { Text = "", Left = 570, Top = 20, Width = 200, Height = 20, ForeColor = Color.Red, Font = new Font("Arial", 10, FontStyle.Bold) };
 
             btnAddProduct.Click += BtnAddProduct_Click;
             btnImport.Click += BtnImport_Click;
             btnExport.Click += BtnExport_Click;
+            btnSave.Click += BtnSave_Click;
             btnUndo.Click += BtnUndo_Click;
             btnReport.Click += BtnReport_Click;
 
             toolbar.Controls.Add(btnAddProduct);
             toolbar.Controls.Add(btnImport);
             toolbar.Controls.Add(btnExport);
+            toolbar.Controls.Add(btnSave);
             toolbar.Controls.Add(btnUndo);
             toolbar.Controls.Add(btnReport);
+            toolbar.Controls.Add(lblChangeStatus);
 
             Controls.Add(tabControl);
             Controls.Add(toolbar);
 
             Load += MainForm_Load;
+            FormClosing += MainForm_FormClosing;
             ResumeLayout(false);
         }
 
@@ -438,12 +448,44 @@ namespace WarehouseManagement.Views
             }
             else if (e.ColumnIndex == 7) // Delete button
             {
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                int productId = (int)dgvProducts.Rows[e.RowIndex].Cells[0].Value;
+                string productName = dgvProducts.Rows[e.RowIndex].Cells[1].Value.ToString();
+                
+                try
                 {
-                    int productId = (int)dgvProducts.Rows[e.RowIndex].Cells[0].Value;
-                    _productController.DeleteProduct(productId);
-                    LoadProducts();
-                    UpdateTotalValue();
+                    // Kiểm tra phụ thuộc khóa ngoài
+                    if (_productController.ProductHasDependencies(productId))
+                    {
+                        DialogResult result = MessageBox.Show(
+                            $"Sản phẩm '{productName}' đang được sử dụng trong các phiếu giao dịch.\n\n" +
+                            "Bạn có muốn ẩn sản phẩm này khỏi danh sách không?\n" +
+                            "(Dữ liệu sẽ được giữ lại để hỗ trợ undo)",
+                            "Xóa sản phẩm",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question);
+                        
+                        if (result == DialogResult.Yes)
+                        {
+                            _productController.DeleteProduct(productId);
+                            MessageBox.Show("Sản phẩm đã được ẩn thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadProducts();
+                            UpdateTotalValue();
+                        }
+                    }
+                    else
+                    {
+                        if (MessageBox.Show($"Bạn chắc chắn muốn xóa sản phẩm '{productName}'?", "Xác nhận xóa", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            _productController.DeleteProduct(productId);
+                            MessageBox.Show("Sản phẩm đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadProducts();
+                            UpdateTotalValue();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi xóa sản phẩm: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 return;
             }
@@ -511,12 +553,44 @@ namespace WarehouseManagement.Views
             }
             else if (e.ColumnIndex == 3) // Delete button
             {
-                if (MessageBox.Show("Bạn chắc chắn muốn xóa?", "Xác nhận", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                int categoryId = (int)dgvCategories.Rows[e.RowIndex].Cells[0].Value;
+                string categoryName = dgvCategories.Rows[e.RowIndex].Cells[1].Value.ToString();
+                
+                try
                 {
-                    int categoryId = (int)dgvCategories.Rows[e.RowIndex].Cells[0].Value;
-                    _productController.DeleteCategory(categoryId);
-                    LoadCategories();
-                    LoadProducts();
+                    // Kiểm tra danh mục có sản phẩm hay không
+                    if (_productController.CategoryHasProducts(categoryId))
+                    {
+                        DialogResult result = MessageBox.Show(
+                            $"Danh mục '{categoryName}' đang có sản phẩm.\n\n" +
+                            "Bạn có muốn ẩn danh mục này khỏi danh sách không?\n" +
+                            "(Dữ liệu sẽ được giữ lại để hỗ trợ undo)",
+                            "Xóa danh mục",
+                            MessageBoxButtons.YesNo,
+                            MessageBoxIcon.Question);
+                        
+                        if (result == DialogResult.Yes)
+                        {
+                            _productController.DeleteCategory(categoryId);
+                            MessageBox.Show("Danh mục đã được ẩn thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadCategories();
+                            LoadProducts();
+                        }
+                    }
+                    else
+                    {
+                        if (MessageBox.Show($"Bạn chắc chắn muốn xóa danh mục '{categoryName}'?", "Xác nhận xóa", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        {
+                            _productController.DeleteCategory(categoryId);
+                            MessageBox.Show("Danh mục đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                            LoadCategories();
+                            LoadProducts();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi xóa danh mục: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 return;
             }
@@ -524,6 +598,95 @@ namespace WarehouseManagement.Views
             // Normal row selection for other columns
             dgvCategories.ClearSelection();
             dgvCategories.Rows[e.RowIndex].Selected = true;
+        }
+
+        /// <summary>
+        /// Nút Save - Lưu tất cả thay đổi vào database
+        /// </summary>
+        private void BtnSave_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (!_saveManager.HasUnsavedChanges)
+                {
+                    MessageBox.Show("Không có thay đổi nào để lưu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (MessageBox.Show($"Bạn muốn lưu {_saveManager.ChangeCount} thay đổi vào database?", "Xác nhận lưu", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    _saveManager.CommitChanges();
+                    UpdateChangeStatus();
+                    MessageBox.Show("Đã lưu thay đổi thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi lưu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật trạng thái thay đổi trên UI
+        /// </summary>
+        private void UpdateChangeStatus()
+        {
+            if (_saveManager.HasUnsavedChanges)
+            {
+                lblChangeStatus.Text = $"⚠️ Chưa lưu: {_saveManager.ChangeCount} thay đổi";
+                lblChangeStatus.ForeColor = Color.Red;
+                btnSave.Enabled = true;
+            }
+            else
+            {
+                lblChangeStatus.Text = "✓ Tất cả thay đổi đã được lưu";
+                lblChangeStatus.ForeColor = Color.Green;
+                btnSave.Enabled = false;
+            }
+        }
+
+        /// <summary>
+        /// Xử lý sự kiện đóng form
+        /// </summary>
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            try
+            {
+                if (_saveManager.HasUnsavedChanges)
+                {
+                    DialogResult result = MessageBox.Show(
+                        $"Có {_saveManager.ChangeCount} thay đổi chưa được lưu.\n\nBạn muốn lưu trước khi thoát?",
+                        "Xác nhận thoát",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Question);
+
+                    if (result == DialogResult.Cancel)
+                    {
+                        e.Cancel = true;
+                        return;
+                    }
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Lưu thay đổi
+                        _saveManager.CommitChanges();
+                        MessageBox.Show("Đã lưu thay đổi.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else if (result == DialogResult.No)
+                    {
+                        // Khôi phục về lần save cuối
+                        _saveManager.RollbackChanges();
+                        MessageBox.Show("Đã hủy bỏ tất cả thay đổi từ lần lưu cuối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+
+                // Xóa toàn bộ undo stack
+                _saveManager.ClearUndoStack();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi thoát: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

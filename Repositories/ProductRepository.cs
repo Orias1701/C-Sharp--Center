@@ -12,7 +12,7 @@ namespace WarehouseManagement.Repositories
     public class ProductRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách tất cả sản phẩm
+        /// Lấy danh sách tất cả sản phẩm (chỉ những sản phẩm Visible=true)
         /// </summary>
         public List<Product> GetAllProducts()
         {
@@ -22,7 +22,7 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM Products", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Products WHERE Visible=TRUE ORDER BY ProductID DESC", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -147,20 +147,22 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa sản phẩm
+        /// Xóa sản phẩm - kiểm tra phụ thuộc khóa và xóa mềm hoặc vật lý
         /// </summary>
         public bool DeleteProduct(int productId)
         {
             try
             {
-                using (var conn = GetConnection())
+                // Kiểm tra phụ thuộc khóa
+                if (HasForeignKeyReferences(productId))
                 {
-                    conn.Open();
-                    using (var cmd = new MySqlCommand("DELETE FROM Products WHERE ProductID=@id", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@id", productId);
-                        return cmd.ExecuteNonQuery() > 0;
-                    }
+                    // Có phụ thuộc - xóa mềm (soft delete)
+                    return SoftDeleteProduct(productId);
+                }
+                else
+                {
+                    // Không có phụ thuộc - xóa vật lý (hard delete)
+                    return HardDeleteProduct(productId);
                 }
             }
             catch (Exception ex)
@@ -194,7 +196,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả danh mục
+        /// Lấy danh sách tất cả danh mục (chỉ những danh mục Visible=true)
         /// </summary>
         public List<Category> GetAllCategories()
         {
@@ -204,7 +206,7 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM Categories ORDER BY CategoryID", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Categories WHERE Visible=TRUE ORDER BY CategoryID", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -277,21 +279,22 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa danh mục
+        /// Xóa danh mục - kiểm tra phụ thuộc khóa và xóa mềm hoặc vật lý
         /// </summary>
         public bool DeleteCategory(int categoryId)
         {
             try
             {
-                using (var conn = GetConnection())
+                // Kiểm tra danh mục có sản phẩm hay không
+                if (CategoryHasProducts(categoryId))
                 {
-                    conn.Open();
-                    using (var cmd = new MySqlCommand(
-                        "DELETE FROM Categories WHERE CategoryID=@id", conn))
-                    {
-                        cmd.Parameters.AddWithValue("@id", categoryId);
-                        return cmd.ExecuteNonQuery() > 0;
-                    }
+                    // Có sản phẩm - xóa mềm
+                    return SoftDeleteCategory(categoryId);
+                }
+                else
+                {
+                    // Không có sản phẩm - xóa vật lý
+                    return HardDeleteCategory(categoryId);
                 }
             }
             catch (Exception ex)
@@ -322,6 +325,207 @@ namespace WarehouseManagement.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi kiểm tra tồn tại sản phẩm: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra sản phẩm có được tham chiếu bởi TransactionDetails hoặc các bảng khác hay không
+        /// </summary>
+        public bool HasForeignKeyReferences(int productId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    // Kiểm tra TransactionDetails
+                    using (var cmd = new MySqlCommand(
+                        "SELECT COUNT(*) FROM TransactionDetails WHERE ProductID=@id AND Visible=TRUE", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi kiểm tra phụ thuộc khóa ngoài: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Xóa mềm (soft delete) - đặt Visible = false
+        /// </summary>
+        public bool SoftDeleteProduct(int productId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE Products SET Visible=FALSE WHERE ProductID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xóa mềm sản phẩm: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Xóa vật lý (hard delete) - xóa toàn bộ bản ghi
+        /// </summary>
+        public bool HardDeleteProduct(int productId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "DELETE FROM Products WHERE ProductID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi xóa sản phẩm: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra danh mục có sản phẩm hay không
+        /// </summary>
+        public bool CategoryHasProducts(int categoryId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "SELECT COUNT(*) FROM Products WHERE CategoryID=@id AND Visible=TRUE", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        int count = Convert.ToInt32(cmd.ExecuteScalar());
+                        return count > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi kiểm tra danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Xóa mềm danh mục (Visible = false)
+        /// </summary>
+        public bool SoftDeleteCategory(int categoryId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE Categories SET Visible=FALSE WHERE CategoryID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi xóa mềm danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Xóa vật lý danh mục
+        /// </summary>
+        public bool HardDeleteCategory(int categoryId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "DELETE FROM Categories WHERE CategoryID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi xóa vật lý danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Khôi phục sản phẩm đã xóa (set Visible=TRUE)
+        /// </summary>
+        public bool RestoreDeletedProduct(int productId, string productName, int categoryId, decimal price, int quantity, int minThreshold)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE Products SET Visible=TRUE, ProductName=@name, CategoryID=@catId, Price=@price, Quantity=@qty, MinThreshold=@threshold WHERE ProductID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        cmd.Parameters.AddWithValue("@name", productName);
+                        cmd.Parameters.AddWithValue("@catId", categoryId);
+                        cmd.Parameters.AddWithValue("@price", price);
+                        cmd.Parameters.AddWithValue("@qty", quantity);
+                        cmd.Parameters.AddWithValue("@threshold", minThreshold);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khôi phục sản phẩm: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Khôi phục danh mục đã xóa (set Visible=TRUE)
+        /// </summary>
+        public bool RestoreDeletedCategory(int categoryId, string categoryName)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE Categories SET Visible=TRUE, CategoryName=@name WHERE CategoryID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        cmd.Parameters.AddWithValue("@name", categoryName);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khôi phục danh mục: " + ex.Message);
             }
         }
     }

@@ -128,5 +128,21 @@ namespace WarehouseManagement.Controllers
         {
             return _productService.DeleteCategory(categoryId);
         }
+
+        /// <summary>
+        /// Kiểm tra sản phẩm có phụ thuộc khóa ngoài
+        /// </summary>
+        public bool ProductHasDependencies(int productId)
+        {
+            return _productService.ProductHasDependencies(productId);
+        }
+
+        /// <summary>
+        /// Kiểm tra danh mục có sản phẩm
+        /// </summary>
+        public bool CategoryHasProducts(int categoryId)
+        {
+            return _productService.CategoryHasProducts(categoryId);
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using WarehouseManagement.Models;
 using WarehouseManagement.Repositories;
 using Newtonsoft.Json;
+using WarehouseManagement.Services;
 
 namespace WarehouseManagement.Services
 {
@@ -83,6 +84,7 @@ namespace WarehouseManagement.Services
                     $"Nhập {quantity} sản phẩm ID {productId}",
                     JsonConvert.SerializeObject(oldData));
 
+                SaveManager.Instance.MarkAsChanged();
                 return true;
             }
             catch (Exception ex)
@@ -150,6 +152,7 @@ namespace WarehouseManagement.Services
                     $"Xuất {quantity} sản phẩm ID {productId}",
                     JsonConvert.SerializeObject(oldData));
 
+                SaveManager.Instance.MarkAsChanged();
                 return true;
             }
             catch (Exception ex)
@@ -238,6 +241,7 @@ namespace WarehouseManagement.Services
                     $"Nhập {details.Count} sản phẩm, Transaction ID {transId}",
                     "");
 
+                SaveManager.Instance.MarkAsChanged();
                 return true;
             }
             catch (Exception ex)
@@ -330,6 +334,7 @@ namespace WarehouseManagement.Services
                 _logRepo.LogAction("EXPORT_BATCH",
                     $"Xuất {details.Count} sản phẩm, Transaction ID {transId}",
                     "");
+                SaveManager.Instance.MarkAsChanged();
                 return true;
             }
             catch (Exception ex)
@@ -372,48 +377,140 @@ namespace WarehouseManagement.Services
 
         /// <summary>
         /// Hoàn tác thao tác cuối cùng (dựa trên nhật ký)
+        /// Hỗ trợ tối đa 10 hành động gần nhất dùng cấu trúc Stack (LIFO)
+        /// Hành động được hoàn tác sẽ bị xóa khỏi stack (set Visible=FALSE) để tránh conflict
         /// </summary>
         public bool UndoLastAction()
         {
             try
             {
-                var logs = _logRepo.GetAllLogs();
+                // Get the last 10 actions (LIFO stack)
+                var logs = _logRepo.GetLastNLogs(10);
                 if (logs == null || logs.Count == 0)
                 {
                     return false;
                 }
 
+                // Pop the first item (most recent action)
                 var lastLog = logs.First();
-                
-                // Check both null and empty string
-                if (lastLog == null || string.IsNullOrWhiteSpace(lastLog.DataBefore))
+                if (lastLog == null)
                 {
                     return false;
                 }
+                
+                // Check if data is available
+                if (string.IsNullOrWhiteSpace(lastLog.DataBefore))
+                {
+                    // For ADD actions, we can try to delete the record
+                    if (lastLog.ActionType.StartsWith("ADD_"))
+                    {
+                        // Remove from undo stack after processing
+                        _logRepo.RemoveFromUndoStack(lastLog.LogID);
+                        _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
+                        return true;
+                    }
+                    return false;
+                }
 
-                // Deserialize JSON thành JObject
-                Newtonsoft.Json.Linq.JObject jsonObj = null;
                 try
                 {
-                    jsonObj = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(lastLog.DataBefore);
+                    Newtonsoft.Json.Linq.JObject jsonObj = JsonConvert.DeserializeObject<Newtonsoft.Json.Linq.JObject>(lastLog.DataBefore);
+                    
+                    if (jsonObj == null)
+                        return false;
+
+                    bool undoSuccess = false;
+
+                    // Handle different action types
+                    switch (lastLog.ActionType)
+                    {
+                        case "IMPORT_STOCK":
+                        case "EXPORT_STOCK":
+                            // Restore product quantity
+                            if (jsonObj.ContainsKey("ProductID") && jsonObj.ContainsKey("Quantity"))
+                            {
+                                int productId = (int)jsonObj["ProductID"];
+                                int oldQuantity = (int)jsonObj["Quantity"];
+                                _productRepo.UpdateQuantity(productId, oldQuantity);
+                                undoSuccess = true;
+                            }
+                            break;
+
+                        case "UPDATE_PRODUCT":
+                            // Restore all product fields
+                            if (jsonObj.ContainsKey("ProductID"))
+                            {
+                                var product = new Product
+                                {
+                                    ProductID = (int)jsonObj["ProductID"],
+                                    ProductName = (string)jsonObj["ProductName"],
+                                    CategoryID = (int)jsonObj["CategoryID"],
+                                    Price = (decimal)jsonObj["Price"],
+                                    Quantity = (int)jsonObj["Quantity"],
+                                    MinThreshold = (int)jsonObj["MinThreshold"]
+                                };
+                                _productRepo.UpdateProduct(product);
+                                undoSuccess = true;
+                            }
+                            break;
+
+                        case "DELETE_PRODUCT":
+                            // Restore deleted product
+                            if (jsonObj.ContainsKey("ProductID"))
+                            {
+                                int productId = (int)jsonObj["ProductID"];
+                                string productName = (string)jsonObj["ProductName"];
+                                int categoryId = (int)jsonObj["CategoryID"];
+                                decimal price = (decimal)jsonObj["Price"];
+                                int quantity = (int)jsonObj["Quantity"];
+                                int minThreshold = (int)jsonObj["MinThreshold"];
+                                
+                                _productRepo.RestoreDeletedProduct(productId, productName, categoryId, price, quantity, minThreshold);
+                                undoSuccess = true;
+                            }
+                            break;
+
+                        case "UPDATE_CATEGORY":
+                            // Restore category
+                            if (jsonObj.ContainsKey("CategoryID"))
+                            {
+                                int categoryId = (int)jsonObj["CategoryID"];
+                                string categoryName = (string)jsonObj["CategoryName"];
+                                _productRepo.UpdateCategory(categoryId, categoryName);
+                                undoSuccess = true;
+                            }
+                            break;
+
+                        case "DELETE_CATEGORY":
+                            // Restore deleted category
+                            if (jsonObj.ContainsKey("CategoryID"))
+                            {
+                                int categoryId = (int)jsonObj["CategoryID"];
+                                string categoryName = (string)jsonObj["CategoryName"];
+                                _productRepo.RestoreDeletedCategory(categoryId, categoryName);
+                                undoSuccess = true;
+                            }
+                            break;
+
+                        default:
+                            // Unknown action type
+                            return false;
+                    }
+
+                    // Remove from undo stack after successful undo
+                    if (undoSuccess)
+                    {
+                        _logRepo.RemoveFromUndoStack(lastLog.LogID);
+                        _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
+                        return true;
+                    }
+
+                    return false;
                 }
                 catch (Exception)
                 {
                     return false;
                 }
-
-                if (jsonObj == null || !jsonObj.ContainsKey("ProductID") || !jsonObj.ContainsKey("Quantity"))
-                {
-                    return false;
-                }
-
-                int productId = (int)jsonObj["ProductID"];
-                int oldQuantity = (int)jsonObj["Quantity"];
-
-                _productRepo.UpdateQuantity(productId, oldQuantity);
-                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
-
-                return true;
             }
             catch (Exception ex)
             {
