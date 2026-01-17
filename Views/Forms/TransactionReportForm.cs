@@ -7,8 +7,8 @@ using WarehouseManagement.Services;
 namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
-    /// Form bÃ¡o cÃ¡o Nháº­p/Xuáº¥t theo ngÃ y (30 ngÃ y gáº§n nháº¥t)
-    /// Hiá»ƒn thá»‹ biá»ƒu Ä‘á»“ cá»™t Ä‘Ã´i vÃ  báº£ng dá»¯ liá»‡u
+    /// Form báo cáo Nhập/Xuất theo ngày (30 ngày gần nhất)
+    /// Hiển thị biểu đồ cột đôi và bảng dữ liệu
     /// </summary>
     public class TransactionReportForm : Form
     {
@@ -36,17 +36,17 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                Console.WriteLine("[INFO] InitializeComponent: Báº¯t Ä‘áº§u");
+                Console.WriteLine("[INFO] InitializeComponent: Bắt đầu");
 
                 // Form settings
-                Text = "ðŸ“Š BÃ¡o CÃ¡o Nháº­p/Xuáº¥t";
+                Text = "📊 Báo Cáo Nhập/Xuất";
                 Width = 1000;
                 Height = 700;
                 StartPosition = FormStartPosition.CenterParent;
                 MaximizeBox = true;
                 MinimizeBox = true;
 
-                // Panel nÃºt (trÃªn cÃ¹ng)
+                // Panel nút (trên cùng)
                 Panel buttonPanel = new Panel
                 {
                     Dock = DockStyle.Top,
@@ -57,7 +57,7 @@ namespace WarehouseManagement.Views.Forms
 
                 Label lblAnchorDate = new Label
                 {
-                    Text = "Chá»n ngÃ y:",
+                    Text = "Chọn ngày:",
                     Left = 10,
                     Top = 10,
                     Width = 70,
@@ -79,7 +79,7 @@ namespace WarehouseManagement.Views.Forms
 
                 Button btnExportReport = new Button
                 {
-                    Text = "ðŸ“„ Xuáº¥t BÃ¡o CÃ¡o",
+                    Text = "📄 Xuất Báo Cáo",
                     Left = 215,
                     Top = 8,
                     Width = 120,
@@ -88,7 +88,7 @@ namespace WarehouseManagement.Views.Forms
                 btnExportReport.Click += BtnExportReport_Click;
                 buttonPanel.Controls.Add(btnExportReport);
 
-                // PictureBox cho biá»ƒu Ä‘á»“
+                // PictureBox cho biểu đồ
                 pictureBox = new PictureBox
                 {
                     Dock = DockStyle.Top,
@@ -98,7 +98,7 @@ namespace WarehouseManagement.Views.Forms
                 };
                 pictureBox.Resize += PictureBox_Resize;
 
-                // DataGridView cho báº£ng
+                // DataGridView cho bảng
                 dgvReport = new DataGridView
                 {
                     Dock = DockStyle.Fill,
@@ -110,9 +110,9 @@ namespace WarehouseManagement.Views.Forms
                     BorderStyle = BorderStyle.Fixed3D
                 };
 
-                dgvReport.Columns.Add("Day", "NgÃ y");
-                dgvReport.Columns.Add("Import", "Tá»•ng Nháº­p Kho");
-                dgvReport.Columns.Add("Export", "Tá»•ng Xuáº¥t Kho");
+                dgvReport.Columns.Add("Day", "Ngày");
+                dgvReport.Columns.Add("Import", "Tổng Nhập Kho");
+                dgvReport.Columns.Add("Export", "Tổng Xuất Kho");
 
                 Controls.Add(dgvReport);
                 Controls.Add(pictureBox);
@@ -120,12 +120,12 @@ namespace WarehouseManagement.Views.Forms
 
                 Load += TransactionReportForm_Load;
 
-                Console.WriteLine("[INFO] InitializeComponent: HoÃ n thÃ nh");
+                Console.WriteLine("[INFO] InitializeComponent: Hoàn thành");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"[ERROR] InitializeComponent: {ex.Message}");
-                MessageBox.Show($"Lá»—i khá»Ÿi táº¡o form: {ex.Message}");
+                MessageBox.Show($"Lỗi khởi tạo form: {ex.Message}");
             }
         }
 
@@ -155,12 +155,12 @@ namespace WarehouseManagement.Views.Forms
                     {
                         ExportToExcel(saveDialog.FileName);
                     }
-                    MessageBox.Show("Xuáº¥t bÃ¡o cÃ¡o thÃ nh cÃ´ng!", "ThÃ´ng bÃ¡o", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Xuất báo cáo thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lá»—i xuáº¥t bÃ¡o cÃ¡o: {ex.Message}", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi xuất báo cáo: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -169,7 +169,7 @@ namespace WarehouseManagement.Views.Forms
             using (var writer = new System.IO.StreamWriter(filePath, false, System.Text.Encoding.UTF8))
             {
                 // Header
-                writer.WriteLine("NgÃ y,Tá»•ng Nháº­p Kho,Tá»•ng Xuáº¥t Kho");
+                writer.WriteLine("Ngày,Tổng Nhập Kho,Tổng Xuất Kho");
 
                 // Data
                 for (int i = 0; i < days.Count; i++)
@@ -183,12 +183,12 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                // Sá»­ dá»¥ng Open XML Ä‘á»ƒ táº¡o file Excel
+                // Sử dụng Open XML để tạo file Excel
                 using (var spreadsheet = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
                 {
                     using (var writer = new System.IO.StreamWriter(spreadsheet))
                     {
-                        // Viáº¿t header XML cá»§a Excel
+                        // Viết header XML của Excel
                         writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                         writer.WriteLine("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\">");
                         writer.WriteLine("<Worksheet ss:Name=\"BaoCao\">");
@@ -196,9 +196,9 @@ namespace WarehouseManagement.Views.Forms
 
                         // Header row
                         writer.WriteLine("<Row>");
-                        writer.WriteLine("<Cell><Data ss:Type=\"String\">NgÃ y</Data></Cell>");
-                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Tá»•ng Nháº­p Kho</Data></Cell>");
-                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Tá»•ng Xuáº¥t Kho</Data></Cell>");
+                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Ngày</Data></Cell>");
+                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Tổng Nhập Kho</Data></Cell>");
+                        writer.WriteLine("<Cell><Data ss:Type=\"String\">Tổng Xuất Kho</Data></Cell>");
                         writer.WriteLine("</Row>");
 
                         // Data rows
@@ -244,14 +244,14 @@ namespace WarehouseManagement.Views.Forms
                 var dailyData = chartService.GetImportExportByDay(anchorDate);
                 Console.WriteLine($"[TransactionReportForm] LoadReport: Got {dailyData.Count} days");
 
-                // XÃ³a dá»¯ liá»‡u cÅ©
+                // Xóa dữ liệu cũ
                 dgvReport.Rows.Clear();
                 days.Clear();
                 imports.Clear();
                 exports.Clear();
                 maxValue = 0;
 
-                // TÃ­nh toÃ¡n
+                // Tính toán
                 foreach (var dayEntry in dailyData)
                 {
                     string day = dayEntry.Key;
@@ -272,7 +272,7 @@ namespace WarehouseManagement.Views.Forms
 
                 Console.WriteLine($"[TransactionReportForm] LoadReport: Max value = {maxValue}, days.Count = {days.Count}");
 
-                // Váº½ biá»ƒu Ä‘á»“ náº¿u PictureBox Ä‘Ã£ cÃ³ kÃ­ch thÆ°á»›c
+                // Vẽ biểu đồ nếu PictureBox đã có kích thước
                 if (pictureBox.Width > 0 && pictureBox.Height > 0)
                 {
                     Console.WriteLine($"[TransactionReportForm] PictureBox ready ({pictureBox.Width}x{pictureBox.Height}), calling DrawChart");
@@ -289,7 +289,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 Console.WriteLine($"[ReportForm] LoadReport ERROR: {ex.Message}");
                 Console.WriteLine($"[ReportForm] {ex.StackTrace}");
-                MessageBox.Show($"Lá»—i táº£i bÃ¡o cÃ¡o: {ex.Message}");
+                MessageBox.Show($"Lỗi tải báo cáo: {ex.Message}");
             }
         }
 
@@ -323,50 +323,50 @@ namespace WarehouseManagement.Views.Forms
                 int margin = 50;
                 int chartWidth = pictureBox.Width - (margin * 2);
                 int chartHeight = pictureBox.Height - (margin * 2) - 30;
-                // TÃ­nh toÃ¡n Ä‘á»ƒ fit 30 ngÃ y: má»—i ngÃ y cÃ³ 2 cá»™t (nháº­p + xuáº¥t) + khoáº£ng cÃ¡ch nhá»
-                int barWidth = Math.Max(2, chartWidth / (days.Count * 2 + 10)); // Giáº£m tá»« *3 xuá»‘ng *2
-                int spacing = 2; // Khoáº£ng cÃ¡ch giá»¯a 2 cá»™t
-                int daySpacing = 3; // Khoáº£ng cÃ¡ch giá»¯a cÃ¡c ngÃ y
+                // Tính toán để fit 30 ngày: mỗi ngày có 2 cột (nhập + xuất) + khoảng cách nhỏ
+                int barWidth = Math.Max(2, chartWidth / (days.Count * 2 + 10)); // Giảm từ *3 xuống *2
+                int spacing = 2; // Khoảng cách giữa 2 cột
+                int daySpacing = 3; // Khoảng cách giữa các ngày
 
                 Console.WriteLine($"[ReportForm] DrawChart: chartWidth={chartWidth}, chartHeight={chartHeight}, barWidth={barWidth}");
 
-                // TiÃªu Ä‘á»
+                // Tiêu đề
                 Font titleFont = new Font("Arial", 12, FontStyle.Bold);
-                g.DrawString("BÃ¡o CÃ¡o Nháº­p/Xuáº¥t Theo NgÃ y (30 ngÃ y gáº§n nháº¥t)", titleFont, Brushes.Black, margin, 5);
+                g.DrawString("Báo Cáo Nhập/Xuất Theo Ngày (30 ngày gần nhất)", titleFont, Brushes.Black, margin, 5);
 
-                // Trá»¥c
+                // Trục
                 Pen axisPen = new Pen(Color.Black, 2);
                 g.DrawLine(axisPen, margin, pictureBox.Height - margin, pictureBox.Width - margin, pictureBox.Height - margin);
                 g.DrawLine(axisPen, margin, 30, margin, pictureBox.Height - margin);
 
-                // Váº½ cá»™t
+                // Vẽ cột
                 int xPos = margin + 5;
                 Brush greenBrush = new SolidBrush(Color.Green);
                 Brush redBrush = new SolidBrush(Color.Red);
-                Font monthFont = new Font("Arial", 5); // Giáº£m font size Ä‘á»ƒ fit 30 ngÃ y
+                Font monthFont = new Font("Arial", 5); // Giảm font size để fit 30 ngày
 
                 for (int i = 0; i < days.Count; i++)
                 {
                     int importHeight = maxValue > 0 ? (int)((imports[i] / maxValue) * chartHeight) : 0;
                     int exportHeight = maxValue > 0 ? (int)((exports[i] / maxValue) * chartHeight) : 0;
 
-                    // Nháº­p (xanh)
+                    // Nhập (xanh)
                     int y1 = pictureBox.Height - margin - importHeight;
                     g.FillRectangle(greenBrush, xPos, y1, barWidth, Math.Max(1, importHeight));
                     if (barWidth > 1)
                         g.DrawRectangle(new Pen(Color.DarkGreen, 1), xPos, y1, barWidth, Math.Max(1, importHeight));
 
-                    // Xuáº¥t (Ä‘á») - váº½ bÃªn cáº¡nh cá»™t nháº­p
+                    // Xuất (đỏ) - vẽ bên cạnh cột nhập
                     int xPos2 = xPos + barWidth + spacing;
                     int y2 = pictureBox.Height - margin - exportHeight;
                     g.FillRectangle(redBrush, xPos2, y2, barWidth, Math.Max(1, exportHeight));
                     if (barWidth > 1)
                         g.DrawRectangle(new Pen(Color.DarkRed, 1), xPos2, y2, barWidth, Math.Max(1, exportHeight));
 
-                    // NgÃ y - hiá»ƒn thá»‹ má»—i 5 ngÃ y Ä‘á»ƒ khÃ´ng bá»‹ chá»“ng chÃ©o
+                    // Ngày - hiển thị mỗi 5 ngày để không bị chồng chéo
                     if (i % 5 == 0)
                     {
-                        string dayLabel = days[i].Substring(8); // Láº¥y pháº§n ngÃ y tá»« yyyy-MM-dd
+                        string dayLabel = days[i].Substring(8); // Lấy phần ngày từ yyyy-MM-dd
                         g.DrawString(dayLabel, monthFont, Brushes.Black, xPos - 3, pictureBox.Height - margin + 3);
                     }
 
@@ -379,10 +379,10 @@ namespace WarehouseManagement.Views.Forms
                 int legendX = pictureBox.Width - 150;
                 int legendY = 35;
                 g.FillRectangle(greenBrush, legendX, legendY, 15, 15);
-                g.DrawString("Nháº­p", new Font("Arial", 9), Brushes.Black, legendX + 20, legendY);
+                g.DrawString("Nhập", new Font("Arial", 9), Brushes.Black, legendX + 20, legendY);
 
                 g.FillRectangle(redBrush, legendX, legendY + 20, 15, 15);
-                g.DrawString("Xuáº¥t", new Font("Arial", 9), Brushes.Black, legendX + 20, legendY + 20);
+                g.DrawString("Xuất", new Font("Arial", 9), Brushes.Black, legendX + 20, legendY + 20);
 
                 pictureBox.Image = bitmap;
                 g.Dispose();
@@ -399,7 +399,3 @@ namespace WarehouseManagement.Views.Forms
         }
     }
 }
-
-
-
-

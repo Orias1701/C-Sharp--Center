@@ -32,11 +32,11 @@ namespace WarehouseManagement.Views.Panels
                 BackgroundColor = Color.White
             };
 
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID Phiáº¿u", DataPropertyName = "TransactionID", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loáº¡i", DataPropertyName = "Type", Width = 60, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "NgÃ y", DataPropertyName = "DateCreated", Width = 150, DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tá»•ng GiÃ¡ Trá»‹", DataPropertyName = "TotalValue", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chÃº", DataPropertyName = "Note", Width = 320 });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID Phiếu", DataPropertyName = "TransactionID", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Loại", DataPropertyName = "Type", Width = 60, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngày", DataPropertyName = "DateCreated", Width = 150, DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tổng Giá Trị", DataPropertyName = "TotalValue", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ghi chú", DataPropertyName = "Note", Width = 320 });
 
             dgvTransactions.CellDoubleClick += DgvTransactions_CellDoubleClick;
             dgvTransactions.CellClick += DgvTransactions_CellClick;
@@ -55,7 +55,7 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lá»—i táº£i giao dá»‹ch: " + ex.Message);
+                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
             }
         }
 
@@ -75,12 +75,12 @@ namespace WarehouseManagement.Views.Panels
                 }
                 else
                 {
-                    MessageBox.Show("KhÃ´ng tÃ¬m tháº¥y giao dá»‹ch");
+                    MessageBox.Show("Không tìm thấy giao dịch");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lá»—i táº£i giao dá»‹ch: " + ex.Message);
+                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
             }
         }
 
@@ -100,12 +100,12 @@ namespace WarehouseManagement.Views.Panels
                 }
                 else
                 {
-                    MessageBox.Show("KhÃ´ng tÃ¬m tháº¥y giao dá»‹ch");
+                    MessageBox.Show("Không tìm thấy giao dịch");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lá»—i táº£i giao dá»‹ch: " + ex.Message);
+                MessageBox.Show("Lỗi tải giao dịch: " + ex.Message);
             }
         }
 
@@ -116,14 +116,10 @@ namespace WarehouseManagement.Views.Panels
             {
                 if (e.Value != null)
                 {
-                    e.Value = transaction.Type == "Import" ? "Nháº­p" : transaction.Type == "Export" ? "Xuáº¥t" : transaction.Type;
+                    e.Value = transaction.Type == "Import" ? "Nhập" : transaction.Type == "Export" ? "Xuất" : transaction.Type;
                     e.FormattingApplied = true;
                 }
             }
         }
     }
 }
-
-
-
-

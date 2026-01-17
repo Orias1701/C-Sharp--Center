@@ -1,56 +1,150 @@
 ﻿using System;
-using System.Text;
 using System.Security.Cryptography;
+using System.Text;
 
 namespace WarehouseManagement.Helpers
 {
     /// <summary>
-    /// Helper tạo ID ngẫu nhiên và mã hóa mật khẩu
+    /// Lá»›p tiá»‡n Ã­ch Ä‘á»ƒ táº¡o cÃ¡c ID khÃ¡c nhau cho há»‡ thá»‘ng
     /// </summary>
     public static class IdGenerator
     {
-        private static readonly Random _random = new Random();
-
         /// <summary>
-        /// Tạo chuỗi ngẫu nhiên (alphanumeric)
+        /// Táº¡o má»™t ID dáº¡ng hex tá»« timestamp vÃ  random bytes
+        /// Format: YYYYMMDD-HHMMSS-XXXXXXXXXXX (8-6-11 kÃ½ tá»± hex)
+        /// Example: 20250109-143025-A1B2C3D4E5F
         /// </summary>
-        public static string GenerateRandomString(int length = 8)
+        public static string GenerateHexId()
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-            StringBuilder result = new StringBuilder(length);
-            for (int i = 0; i < length; i++)
+            try
             {
-                result.Append(chars[_random.Next(chars.Length)]);
-            }
-            return result.ToString();
-        }
-
-        /// <summary>
-        /// Tạo mã hash SHA256 cho mật khẩu
-        /// </summary>
-        public static string GenerateSHA256Hash(string rawData)
-        {
-            using (SHA256 sha256Hash = SHA256.Create())
-            {
-                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
-
-                StringBuilder builder = new StringBuilder();
-                for (int i = 0; i < bytes.Length; i++)
+                string timestamp = DateTime.Now.ToString("yyyyMMdd-HHmmss");
+                
+                // Táº¡o 6 bytes random (12 kÃ½ tá»± hex)
+                byte[] randomBytes = new byte[6];
+                using (var rng = new RNGCryptoServiceProvider())
                 {
-                    builder.Append(bytes[i].ToString("x2"));
+                    rng.GetBytes(randomBytes);
                 }
-                return builder.ToString();
+                
+                string randomHex = BitConverter.ToString(randomBytes).Replace("-", "");
+                string hexId = $"{timestamp}-{randomHex}";
+                return hexId;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i khi táº¡o hex ID: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiểm tra mật khẩu có khớp với hash hay không
+        /// Táº¡o má»™t ID dáº¡ng UUID v4
+        /// </summary>
+        public static string GenerateUUID()
+        {
+            try
+            {
+                string uuid = Guid.NewGuid().ToString();
+                return uuid;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i khi táº¡o UUID: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Kiá»ƒm tra xem chuá»—i ID cÃ³ pháº£i hex ID há»£p lá»‡ hay khÃ´ng
+        /// </summary>
+        public static bool IsValidHexId(string hexId)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(hexId))
+                    return false;
+
+                // Kiá»ƒm tra format: YYYYMMDD-HHMMSS-XXXXXXXXXXX
+                if (hexId.Length != 27) // 8 + 1 + 6 + 1 + 11
+                    return false;
+
+                if (hexId[8] != '-' || hexId[15] != '-')
+                    return false;
+
+                // Kiá»ƒm tra pháº§n timestamp cÃ³ pháº£i hex khÃ´ng
+                string timestampPart = hexId.Substring(0, 8); // YYYYMMDD
+                if (!int.TryParse(timestampPart, out _))
+                    return false;
+
+                string timePart = hexId.Substring(9, 6); // HHMMSS
+                if (!int.TryParse(timePart, out _))
+                    return false;
+
+                // Kiá»ƒm tra pháº§n random cÃ³ pháº£i hex khÃ´ng
+                string randomPart = hexId.Substring(16, 11);
+                try
+                {
+                    Convert.ToInt32(randomPart, 16);
+                }
+                catch
+                {
+                    return false;
+                }
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Táº¡o má»™t hash SHA-256 tá»« chuá»—i input (Base64 format)
+        /// </summary>
+        public static string GenerateSHA256Hash(string input)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(input))
+                    throw new ArgumentNullException(nameof(input));
+
+                using (var sha256 = SHA256.Create())
+                {
+                    byte[] hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(input));
+                    // Use HEX format (lowercase) for compatibility with database
+                    string hash = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+                    return hash;
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lá»—i khi táº¡o SHA256 hash: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// XÃ¡c minh chuá»—i input vá»›i hash Ä‘Ã£ lÆ°u
         /// </summary>
         public static bool VerifySHA256Hash(string input, string hash)
         {
-            string hashOfInput = GenerateSHA256Hash(input);
-            StringComparer comparer = StringComparer.OrdinalIgnoreCase;
-            return comparer.Compare(hashOfInput, hash) == 0;
+            try
+            {
+                if (string.IsNullOrEmpty(input) || string.IsNullOrEmpty(hash))
+                    return false;
+
+                string inputHash = GenerateSHA256Hash(input);
+                bool isMatch = inputHash == hash;
+                return isMatch;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
     }
 }
+
+
+
+
+

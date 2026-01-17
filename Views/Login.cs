@@ -18,7 +18,7 @@ namespace WarehouseManagement.Views
 
         private void Login_Load(object sender, EventArgs e)
         {
-            this.Text = "ÄÄƒng Nháº­p Há»‡ Thá»‘ng";
+            this.Text = "Đăng Nhập Hệ Thống";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MaximizeBox = false;
             this.MinimizeBox = true;
@@ -32,14 +32,14 @@ namespace WarehouseManagement.Views
         {
             if (string.IsNullOrWhiteSpace(txtUsername.Text))
             {
-                MessageBox.Show("Vui lÃ²ng nháº­p tÃªn Ä‘Äƒng nháº­p", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Vui lòng nhập tên đăng nhập", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtUsername.Focus();
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(txtPassword.Text))
             {
-                MessageBox.Show("Vui lÃ²ng nháº­p máº­t kháº©u", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Vui lòng nhập mật khẩu", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtPassword.Focus();
                 return;
             }
@@ -50,13 +50,13 @@ namespace WarehouseManagement.Views
             if (user != null && user.IsActive)
             {
                 GlobalUser.CurrentUser = user;
-                MessageBox.Show($"ÄÄƒng nháº­p thÃ nh cÃ´ng!\nChÃ o má»«ng {user.Username}!", "ThÃ nh cÃ´ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Đăng nhập thành công!\nChào mừng {user.Username}!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
             else
             {
-                MessageBox.Show("TÃªn Ä‘Äƒng nháº­p hoáº·c máº­t kháº©u khÃ´ng chÃ­nh xÃ¡c", "Lá»—i ÄÄƒng Nháº­p", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Tên đăng nhập hoặc mật khẩu không chính xác", "Lỗi Đăng Nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 txtPassword.Text = "";
                 txtPassword.Focus();
             }
@@ -102,7 +102,7 @@ namespace WarehouseManagement.Views
             this.lblUsername.Name = "lblUsername";
             this.lblUsername.Size = new System.Drawing.Size(80, 13);
             this.lblUsername.TabIndex = 0;
-            this.lblUsername.Text = "TÃªn Ä‘Äƒng nháº­p:";
+            this.lblUsername.Text = "Tên đăng nhập:";
 
             // lblPassword
             this.lblPassword.AutoSize = true;
@@ -110,7 +110,7 @@ namespace WarehouseManagement.Views
             this.lblPassword.Name = "lblPassword";
             this.lblPassword.Size = new System.Drawing.Size(60, 13);
             this.lblPassword.TabIndex = 2;
-            this.lblPassword.Text = "Máº­t kháº©u:";
+            this.lblPassword.Text = "Mật khẩu:";
 
             // txtUsername
             this.txtUsername.Location = new System.Drawing.Point(30, 50);
@@ -132,7 +132,7 @@ namespace WarehouseManagement.Views
             this.btnLogin.Name = "btnLogin";
             this.btnLogin.Size = new System.Drawing.Size(100, 30);
             this.btnLogin.TabIndex = 4;
-            this.btnLogin.Text = "ÄÄƒng Nháº­p";
+            this.btnLogin.Text = "Đăng Nhập";
             this.btnLogin.UseVisualStyleBackColor = true;
             this.btnLogin.Click += new System.EventHandler(this.BtnLogin_Click);
 
@@ -141,7 +141,7 @@ namespace WarehouseManagement.Views
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(100, 30);
             this.btnCancel.TabIndex = 5;
-            this.btnCancel.Text = "ThoÃ¡t";
+            this.btnCancel.Text = "Thoát";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
 
@@ -170,7 +170,3 @@ namespace WarehouseManagement.Views
         private System.Windows.Forms.Button btnCancel;
     }
 }
-
-
-
-

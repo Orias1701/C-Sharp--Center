@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
-    /// Form ThÃªm/Sá»­a sáº£n pháº©m
+    /// Form Thêm/Sửa sản phẩm
     /// </summary>
     public partial class ProductForm : Form
     {
@@ -23,7 +23,7 @@ namespace WarehouseManagement.Views.Forms
             _productController = new ProductController();
             _categoryController = new CategoryController();
             InitializeComponent();
-            Text = productId.HasValue ? "Sá»­a sáº£n pháº©m" : "ThÃªm sáº£n pháº©m";
+            Text = productId.HasValue ? "Sửa sản phẩm" : "Thêm sản phẩm";
         }
 
         private void InitializeComponent()
@@ -39,27 +39,27 @@ namespace WarehouseManagement.Views.Forms
             const int BUTTON_WIDTH = 100;
             const int BUTTON_HEIGHT = 35;
 
-            // Labels vÃ  TextBoxes
-            Label lblProductName = new Label { Text = "TÃªn sáº£n pháº©m:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            // Labels và TextBoxes
+            Label lblProductName = new Label { Text = "Tên sản phẩm:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtProductName = new TextBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25 };
 
-            Label lblCategory = new Label { Text = "Danh má»¥c:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblCategory = new Label { Text = "Danh mục:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             cmbCategory = new ComboBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = INPUT_WIDTH, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
-            cmbCategory.Items.AddRange(new[] { "Thá»±c pháº©m", "Äiá»‡n tá»­", "Quáº§n Ã¡o", "KhÃ¡c" });
+            cmbCategory.Items.AddRange(new[] { "Thực phẩm", "Điện tử", "Quần áo", "Khác" });
 
-            Label lblPrice = new Label { Text = "GiÃ¡ (VNÄ):", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblPrice = new Label { Text = "Giá (VNĐ):", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtPrice = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 25 };
 
-            Label lblQuantity = new Label { Text = "Sá»‘ lÆ°á»£ng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 3, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblQuantity = new Label { Text = "Số lượng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 3, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtQuantity = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 3, Width = INPUT_WIDTH, Height = 25 };
 
-            Label lblMinThreshold = new Label { Text = "NgÆ°á»¡ng tá»‘i thiá»ƒu:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 4, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblMinThreshold = new Label { Text = "Ngưỡng tối thiểu:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 4, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtMinThreshold = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4, Width = INPUT_WIDTH, Height = 25 };
 
-            btnSave = new Button { Text = "ðŸ’¾ LÆ°u", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "âŒ Há»§y", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
-            btnEdit = new Button { Text = "âœï¸ Sá»­a", Left = 520 - 220, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnDelete = new Button { Text = "ðŸ—‘ï¸ XÃ³a", Left = 520 - 110, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            btnEdit = new Button { Text = "✏️ Sửa", Left = 520 - 220, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnDelete = new Button { Text = "🗑️ Xóa", Left = 520 - 110, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnSave.Click += BtnSave_Click;
             btnEdit.Click += BtnEdit_Click;
@@ -134,12 +134,12 @@ namespace WarehouseManagement.Views.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lá»—i: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// NÃºt LÆ°u
+        /// Nút Lưu
         /// </summary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
@@ -147,84 +147,84 @@ namespace WarehouseManagement.Views.Forms
             string productName = txtProductName.Text.Trim();
             if (string.IsNullOrWhiteSpace(productName))
             {
-                MessageBox.Show("âŒ Vui lÃ²ng nháº­p tÃªn sáº£n pháº©m");
+                MessageBox.Show("❌ Vui lòng nhập tên sản phẩm");
                 txtProductName.Focus();
                 return;
             }
 
             if (productName.Length > 200)
             {
-                MessageBox.Show("âŒ TÃªn sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 200 kÃ½ tá»±");
+                MessageBox.Show("❌ Tên sản phẩm không được vượt quá 200 ký tự");
                 txtProductName.Focus();
                 return;
             }
 
             if (!decimal.TryParse(txtPrice.Text, out decimal price))
             {
-                MessageBox.Show("âŒ GiÃ¡ pháº£i lÃ  sá»‘");
+                MessageBox.Show("❌ Giá phải là số");
                 txtPrice.Focus();
                 return;
             }
 
             if (price < 0)
             {
-                MessageBox.Show("âŒ GiÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                MessageBox.Show("❌ Giá không được âm");
                 txtPrice.Focus();
                 return;
             }
 
             if (price > 999999999)
             {
-                MessageBox.Show("âŒ GiÃ¡ quÃ¡ lá»›n (tá»‘i Ä‘a: 999,999,999)");
+                MessageBox.Show("❌ Giá quá lớn (tối đa: 999,999,999)");
                 txtPrice.Focus();
                 return;
             }
 
             if (!int.TryParse(txtQuantity.Text, out int quantity))
             {
-                MessageBox.Show("âŒ Sá»‘ lÆ°á»£ng pháº£i lÃ  sá»‘ nguyÃªn");
+                MessageBox.Show("❌ Số lượng phải là số nguyên");
                 txtQuantity.Focus();
                 return;
             }
 
             if (quantity < 0)
             {
-                MessageBox.Show("âŒ Sá»‘ lÆ°á»£ng khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                MessageBox.Show("❌ Số lượng không được âm");
                 txtQuantity.Focus();
                 return;
             }
 
             if (quantity > 999999)
             {
-                MessageBox.Show("âŒ Sá»‘ lÆ°á»£ng quÃ¡ lá»›n (tá»‘i Ä‘a: 999,999)");
+                MessageBox.Show("❌ Số lượng quá lớn (tối đa: 999,999)");
                 txtQuantity.Focus();
                 return;
             }
 
             if (!int.TryParse(txtMinThreshold.Text, out int minThreshold))
             {
-                MessageBox.Show("âŒ NgÆ°á»¡ng tá»‘i thiá»ƒu pháº£i lÃ  sá»‘ nguyÃªn");
+                MessageBox.Show("❌ Ngưỡng tối thiểu phải là số nguyên");
                 txtMinThreshold.Focus();
                 return;
             }
 
             if (minThreshold < 0)
             {
-                MessageBox.Show("âŒ NgÆ°á»¡ng tá»‘i thiá»ƒu khÃ´ng Ä‘Æ°á»£c Ã¢m");
+                MessageBox.Show("❌ Ngưỡng tối thiểu không được âm");
                 txtMinThreshold.Focus();
                 return;
             }
 
             if (minThreshold > quantity)
             {
-                MessageBox.Show("âŒ NgÆ°á»¡ng tá»‘i thiá»ƒu khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ sá»‘ lÆ°á»£ng hiá»‡n táº¡i");
+                MessageBox.Show("❌ Ngưỡng tối thiểu không được vượt quá số lượng hiện tại");
                 txtMinThreshold.Focus();
                 return;
             }
 
             if (cmbCategory.SelectedIndex < 0)
             {
-                MessageBox.Show("âŒ Vui lÃ²ng chá»n danh má»¥c");
+                MessageBox.Show("❌ Vui lòng chọn danh mục");
                 cmbCategory.Focus();
                 return;
             }
@@ -234,24 +234,24 @@ namespace WarehouseManagement.Views.Forms
                 if (_productId.HasValue)
                 {
                     _productController.UpdateProductFull(_productId.Value, txtProductName.Text, cmbCategory.SelectedIndex + 1, price, quantity, minThreshold);
-                    MessageBox.Show("Cáº­p nháº­t sáº£n pháº©m thÃ nh cÃ´ng!");
+                    MessageBox.Show("Cập nhật sản phẩm thành công!");
                 }
                 else
                 {
                     _productController.CreateProduct(txtProductName.Text, cmbCategory.SelectedIndex + 1, price, quantity, minThreshold);
-                    MessageBox.Show("ThÃªm sáº£n pháº©m thÃ nh cÃ´ng!");
+                    MessageBox.Show("Thêm sản phẩm thành công!");
                 }
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lá»—i: " + ex.Message);
+                MessageBox.Show("Lỗi: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// NÃºt Há»§y
+        /// Nút Hủy
         /// </summary>
         private void BtnCancel_Click(object sender, EventArgs e)
         {
@@ -279,8 +279,8 @@ namespace WarehouseManagement.Views.Forms
             string productName = txtProductName.Text;
             
             DialogResult result = MessageBox.Show(
-                $"Báº¡n cháº¯c cháº¯n muá»‘n xÃ³a sáº£n pháº©m '{productName}'?",
-                "XÃ¡c nháº­n xÃ³a",
+                $"Bạn chắc chắn muốn xóa sản phẩm '{productName}'?",
+                "Xác nhận xóa",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -289,19 +289,15 @@ namespace WarehouseManagement.Views.Forms
                 try
                 {
                     _productController.DeleteProduct(_productId.Value);
-                    MessageBox.Show("Sáº£n pháº©m Ä‘Ã£ Ä‘Æ°á»£c xÃ³a thÃ nh cÃ´ng.", "ThÃ nh cÃ´ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Sản phẩm đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     DialogResult = DialogResult.OK;
                     Close();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lá»—i xÃ³a sáº£n pháº©m: " + ex.Message, "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Lỗi xóa sản phẩm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
     }
 }
-
-
-
-

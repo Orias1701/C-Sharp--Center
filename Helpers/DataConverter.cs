@@ -1,68 +1,95 @@
 ﻿using System;
-using System.Data;
-using System.Reflection;
-using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace WarehouseManagement.Helpers
 {
     /// <summary>
-    /// Helper hỗ trợ chuyển đổi dữ liệu
+    /// Helper chuyá»ƒn Ä‘á»•i dá»¯ liá»‡u vÃ  Ä‘á»‹nh dáº¡ng tiá»n tá»‡
     /// </summary>
-    public static class DataConverter
+    public class DataConverter
     {
         /// <summary>
-        /// Chuyển đổi DataTable thành List<T>
+        /// Chuyá»ƒn Ä‘á»•i sá»‘ thÃ nh Ä‘á»‹nh dáº¡ng tiá»n tá»‡ VNÄ
         /// </summary>
-        public static List<T> ConvertDataTableToList<T>(DataTable dt)
+        public static string FormatCurrency(decimal amount)
         {
-            List<T> data = new List<T>();
-            foreach (DataRow row in dt.Rows)
-            {
-                T item = GetItem<T>(row);
-                data.Add(item);
-            }
-            return data;
+            return amount.ToString("N0") + " â‚«";
         }
 
         /// <summary>
-        /// Chuyển đổi DataRow thành Object T
+        /// Chuyá»ƒn Ä‘á»•i chuá»—i JSON thÃ nh object
         /// </summary>
-        private static T GetItem<T>(DataRow dr)
+        public static T DeserializeJson<T>(string json)
         {
-            Type temp = typeof(T);
-            T obj = Activator.CreateInstance<T>();
-
-            foreach (DataColumn column in dr.Table.Columns)
+            try
             {
-                foreach (PropertyInfo pro in temp.GetProperties())
-                {
-                    if (pro.Name == column.ColumnName)
-                    {
-                        // Kiểm tra nếu giá trị là DBNull thì bỏ qua hoặc set default
-                        if (dr[column.ColumnName] != DBNull.Value)
-                        {
-                            try 
-                            {
-                                // Xử lý chuyển đổi kiểu dữ liệu nếu cần
-                                object value = dr[column.ColumnName];
-                                Type propType = Nullable.GetUnderlyingType(pro.PropertyType) ?? pro.PropertyType;
-                                
-                                object safeValue = (value == null) ? null : Convert.ChangeType(value, propType);
-                                pro.SetValue(obj, safeValue, null);
-                            }
-                            catch
-                            {
-                                // Bỏ qua lỗi mapping nếu không tương thích kiểu
-                            }
-                        }
-                        else
-                        {
-                            pro.SetValue(obj, null, null);
-                        }
-                    }
-                }
+                if (string.IsNullOrWhiteSpace(json))
+                    return default(T);
+                return JsonConvert.DeserializeObject<T>(json);
             }
-            return obj;
+            catch
+            {
+                return default(T);
+            }
+        }
+
+        /// <summary>
+        /// Chuyá»ƒn Ä‘á»•i object thÃ nh JSON
+        /// </summary>
+        public static string SerializeJson<T>(T obj)
+        {
+            try
+            {
+                return JsonConvert.SerializeObject(obj);
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        /// <summary>
+        /// Äá»‹nh dáº¡ng ngÃ y thÃ¡ng
+        /// </summary>
+        public static string FormatDate(DateTime date)
+        {
+            return date.ToString("dd/MM/yyyy HH:mm:ss");
+        }
+
+        /// <summary>
+        /// Äá»‹nh dáº¡ng ngÃ y thÃ¡ng ngáº¯n
+        /// </summary>
+        public static string FormatDateShort(DateTime date)
+        {
+            return date.ToString("dd/MM/yyyy");
+        }
+
+        /// <summary>
+        /// Äá»‹nh dáº¡ng sá»‘ lÆ°á»£ng (vá»›i dáº¥u phÃ¢n cÃ¡ch hÃ ng nghÃ¬n)
+        /// </summary>
+        public static string FormatQuantity(int quantity)
+        {
+            return quantity.ToString("N0");
+        }
+
+        /// <summary>
+        /// Kiá»ƒm tra xem chuá»—i cÃ³ pháº£i JSON há»£p lá»‡ khÃ´ng
+        /// </summary>
+        public static bool IsValidJson(string input)
+        {
+            try
+            {
+                JsonConvert.DeserializeObject(input);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
+
+
+
+

@@ -10,19 +10,19 @@ using WarehouseManagement.Views.Forms;
 namespace WarehouseManagement.Views
 {
     /// <summary>
-    /// Main - Khung giao diá»‡n chÃ­nh
+    /// Main - Khung giao diện chính
     /// 
-    /// TRÃCH NHIá»†M:
-    /// - Quáº£n lÃ½ cáº¥u trÃºc: Toolbar, TabControl, cÃ¡c tab
-    /// - Äiá»u phá»‘i cÃ¡c tab panel
-    /// - Xá»­ lÃ½ cÃ¡c nÃºt chÃ­nh: ThÃªm, Nháº­p, Xuáº¥t, BÃ¡o cÃ¡o
-    /// - Xá»­ lÃ½ sá»± kiá»‡n form: Load, Closing
+    /// TRÁCH NHIỆM:
+    /// - Quản lý cấu trúc: Toolbar, TabControl, các tab
+    /// - Điều phối các tab panel
+    /// - Xử lý các nút chính: Thêm, Nhập, Xuất, Báo cáo
+    /// - Xử lý sự kiện form: Load, Closing
     /// 
-    /// CHá»ˆ NÃ“ICHUYÃŠN MÃ”N:
-    /// - UI chi tiáº¿t tá»«ng tab â†’ Táº¡o bá»Ÿi ProductsPanel, CategoriesPanel, TransactionsPanel
-    /// - Event handler cá»§a tá»«ng tab â†’ Xá»­ lÃ½ bá»Ÿi cÃ¡c panel class
-    /// - Format hiá»ƒn thá»‹ â†’ Xá»­ lÃ½ bá»Ÿi cÃ¡c panel class
-    /// - Xá»­ lÃ½ Save/Undo â†’ Xá»­ lÃ½ bá»Ÿi Actions class
+    /// CHUYÊN MÔN:
+    /// - UI chi tiết từng tab → Tạo bởi ProductsPanel, CategoriesPanel, TransactionsPanel
+    /// - Event handler của từng tab → Xử lý bởi các panel class
+    /// - Format hiển thị → Xử lý bởi các panel class
+    /// - Xử lý Save/Undo → Xử lý bởi Actions class
     /// </summary>
     public partial class Main : Form
     {
@@ -53,7 +53,7 @@ namespace WarehouseManagement.Views
             
             // Then initialize UI components
             InitializeComponent();
-            Text = "Quáº£n LÃ½ Kho HÃ ng";
+            Text = "Quản Lý Kho Hàng";
             WindowState = FormWindowState.Maximized;
         }
 
@@ -68,21 +68,21 @@ namespace WarehouseManagement.Views
                 Location = new Point(0, 60)
             };
 
-            // Tab 1: Sáº£n Pháº©m
+            // Tab 1: Sản Phẩm
             productsPanel = new ProductsPanel();
-            TabPage tabProducts = new TabPage("Sáº£n Pháº©m");
+            TabPage tabProducts = new TabPage("Sản Phẩm");
             tabProducts.Controls.Add(productsPanel);
             tabControl.TabPages.Add(tabProducts);
 
-            // Tab 2: Danh Má»¥c
+            // Tab 2: Danh Mục
             categoriesPanel = new CategoriesPanel();
-            TabPage tabCategories = new TabPage("Danh Má»¥c");
+            TabPage tabCategories = new TabPage("Danh Mục");
             tabCategories.Controls.Add(categoriesPanel);
             tabControl.TabPages.Add(tabCategories);
 
-            // Tab 3: Giao Dá»‹ch
+            // Tab 3: Giao Dịch
             transactionsPanel = new TransactionsPanel();
-            TabPage tabTransactions = new TabPage("Giao Dá»‹ch");
+            TabPage tabTransactions = new TabPage("Giao Dịch");
             tabTransactions.Controls.Add(transactionsPanel);
             tabControl.TabPages.Add(tabTransactions);
 
@@ -95,12 +95,12 @@ namespace WarehouseManagement.Views
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            btnAddProduct = new Button { Text = "âž• ThÃªm", Left = 10, Top = 15, Width = 80, Height = 30 };
-            btnImport = new Button { Text = "ðŸ“¥ Nháº­p", Left = 100, Top = 15, Width = 80, Height = 30 };
-            btnExport = new Button { Text = "ðŸ“¤ Xuáº¥t", Left = 190, Top = 15, Width = 80, Height = 30 };
-            btnSave = new Button { Text = "ðŸ’¾ LÆ°u", Left = 280, Top = 15, Width = 80, Height = 30, BackColor = Color.LightGreen };
-            btnUndo = new Button { Text = "â†¶ HoÃ n tÃ¡c", Left = 370, Top = 15, Width = 90, Height = 30 };
-            btnReport = new Button { Text = "ðŸ“Š BÃ¡o cÃ¡o", Left = 470, Top = 15, Width = 90, Height = 30 };
+            btnAddProduct = new Button { Text = "➕ Thêm", Left = 10, Top = 15, Width = 80, Height = 30 };
+            btnImport = new Button { Text = "📥 Nhập", Left = 100, Top = 15, Width = 80, Height = 30 };
+            btnExport = new Button { Text = "📤 Xuất", Left = 190, Top = 15, Width = 80, Height = 30 };
+            btnSave = new Button { Text = "💾 Lưu", Left = 280, Top = 15, Width = 80, Height = 30, BackColor = Color.LightGreen };
+            btnUndo = new Button { Text = "↶ Hoàn tác", Left = 370, Top = 15, Width = 90, Height = 30 };
+            btnReport = new Button { Text = "📊 Báo cáo", Left = 470, Top = 15, Width = 90, Height = 30 };
             lblChangeStatus = new Label { Text = "", Left = 570, Top = 20, Width = 200, Height = 20, ForeColor = Color.Red, Font = new Font("Arial", 10, FontStyle.Bold) };
 
             btnAddProduct.Click += BtnAddProduct_Click;
@@ -174,7 +174,7 @@ namespace WarehouseManagement.Views
 
         private void BtnAddProduct_Click(object sender, EventArgs e)
         {
-            if (tabControl.SelectedIndex == 0) // Sáº£n Pháº©m
+            if (tabControl.SelectedIndex == 0) // Sản Phẩm
             {
                 ProductForm form = new ProductForm();
                 if (form.ShowDialog() == DialogResult.OK)
@@ -183,7 +183,7 @@ namespace WarehouseManagement.Views
                     _actions?.UpdateChangeStatus();
                 }
             }
-            else if (tabControl.SelectedIndex == 1) // Danh Má»¥c
+            else if (tabControl.SelectedIndex == 1) // Danh Mục
             {
                 CategoryForm form = new CategoryForm();
                 if (form.ShowDialog() == DialogResult.OK)
@@ -234,8 +234,8 @@ namespace WarehouseManagement.Views
                 if (_actionsService.HasUnsavedChanges)
                 {
                     DialogResult result = MessageBox.Show(
-                        $"CÃ³ {_actionsService.ChangeCount} thay Ä‘á»•i chÆ°a Ä‘Æ°á»£c lÆ°u.\n\nBáº¡n muá»‘n lÆ°u trÆ°á»›c khi thoÃ¡t?",
-                        "XÃ¡c nháº­n thoÃ¡t",
+                        $"Có {_actionsService.ChangeCount} thay đổi chưa được lưu.\n\nBạn muốn lưu trước khi thoát?",
+                        "Xác nhận thoát",
                         MessageBoxButtons.YesNoCancel,
                         MessageBoxIcon.Question);
 
@@ -248,12 +248,12 @@ namespace WarehouseManagement.Views
                     if (result == DialogResult.Yes)
                     {
                         _actionsService.CommitChanges();
-                        MessageBox.Show("ÄÃ£ lÆ°u thay Ä‘á»•i.", "ThÃ nh cÃ´ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Đã lưu thay đổi.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else if (result == DialogResult.No)
                     {
                         _actionsService.RollbackChanges();
-                        MessageBox.Show("ÄÃ£ há»§y bá» táº¥t cáº£ thay Ä‘á»•i tá»« láº§n lÆ°u cuá»‘i.", "ThÃ´ng bÃ¡o", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show("Đã hủy bỏ tất cả thay đổi từ lần lưu cuối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 
@@ -266,18 +266,13 @@ namespace WarehouseManagement.Views
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Lá»—i xÃ³a logs: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Lỗi xóa logs: {ex.Message}");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lá»—i khi thoÃ¡t: {ex.Message}", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi thoát: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
     }
 }
-
-
-
-
-

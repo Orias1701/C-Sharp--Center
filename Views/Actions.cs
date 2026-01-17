@@ -6,13 +6,13 @@ using WarehouseManagement.Controllers;
 namespace WarehouseManagement.Views
 {
     /// <summary>
-    /// Actions - Xá»­ lÃ½ cÃ¡c hÃ nh Ä‘á»™ng Save vÃ  Undo
+    /// Actions - Xử lý các hành động Save và Undo
     /// 
-    /// TRÃCH NHIá»†M:
-    /// - Xá»­ lÃ½ lÆ°u dá»¯ liá»‡u (CommitChanges)
-    /// - Xá»­ lÃ½ hoÃ n tÃ¡c hÃ nh Ä‘á»™ng (UndoLastAction)
-    /// - Cáº­p nháº­t tráº¡ng thÃ¡i lÆ°u (UpdateChangeStatus)
-    /// - Hiá»ƒn thá»‹ cÃ¡c thÃ´ng bÃ¡o liÃªn quan
+    /// TRÁCH NHIỆM:
+    /// - Xử lý lưu dữ liệu (CommitChanges)
+    /// - Xử lý hoàn tác hành động (UndoLastAction)
+    /// - Cập nhật trạng thái lưu (UpdateChangeStatus)
+    /// - Hiển thị các thông báo liên quan
     /// </summary>
     public class Actions
     {
@@ -32,7 +32,7 @@ namespace WarehouseManagement.Views
         }
 
         /// <summary>
-        /// Xá»­ lÃ½ lÆ°u thay Ä‘á»•i vÃ o database
+        /// Xử lý lưu thay đổi vào database
         /// </summary>
         public void Save()
         {
@@ -40,29 +40,29 @@ namespace WarehouseManagement.Views
             {
                 if (!_actionsService.HasUnsavedChanges)
                 {
-                    MessageBox.Show("KhÃ´ng cÃ³ thay Ä‘á»•i nÃ o Ä‘á»ƒ lÆ°u.", "ThÃ´ng bÃ¡o", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Không có thay đổi nào để lưu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 if (MessageBox.Show(
-                    $"Báº¡n muá»‘n lÆ°u {_actionsService.ChangeCount} thay Ä‘á»•i vÃ o database?",
-                    "XÃ¡c nháº­n lÆ°u",
+                    $"Bạn muốn lưu {_actionsService.ChangeCount} thay đổi vào database?",
+                    "Xác nhận lưu",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     _actionsService.CommitChanges();
                     UpdateChangeStatus();
-                    MessageBox.Show("ÄÃ£ lÆ°u thay Ä‘á»•i thÃ nh cÃ´ng!", "ThÃ nh cÃ´ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Đã lưu thay đổi thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lá»—i khi lÆ°u: {ex.Message}", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi lưu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         /// <summary>
-        /// Xá»­ lÃ½ hoÃ n tÃ¡c hÃ nh Ä‘á»™ng gáº§n nháº¥t
+        /// Xử lý hoàn tác hành động gần nhất
         /// </summary>
         public void Undo()
         {
@@ -70,54 +70,50 @@ namespace WarehouseManagement.Views
             {
                 if (_inventoryController == null)
                 {
-                    MessageBox.Show("Lá»—i: KhÃ´ng kháº£ dá»¥ng Ä‘á»ƒ hoÃ n tÃ¡c", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Lỗi: Không khả dụng để hoàn tác", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
                 bool result = _inventoryController.UndoLastAction();
                 if (result)
                 {
-                    MessageBox.Show("HoÃ n tÃ¡c thÃ nh cÃ´ng!\nHÃ nh Ä‘á»™ng Ä‘Ã£ bá»‹ xÃ³a khá»i lá»‹ch sá»­.", "ThÃ nh cÃ´ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Hoàn tác thành công!\nHành động đã bị xóa khỏi lịch sử.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     
-                    // Giáº£m sá»‘ lÆ°á»£ng thay Ä‘á»•i chÆ°a lÆ°u
+                    // Giảm số lượng thay đổi chưa lưu
                     _actionsService.DecrementChangeCount();
                     
-                    // Cáº­p nháº­t dá»¯ liá»‡u vÃ  UI
+                    // Cập nhật dữ liệu và UI
                     _onDataRefresh?.Invoke();
                     UpdateChangeStatus();
                 }
                 else
                 {
-                    MessageBox.Show("KhÃ´ng cÃ³ hÃ nh Ä‘á»™ng Ä‘á»ƒ hoÃ n tÃ¡c", "ThÃ´ng bÃ¡o", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Không có hành động để hoàn tác", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lá»—i khi hoÃ n tÃ¡c: {ex.Message}", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi hoàn tác: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
         /// <summary>
-        /// Cáº­p nháº­t tráº¡ng thÃ¡i lÆ°u trÃªn UI
+        /// Cập nhật trạng thái lưu trên UI
         /// </summary>
         public void UpdateChangeStatus()
         {
             if (_actionsService.HasUnsavedChanges)
             {
-                _lblChangeStatus.Text = $"âš ï¸ ChÆ°a lÆ°u: {_actionsService.ChangeCount} thay Ä‘á»•i";
+                _lblChangeStatus.Text = $"⚠️ Chưa lưu: {_actionsService.ChangeCount} thay đổi";
                 _lblChangeStatus.ForeColor = System.Drawing.Color.Red;
                 _btnSave.Enabled = true;
             }
             else
             {
-                _lblChangeStatus.Text = "âœ“ Táº¥t cáº£ thay Ä‘á»•i Ä‘Ã£ Ä‘Æ°á»£c lÆ°u";
+                _lblChangeStatus.Text = "✓ Tất cả thay đổi đã được lưu";
                 _lblChangeStatus.ForeColor = System.Drawing.Color.Green;
                 _btnSave.Enabled = false;
             }
         }
     }
 }
-
-
-
-
