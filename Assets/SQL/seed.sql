@@ -42,7 +42,7 @@ INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity,
 (4, 4, 'Máy khoan Bosch', 10, 2400000);
 
 -- Nhật ký hoạt động
-INSERT INTO ActionLogs (ActionType, Descriptions, DataBefore, CreatedAt) VALUES 
+INSERT INTO Actions (ActionType, Descriptions, DataBefore, CreatedAt) VALUES 
 ('UPDATE_STOCK', 'Cập nhật tồn kho iPhone 15 Pro Max sau phiếu nhập', '{"ProductID": 1, "OldQty": 50, "NewQty": 60}', CURRENT_TIMESTAMP),
 ('CREATE_TRANSACTION', 'Tạo phiếu nhập batch số 3 (2 sản phẩm)', '{"TransactionID": 3, "TotalItems": 2}', CURRENT_TIMESTAMP),
 ('CREATE_TRANSACTION', 'Tạo phiếu nhập batch số 4 (3 sản phẩm)', '{"TransactionID": 4, "TotalItems": 3}', CURRENT_TIMESTAMP);

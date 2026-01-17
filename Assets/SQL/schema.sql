@@ -60,7 +60,7 @@ CREATE TABLE TransactionDetails (
 ) COMMENT = 'Chi tiết phiếu';
 
 -- 5. Nhật ký (Hỗ trợ Undo)
-CREATE TABLE ActionLogs (
+CREATE TABLE Actions (
     LogID INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Mã log',
     ActionType VARCHAR(50) COMMENT 'Hành động',
     Descriptions TEXT COMMENT 'Mô tả',

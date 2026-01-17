@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Services;
 using WarehouseManagement.Models;
@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller điều hướng các thao tác liên quan đến sản phẩm
+    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n sáº£n pháº©m
     /// </summary>
     public class ProductController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả sản phẩm
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ sáº£n pháº©m
         /// </summary>
         public List<Product> GetAllProducts()
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Tìm kiếm sản phẩm theo tên
+        /// TÃ¬m kiáº¿m sáº£n pháº©m theo tÃªn
         /// </summary>
         public List<Product> SearchProduct(string keyword)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy sản phẩm theo danh mục
+        /// Láº¥y sáº£n pháº©m theo danh má»¥c
         /// </summary>
         public List<Product> GetProductsByCategory(int categoryId)
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy sản phẩm theo ID
+        /// Láº¥y sáº£n pháº©m theo ID
         /// </summary>
         public Product GetProductById(int productId)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thêm sản phẩm mới (overload)
+        /// ThÃªm sáº£n pháº©m má»›i (overload)
         /// </summary>
         public int AddProduct(Product product)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thêm sản phẩm mới
+        /// ThÃªm sáº£n pháº©m má»›i
         /// </summary>
         public int CreateProduct(string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Cập nhật sản phẩm (overload)
+        /// Cáº­p nháº­t sáº£n pháº©m (overload)
         /// </summary>
         public bool UpdateProduct(Product product)
         {
@@ -74,7 +74,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Cập nhật sản phẩm
+        /// Cáº­p nháº­t sáº£n pháº©m
         /// </summary>
         public bool UpdateProductFull(int productId, string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Xóa sản phẩm
+        /// XÃ³a sáº£n pháº©m
         /// </summary>
         public bool DeleteProduct(int productId)
         {
@@ -90,7 +90,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiểm tra sản phẩm có cảnh báo tồn kho
+        /// Kiá»ƒm tra sáº£n pháº©m cÃ³ cáº£nh bÃ¡o tá»“n kho
         /// </summary>
         public bool IsLowStock(int productId)
         {
@@ -98,7 +98,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiểm tra sản phẩm có phụ thuộc khóa ngoài
+        /// Kiá»ƒm tra sáº£n pháº©m cÃ³ phá»¥ thuá»™c khÃ³a ngoÃ i
         /// </summary>
         public bool ProductHasDependencies(int productId)
         {
@@ -106,3 +106,7 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
+
+
+
+

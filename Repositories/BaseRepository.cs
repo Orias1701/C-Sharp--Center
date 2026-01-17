@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Configuration;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -6,7 +6,7 @@ using MySql.Data.MySqlClient;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Lớp cơ sở cho tất cả repositories - khởi tạo kết nối MySQL
+    /// Lá»›p cÆ¡ sá»Ÿ cho táº¥t cáº£ repositories - khá»Ÿi táº¡o káº¿t ná»‘i MySQL
     /// </summary>
     public abstract class BaseRepository
     {
@@ -19,7 +19,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Lấy kết nối mới đến database
+        /// Láº¥y káº¿t ná»‘i má»›i Ä‘áº¿n database
         /// </summary>
         protected MySqlConnection GetConnection()
         {
@@ -27,7 +27,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Kiểm tra kết nối tới database
+        /// Kiá»ƒm tra káº¿t ná»‘i tá»›i database
         /// </summary>
         public bool TestConnection()
         {
@@ -46,3 +46,7 @@ namespace WarehouseManagement.Repositories
         }
     }
 }
+
+
+
+

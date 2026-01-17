@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -7,28 +7,28 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository để quản lý nhật ký hành động (hỗ trợ Undo)
+    /// Repository Ä‘á»ƒ quáº£n lÃ½ nháº­t kÃ½ hÃ nh Ä‘á»™ng (há»— trá»£ Undo)
     /// </summary>
-    public class ActionLogRepository : BaseRepository
+    public class ActionsRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách nhật ký (chỉ visible records)
+        /// Láº¥y danh sÃ¡ch nháº­t kÃ½ (chá»‰ visible records)
         /// </summary>
-        public List<ActionLog> GetAllLogs()
+        public List<Actions> GetAllLogs()
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<Actions>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM ActionLogs WHERE Visible=TRUE ORDER BY CreatedAt DESC", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Actions WHERE Visible=TRUE ORDER BY CreatedAt DESC", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new ActionLog
+                                logs.Add(new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -43,29 +43,29 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch nháº­t kÃ½: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Lấy nhật ký theo ID
+        /// Láº¥y nháº­t kÃ½ theo ID
         /// </summary>
-        public ActionLog GetLogById(int logId)
+        public Actions GetLogById(int logId)
         {
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM ActionLogs WHERE LogID=@id", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Actions WHERE LogID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", logId);
                         using (var reader = cmd.ExecuteReader())
                         {
                             if (reader.Read())
                             {
-                                return new ActionLog
+                                return new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -80,15 +80,15 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi lấy nhật ký ID {logId}: " + ex.Message);
+                throw new Exception($"Lá»—i khi láº¥y nháº­t kÃ½ ID {logId}: " + ex.Message);
             }
             return null;
         }
 
         /// <summary>
-        /// Thêm nhật ký hành động mới
+        /// ThÃªm nháº­t kÃ½ hÃ nh Ä‘á»™ng má»›i
         /// </summary>
-        public int LogAction(ActionLog log)
+        public int LogAction(Actions log)
         {
             try
             {
@@ -96,13 +96,13 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO ActionLogs (ActionType, Descriptions, DataBefore, CreatedAt, Visible) " +
+                        "INSERT INTO Actions (ActionType, Descriptions, DataBefore, CreatedAt, Visible) " +
                         "VALUES (@type, @desc, @dataBefore, @createdAt, TRUE); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", log.ActionType);
                         cmd.Parameters.AddWithValue("@desc", log.Descriptions ?? "");
                         
-                        // Xử lý DataBefore - nếu rỗng hoặc không hợp lệ JSON, lưu NULL hoặc "{}"
+                        // Xá»­ lÃ½ DataBefore - náº¿u rá»—ng hoáº·c khÃ´ng há»£p lá»‡ JSON, lÆ°u NULL hoáº·c "{}"
                         string dataBefore = log.DataBefore ?? "";
                         if (string.IsNullOrWhiteSpace(dataBefore) || dataBefore.Trim() == "")
                         {
@@ -117,16 +117,16 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi ghi nhật ký: " + ex.Message);
+                throw new Exception("Lá»—i khi ghi nháº­t kÃ½: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Thêm nhật ký hành động mới (overload với parameters)
+        /// ThÃªm nháº­t kÃ½ hÃ nh Ä‘á»™ng má»›i (overload vá»›i parameters)
         /// </summary>
         public int LogAction(string actionType, string descriptions, string dataBefore = "")
         {
-            var log = new ActionLog
+            var log = new Actions
             {
                 ActionType = actionType,
                 Descriptions = descriptions,
@@ -137,7 +137,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa nhật ký (soft delete)
+        /// XÃ³a nháº­t kÃ½ (soft delete)
         /// </summary>
         public bool DeleteLog(int logId)
         {
@@ -147,7 +147,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "UPDATE ActionLogs SET Visible=FALSE WHERE LogID=@id", conn))
+                        "UPDATE Actions SET Visible=FALSE WHERE LogID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", logId);
                         return cmd.ExecuteNonQuery() > 0;
@@ -156,30 +156,30 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa nhật ký: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a nháº­t kÃ½: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy nhật ký theo loại hành động
+        /// Láº¥y nháº­t kÃ½ theo loáº¡i hÃ nh Ä‘á»™ng
         /// </summary>
-        public List<ActionLog> GetLogsByActionType(string actionType)
+        public List<Actions> GetLogsByActionType(string actionType)
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<Actions>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "SELECT * FROM ActionLogs WHERE ActionType=@type AND Visible=TRUE ORDER BY CreatedAt DESC", conn))
+                        "SELECT * FROM Actions WHERE ActionType=@type AND Visible=TRUE ORDER BY CreatedAt DESC", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", actionType);
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new ActionLog
+                                logs.Add(new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -194,24 +194,24 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy nhật ký theo loại: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ theo loáº¡i: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Lấy nhật ký trong một khoảng thời gian
+        /// Láº¥y nháº­t kÃ½ trong má»™t khoáº£ng thá»i gian
         /// </summary>
-        public List<ActionLog> GetLogsByDateRange(DateTime startDate, DateTime endDate)
+        public List<Actions> GetLogsByDateRange(DateTime startDate, DateTime endDate)
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<Actions>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "SELECT * FROM ActionLogs WHERE CreatedAt BETWEEN @start AND @end AND Visible=TRUE ORDER BY CreatedAt DESC", conn))
+                        "SELECT * FROM Actions WHERE CreatedAt BETWEEN @start AND @end AND Visible=TRUE ORDER BY CreatedAt DESC", conn))
                     {
                         cmd.Parameters.AddWithValue("@start", startDate);
                         cmd.Parameters.AddWithValue("@end", endDate);
@@ -219,7 +219,7 @@ namespace WarehouseManagement.Repositories
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new ActionLog
+                                logs.Add(new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -234,13 +234,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy nhật ký theo ngày: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ theo ngÃ y: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Xóa tất cả nhật ký (hard delete - xóa hoàn toàn khỏi database)
+        /// XÃ³a táº¥t cáº£ nháº­t kÃ½ (hard delete - xÃ³a hoÃ n toÃ n khá»i database)
         /// </summary>
         public bool ClearAllLogs()
         {
@@ -250,7 +250,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "DELETE FROM ActionLogs", conn))
+                        "DELETE FROM Actions", conn))
                     {
                         return cmd.ExecuteNonQuery() >= 0;
                     }
@@ -258,8 +258,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa tất cả nhật ký: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a táº¥t cáº£ nháº­t kÃ½: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

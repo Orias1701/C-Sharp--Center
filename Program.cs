@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Windows.Forms;
 using WarehouseManagement.Helpers;
 using WarehouseManagement.Views;
@@ -8,57 +8,61 @@ namespace WarehouseManagement
     static class Program
     {
         /// <summary>
-        /// Điểm vào chính của ứng dụng
+        /// Äiá»ƒm vÃ o chÃ­nh cá»§a á»©ng dá»¥ng
         /// </summary>
         [STAThread]
         static void Main()
         {
             try
             {
-                // Khởi tạo visual styles cho ứng dụng Windows Forms
+                // Khá»Ÿi táº¡o visual styles cho á»©ng dá»¥ng Windows Forms
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 
-                // Tự động chạy schema.sql để tạo database và bảng (nếu chưa tồn tại)
+                // Tá»± Ä‘á»™ng cháº¡y schema.sql Ä‘á»ƒ táº¡o database vÃ  báº£ng (náº¿u chÆ°a tá»“n táº¡i)
                 try
                 {
                     DatabaseHelper.ExecuteSchema();
                 }
                 catch
                 {
-                    // Schema có thể đã tồn tại, không cần báo lỗi
+                    // Schema cÃ³ thá»ƒ Ä‘Ã£ tá»“n táº¡i, khÃ´ng cáº§n bÃ¡o lá»—i
                 }
 
-                // Kiểm tra kết nối database trước khi chạy ứng dụng
+                // Kiá»ƒm tra káº¿t ná»‘i database trÆ°á»›c khi cháº¡y á»©ng dá»¥ng
                 if (!DatabaseHelper.TestDatabaseConnection())
                 {
                     MessageBox.Show(
-                        "Không thể kết nối tới database!\n\nVui lòng kiểm tra:\n" +
-                        "1. MySQL Server đang chạy\n" +
-                        "2. Connection String trong App.config đúng\n\n" +
+                        "KhÃ´ng thá»ƒ káº¿t ná»‘i tá»›i database!\n\nVui lÃ²ng kiá»ƒm tra:\n" +
+                        "1. MySQL Server Ä‘ang cháº¡y\n" +
+                        "2. Connection String trong App.config Ä‘Ãºng\n\n" +
                         DatabaseHelper.GetConnectionError(),
-                        "Lỗi Kết Nối Database",
+                        "Lá»—i Káº¿t Ná»‘i Database",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error);
                     return;
                 }
 
-                // Hiển thị form đăng nhập
+                // Hiá»ƒn thá»‹ form Ä‘Äƒng nháº­p
                 Login loginForm = new Login();
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
-                    // Nếu đăng nhập thành công, chạy form chính
+                    // Náº¿u Ä‘Äƒng nháº­p thÃ nh cÃ´ng, cháº¡y form chÃ­nh
                     Application.Run(new Main());
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    "Lỗi khởi động ứng dụng: " + ex.Message + "\n\n" + ex.StackTrace, 
-                    "Lỗi", 
+                    "Lá»—i khá»Ÿi Ä‘á»™ng á»©ng dá»¥ng: " + ex.Message + "\n\n" + ex.StackTrace, 
+                    "Lá»—i", 
                     MessageBoxButtons.OK, 
                     MessageBoxIcon.Error);
             }
         }
     }
 }
+
+
+
+

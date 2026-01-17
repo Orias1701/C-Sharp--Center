@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MySql.Data.MySqlClient;
 using WarehouseManagement.Models;
@@ -8,7 +8,7 @@ namespace WarehouseManagement.Repositories
 {
     public class UserRepository : BaseRepository
     {
-        // Helper method để tránh lặp code khi map dữ liệu từ DB sang Object
+        // Helper method Ä‘á»ƒ trÃ¡nh láº·p code khi map dá»¯ liá»‡u tá»« DB sang Object
         private User MapUserFromReader(MySqlDataReader reader)
         {
             return new User
@@ -36,7 +36,7 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    // Query sử dụng tham số để chống SQL Injection
+                    // Query sá»­ dá»¥ng tham sá»‘ Ä‘á»ƒ chá»‘ng SQL Injection
                     string sql = "SELECT * FROM Users WHERE Username=@username AND IsActive=1";
                     using (var cmd = new MySqlCommand(sql, conn))
                     {
@@ -48,7 +48,7 @@ namespace WarehouseManagement.Repositories
                             {
                                 var user = MapUserFromReader(reader);
                                 
-                                // Xác minh mật khẩu bằng IdGenerator
+                                // XÃ¡c minh máº­t kháº©u báº±ng IdGenerator
                                 if (user.VerifyPassword(passwordRaw))
                                 {
                                     return user;
@@ -65,7 +65,7 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception)
             {
-                throw new Exception("Lỗi hệ thống khi đăng nhập."); 
+                throw new Exception("Lá»—i há»‡ thá»‘ng khi Ä‘Äƒng nháº­p."); 
             }
         }
 
@@ -88,7 +88,7 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception)
             {
-                throw new Exception("Lỗi khi truy vấn ID người dùng.");
+                throw new Exception("Lá»—i khi truy váº¥n ID ngÆ°á»i dÃ¹ng.");
             }
             return null;
         }
@@ -115,9 +115,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception)
             {
-                throw new Exception("Lỗi khi lấy danh sách người dùng.");
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch ngÆ°á»i dÃ¹ng.");
             }
             return users;
         }
     }
 }
+
+
+
+

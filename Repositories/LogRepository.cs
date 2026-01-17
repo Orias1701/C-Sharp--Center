@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -7,28 +7,28 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository để quản lý nhật ký hành động (hỗ trợ Undo)
+    /// Repository Ä‘á»ƒ quáº£n lÃ½ nháº­t kÃ½ hÃ nh Ä‘á»™ng (há»— trá»£ Undo)
     /// </summary>
     public class LogRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách nhật ký (chỉ visible records)
+        /// Láº¥y danh sÃ¡ch nháº­t kÃ½ (chá»‰ visible records)
         /// </summary>
-        public List<ActionLog> GetAllLogs()
+        public List<Actions> GetAllLogs()
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<Actions>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM ActionLogs WHERE Visible=TRUE ORDER BY CreatedAt DESC", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Actions WHERE Visible=TRUE ORDER BY CreatedAt DESC", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new ActionLog
+                                logs.Add(new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -43,13 +43,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch nháº­t kÃ½: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Ghi lại nhật ký hành động
+        /// Ghi láº¡i nháº­t kÃ½ hÃ nh Ä‘á»™ng
         /// </summary>
         public bool LogAction(string actionType, string descriptions, string dataBefore = "")
         {
@@ -60,7 +60,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO ActionLogs (ActionType, Descriptions, DataBefore, Visible, CreatedAt) " +
+                        "INSERT INTO Actions (ActionType, Descriptions, DataBefore, Visible, CreatedAt) " +
                         "VALUES (@type, @desc, @data, TRUE, @created)", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", actionType);
@@ -73,29 +73,29 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi ghi nhật ký: " + ex.Message);
+                throw new Exception("Lá»—i khi ghi nháº­t kÃ½: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy nhật ký theo loại hành động (chỉ visible records)
+        /// Láº¥y nháº­t kÃ½ theo loáº¡i hÃ nh Ä‘á»™ng (chá»‰ visible records)
         /// </summary>
-        public List<ActionLog> GetLogsByActionType(string actionType)
+        public List<Actions> GetLogsByActionType(string actionType)
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<Actions>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM ActionLogs WHERE ActionType=@type AND Visible=TRUE ORDER BY CreatedAt DESC", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Actions WHERE ActionType=@type AND Visible=TRUE ORDER BY CreatedAt DESC", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", actionType);
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new ActionLog
+                                logs.Add(new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -110,30 +110,30 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi lấy nhật ký loại {actionType}: " + ex.Message);
+                throw new Exception($"Lá»—i khi láº¥y nháº­t kÃ½ loáº¡i {actionType}: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Lấy N hành động gần nhất (LIFO stack - Last In First Out)
+        /// Láº¥y N hÃ nh Ä‘á»™ng gáº§n nháº¥t (LIFO stack - Last In First Out)
         /// </summary>
-        public List<ActionLog> GetLastNLogs(int count = 10)
+        public List<Actions> GetLastNLogs(int count = 10)
         {
-            var logs = new List<ActionLog>();
+            var logs = new List<Actions>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        $"SELECT * FROM ActionLogs WHERE Visible=TRUE AND ActionType != 'UNDO_ACTION' ORDER BY CreatedAt DESC LIMIT {Math.Min(count, 10)}", conn))
+                        $"SELECT * FROM Actions WHERE Visible=TRUE AND ActionType != 'UNDO_ACTION' ORDER BY CreatedAt DESC LIMIT {Math.Min(count, 10)}", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
                             while (reader.Read())
                             {
-                                logs.Add(new ActionLog
+                                logs.Add(new Actions
                                 {
                                     LogID = reader.GetInt32("LogID"),
                                     ActionType = reader.GetString("ActionType"),
@@ -148,13 +148,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy nhật ký gần nhất: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y nháº­t kÃ½ gáº§n nháº¥t: " + ex.Message);
             }
             return logs;
         }
 
         /// <summary>
-        /// Xóa mềm hành động từ undo stack (set Visible=FALSE)
+        /// XÃ³a má»m hÃ nh Ä‘á»™ng tá»« undo stack (set Visible=FALSE)
         /// </summary>
         public bool RemoveFromUndoStack(int logId)
         {
@@ -164,7 +164,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "UPDATE ActionLogs SET Visible=FALSE WHERE LogID=@id", conn))
+                        "UPDATE Actions SET Visible=FALSE WHERE LogID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", logId);
                         return cmd.ExecuteNonQuery() > 0;
@@ -173,12 +173,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa hành động khỏi undo stack: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a hÃ nh Ä‘á»™ng khá»i undo stack: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa nhật ký cũ (hơn N ngày)
+        /// XÃ³a nháº­t kÃ½ cÅ© (hÆ¡n N ngÃ y)
         /// </summary>
         public bool DeleteOldLogs(int daysOld)
         {
@@ -188,7 +188,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "DELETE FROM ActionLogs WHERE CreatedAt < DATE_SUB(NOW(), INTERVAL @days DAY)", conn))
+                        "DELETE FROM Actions WHERE CreatedAt < DATE_SUB(NOW(), INTERVAL @days DAY)", conn))
                     {
                         cmd.Parameters.AddWithValue("@days", daysOld);
                         cmd.ExecuteNonQuery();
@@ -198,8 +198,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa nhật ký cũ: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a nháº­t kÃ½ cÅ©: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

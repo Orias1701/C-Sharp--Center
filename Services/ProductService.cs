@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using WarehouseManagement.Models;
@@ -8,36 +8,36 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xử lý logic sản phẩm và danh mục
+    /// Service xá»­ lÃ½ logic sáº£n pháº©m vÃ  danh má»¥c
     /// 
-    /// CHỨC NĂNG:
-    /// - Quản lý sản phẩm (CRUD): Thêm, sửa, xóa
-    /// - Quản lý danh mục (CRUD): Thêm, sửa, xóa
-    /// - Tìm kiếm sản phẩm: Theo tên, danh mục
-    /// - Cảnh báo tồn kho: Kiểm tra ngưỡng tối thiểu
+    /// CHá»¨C NÄ‚NG:
+    /// - Quáº£n lÃ½ sáº£n pháº©m (CRUD): ThÃªm, sá»­a, xÃ³a
+    /// - Quáº£n lÃ½ danh má»¥c (CRUD): ThÃªm, sá»­a, xÃ³a
+    /// - TÃ¬m kiáº¿m sáº£n pháº©m: Theo tÃªn, danh má»¥c
+    /// - Cáº£nh bÃ¡o tá»“n kho: Kiá»ƒm tra ngÆ°á»¡ng tá»‘i thiá»ƒu
     /// 
-    /// LUỒNG:
-    /// 1. Validation: Kiểm tra đầu vào (ID, tên, giá, v.v...)
-    /// 2. Repository call: Gọi DB để thực hiện thao tác
-    /// 3. Logging: Ghi nhật ký ActionLogs
-    /// 4. Change tracking: Gọi SaveManager.MarkAsChanged()
-    /// 5. Return: Trả về kết quả
+    /// LUá»’NG:
+    /// 1. Validation: Kiá»ƒm tra Ä‘áº§u vÃ o (ID, tÃªn, giÃ¡, v.v...)
+    /// 2. Repository call: Gá»i DB Ä‘á»ƒ thá»±c hiá»‡n thao tÃ¡c
+    /// 3. Logging: Ghi nháº­t kÃ½ Actions
+    /// 4. Change tracking: Gá»i ActionsService.MarkAsChanged()
+    /// 5. Return: Tráº£ vá» káº¿t quáº£
     /// </summary>
     public class ProductService
     {
         private readonly ProductRepository _productRepo;
-        private readonly ActionLogRepository _logRepo;
+        private readonly ActionsRepository _logRepo;
 
         public ProductService()
         {
             _productRepo = new ProductRepository();
-            _logRepo = new ActionLogRepository();
+            _logRepo = new ActionsRepository();
         }
 
         // ========== PRODUCT CRUD ==========
 
         /// <summary>
-        /// Lấy tất cả sản phẩm
+        /// Láº¥y táº¥t cáº£ sáº£n pháº©m
         /// </summary>
         public List<Product> GetAllProducts()
         {
@@ -47,12 +47,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách sản phẩm: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch sáº£n pháº©m: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Tìm kiếm sản phẩm theo tên (không phân biệt hoa thường)
+        /// TÃ¬m kiáº¿m sáº£n pháº©m theo tÃªn (khÃ´ng phÃ¢n biá»‡t hoa thÆ°á»ng)
         /// </summary>
         public List<Product> SearchProductByName(string keyword)
         {
@@ -66,12 +66,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tìm kiếm sản phẩm: " + ex.Message);
+                throw new Exception("Lá»—i khi tÃ¬m kiáº¿m sáº£n pháº©m: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Tìm kiếm sản phẩm theo danh mục
+        /// TÃ¬m kiáº¿m sáº£n pháº©m theo danh má»¥c
         /// </summary>
         public List<Product> GetProductsByCategory(int categoryId)
         {
@@ -82,12 +82,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy sản phẩm theo danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y sáº£n pháº©m theo danh má»¥c: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiểm tra sản phẩm có cảnh báo tồn kho hay không
+        /// Kiá»ƒm tra sáº£n pháº©m cÃ³ cáº£nh bÃ¡o tá»“n kho hay khÃ´ng
         /// </summary>
         public bool IsProductLowStock(int productId)
         {
@@ -98,45 +98,45 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi kiểm tra tồn kho: " + ex.Message);
+                throw new Exception("Lá»—i khi kiá»ƒm tra tá»“n kho: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Thêm sản phẩm mới
+        /// ThÃªm sáº£n pháº©m má»›i
         /// 
-        /// LUỒNG:
-        /// 1. Validation: Kiểm tra tên, giá, số lượng, ngưỡng tối thiểu
-        /// 2. Repository.AddProduct(): Thêm vào database
-        /// 3. LogAction(): Ghi nhật ký (DataBefore trống vì chưa tồn tại)
-        /// 4. MarkAsChanged(): Đánh dấu có thay đổi
-        /// 5. Return: Trả về ID sản phẩm vừa thêm
+        /// LUá»’NG:
+        /// 1. Validation: Kiá»ƒm tra tÃªn, giÃ¡, sá»‘ lÆ°á»£ng, ngÆ°á»¡ng tá»‘i thiá»ƒu
+        /// 2. Repository.AddProduct(): ThÃªm vÃ o database
+        /// 3. LogAction(): Ghi nháº­t kÃ½ (DataBefore trá»‘ng vÃ¬ chÆ°a tá»“n táº¡i)
+        /// 4. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
+        /// 5. Return: Tráº£ vá» ID sáº£n pháº©m vá»«a thÃªm
         /// </summary>
         public int AddProduct(string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
             try
             {
-                // Validation các trường đầu vào
+                // Validation cÃ¡c trÆ°á»ng Ä‘áº§u vÃ o
                 if (string.IsNullOrWhiteSpace(name))
-                    throw new ArgumentException("Tên sản phẩm không được để trống");
+                    throw new ArgumentException("TÃªn sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng");
                 if (name.Length > 200)
-                    throw new ArgumentException("Tên sản phẩm không được vượt quá 200 ký tự");
+                    throw new ArgumentException("TÃªn sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 200 kÃ½ tá»±");
                 if (price < 0)
-                    throw new ArgumentException("Giá sản phẩm phải >= 0");
+                    throw new ArgumentException("GiÃ¡ sáº£n pháº©m pháº£i >= 0");
                 if (price > 999999999)
-                    throw new ArgumentException("Giá sản phẩm quá lớn");
+                    throw new ArgumentException("GiÃ¡ sáº£n pháº©m quÃ¡ lá»›n");
                 if (quantity < 0)
-                    throw new ArgumentException("Số lượng không được âm");
+                    throw new ArgumentException("Sá»‘ lÆ°á»£ng khÃ´ng Ä‘Æ°á»£c Ã¢m");
                 if (quantity > 999999)
-                    throw new ArgumentException("Số lượng quá lớn");
+                    throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
                 if (minThreshold < 0)
-                    throw new ArgumentException("Ngưỡng tối thiểu không được âm");
+                    throw new ArgumentException("NgÆ°á»¡ng tá»‘i thiá»ƒu khÃ´ng Ä‘Æ°á»£c Ã¢m");
                 if (minThreshold > quantity)
-                    throw new ArgumentException("Ngưỡng tối thiểu không được vượt quá số lượng hiện tại");
+                    throw new ArgumentException("NgÆ°á»¡ng tá»‘i thiá»ƒu khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ sá»‘ lÆ°á»£ng hiá»‡n táº¡i");
                 if (categoryId <= 0)
-                    throw new ArgumentException("Danh mục không hợp lệ");
+                    throw new ArgumentException("Danh má»¥c khÃ´ng há»£p lá»‡");
 
-                // Tạo đối tượng Product và gọi repository
+                // Táº¡o Ä‘á»‘i tÆ°á»£ng Product vÃ  gá»i repository
                 var product = new Product
                 {
                     ProductName = name.Trim(),
@@ -148,68 +148,68 @@ namespace WarehouseManagement.Services
 
                 int productId = _productRepo.AddProduct(product);
                 
-                // Ghi nhật ký (DataBefore trống vì đây là thêm mới)
-                var log = new ActionLog
+                // Ghi nháº­t kÃ½ (DataBefore trá»‘ng vÃ¬ Ä‘Ã¢y lÃ  thÃªm má»›i)
+                var log = new Actions
                 {
                     ActionType = "ADD_PRODUCT",
-                    Descriptions = $"Thêm sản phẩm: {name}",
+                    Descriptions = $"ThÃªm sáº£n pháº©m: {name}",
                     DataBefore = "",
                     CreatedAt = DateTime.Now
                 };
                 _logRepo.LogAction(log);
                 
                 // Mark as changed for save manager
-                SaveManager.Instance.MarkAsChanged();
+                ActionsService.Instance.MarkAsChanged();
                 
                 return productId;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi thêm sản phẩm: " + ex.Message);
+                throw new Exception("Lá»—i khi thÃªm sáº£n pháº©m: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cập nhật thông tin sản phẩm
+        /// Cáº­p nháº­t thÃ´ng tin sáº£n pháº©m
         /// 
-        /// LUỒNG:
-        /// 1. Validation: Kiểm tra tất cả các trường
-        /// 2. GetProductById(): Lấy dữ liệu cũ trước khi thay đổi
-        /// 3. Repository.UpdateProduct(): Cập nhật vào database
-        /// 4. LogAction(): Ghi nhật ký với dữ liệu cũ (beforeData)
-        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
-        /// 6. Return: Trả về kết quả thành công/thất bại
+        /// LUá»’NG:
+        /// 1. Validation: Kiá»ƒm tra táº¥t cáº£ cÃ¡c trÆ°á»ng
+        /// 2. GetProductById(): Láº¥y dá»¯ liá»‡u cÅ© trÆ°á»›c khi thay Ä‘á»•i
+        /// 3. Repository.UpdateProduct(): Cáº­p nháº­t vÃ o database
+        /// 4. LogAction(): Ghi nháº­t kÃ½ vá»›i dá»¯ liá»‡u cÅ© (beforeData)
+        /// 5. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
+        /// 6. Return: Tráº£ vá» káº¿t quáº£ thÃ nh cÃ´ng/tháº¥t báº¡i
         /// </summary>
         public bool UpdateProduct(int productId, string name, int categoryId, decimal price, int quantity, int minThreshold)
         {
             try
             {
-                // Validation các trường đầu vào
+                // Validation cÃ¡c trÆ°á»ng Ä‘áº§u vÃ o
                 if (productId <= 0)
-                    throw new ArgumentException("ID sản phẩm không hợp lệ");
+                    throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
                 if (string.IsNullOrWhiteSpace(name))
-                    throw new ArgumentException("Tên sản phẩm không được để trống");
+                    throw new ArgumentException("TÃªn sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c Ä‘á»ƒ trá»‘ng");
                 if (name.Length > 200)
-                    throw new ArgumentException("Tên sản phẩm không được vượt quá 200 ký tự");
+                    throw new ArgumentException("TÃªn sáº£n pháº©m khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 200 kÃ½ tá»±");
                 if (price < 0)
-                    throw new ArgumentException("Giá sản phẩm phải >= 0");
+                    throw new ArgumentException("GiÃ¡ sáº£n pháº©m pháº£i >= 0");
                 if (price > 999999999)
-                    throw new ArgumentException("Giá sản phẩm quá lớn");
+                    throw new ArgumentException("GiÃ¡ sáº£n pháº©m quÃ¡ lá»›n");
                 if (quantity < 0)
-                    throw new ArgumentException("Số lượng không được âm");
+                    throw new ArgumentException("Sá»‘ lÆ°á»£ng khÃ´ng Ä‘Æ°á»£c Ã¢m");
                 if (quantity > 999999)
-                    throw new ArgumentException("Số lượng quá lớn");
+                    throw new ArgumentException("Sá»‘ lÆ°á»£ng quÃ¡ lá»›n");
                 if (minThreshold < 0)
-                    throw new ArgumentException("Ngưỡng tối thiểu không được âm");
+                    throw new ArgumentException("NgÆ°á»¡ng tá»‘i thiá»ƒu khÃ´ng Ä‘Æ°á»£c Ã¢m");
                 if (minThreshold > quantity)
-                    throw new ArgumentException("Ngưỡng tối thiểu không được vượt quá số lượng hiện tại");
+                    throw new ArgumentException("NgÆ°á»¡ng tá»‘i thiá»ƒu khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ sá»‘ lÆ°á»£ng hiá»‡n táº¡i");
                 if (categoryId <= 0)
-                    throw new ArgumentException("Danh mục không hợp lệ");
+                    throw new ArgumentException("Danh má»¥c khÃ´ng há»£p lá»‡");
 
-                // Lấy dữ liệu cũ trước khi cập nhật (để ghi nhật ký)
+                // Láº¥y dá»¯ liá»‡u cÅ© trÆ°á»›c khi cáº­p nháº­t (Ä‘á»ƒ ghi nháº­t kÃ½)
                 var oldProduct = _productRepo.GetProductById(productId);
                 if (oldProduct == null)
-                    throw new ArgumentException("Sản phẩm không tồn tại");
+                    throw new ArgumentException("Sáº£n pháº©m khÃ´ng tá»“n táº¡i");
 
                 var beforeData = new
                 {
@@ -221,7 +221,7 @@ namespace WarehouseManagement.Services
                     MinThreshold = oldProduct.MinThreshold
                 };
 
-                // Tạo đối tượng Product với dữ liệu mới
+                // Táº¡o Ä‘á»‘i tÆ°á»£ng Product vá»›i dá»¯ liá»‡u má»›i
                 var product = new Product
                 {
                     ProductID = productId,
@@ -232,52 +232,52 @@ namespace WarehouseManagement.Services
                     MinThreshold = minThreshold
                 };
 
-                // Cập nhật vào database
+                // Cáº­p nháº­t vÃ o database
                 bool result = _productRepo.UpdateProduct(product);
                 
                 if (result)
                 {
-                    // Ghi nhật ký với dữ liệu cũ
-                    var log = new ActionLog
+                    // Ghi nháº­t kÃ½ vá»›i dá»¯ liá»‡u cÅ©
+                    var log = new Actions
                     {
                         ActionType = "UPDATE_PRODUCT",
-                        Descriptions = $"Cập nhật sản phẩm: {name}",
+                        Descriptions = $"Cáº­p nháº­t sáº£n pháº©m: {name}",
                         DataBefore = JsonConvert.SerializeObject(beforeData),
                         CreatedAt = DateTime.Now
                     };
                     _logRepo.LogAction(log);
                     
-                    // Đánh dấu có thay đổi chưa lưu
-                    SaveManager.Instance.MarkAsChanged();
+                    // ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i chÆ°a lÆ°u
+                    ActionsService.Instance.MarkAsChanged();
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật sản phẩm: " + ex.Message);
+                throw new Exception("Lá»—i khi cáº­p nháº­t sáº£n pháº©m: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa sản phẩm (soft delete)
+        /// XÃ³a sáº£n pháº©m (soft delete)
         /// 
-        /// LUỒNG:
-        /// 1. Validation: Kiểm tra ID sản phẩm
-        /// 2. GetProductById(): Lấy dữ liệu trước khi xóa
-        /// 3. Repository.DeleteProduct(): Xóa mềm (soft delete)
-        /// 4. LogAction(): Ghi nhật ký xóa với dữ liệu cũ
-        /// 5. MarkAsChanged(): Đánh dấu có thay đổi
-        /// 6. Return: Trả về kết quả thành công/thất bại
+        /// LUá»’NG:
+        /// 1. Validation: Kiá»ƒm tra ID sáº£n pháº©m
+        /// 2. GetProductById(): Láº¥y dá»¯ liá»‡u trÆ°á»›c khi xÃ³a
+        /// 3. Repository.DeleteProduct(): XÃ³a má»m (soft delete)
+        /// 4. LogAction(): Ghi nháº­t kÃ½ xÃ³a vá»›i dá»¯ liá»‡u cÅ©
+        /// 5. MarkAsChanged(): ÄÃ¡nh dáº¥u cÃ³ thay Ä‘á»•i
+        /// 6. Return: Tráº£ vá» káº¿t quáº£ thÃ nh cÃ´ng/tháº¥t báº¡i
         /// </summary>
         public bool DeleteProduct(int productId)
         {
             try
             {
                 if (productId <= 0)
-                    throw new ArgumentException("ID sản phẩm không hợp lệ");
+                    throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
                 
-                // Lấy dữ liệu sản phẩm trước khi xóa (để ghi nhật ký)
+                // Láº¥y dá»¯ liá»‡u sáº£n pháº©m trÆ°á»›c khi xÃ³a (Ä‘á»ƒ ghi nháº­t kÃ½)
                 var product = _productRepo.GetProductById(productId);
                 if (product != null)
                 {
@@ -291,23 +291,23 @@ namespace WarehouseManagement.Services
                         MinThreshold = product.MinThreshold
                     };
                     
-                    // Xóa mềm: set Visible=FALSE trong database
+                    // XÃ³a má»m: set Visible=FALSE trong database
                     bool result = _productRepo.DeleteProduct(productId);
                     
                     if (result)
                     {
-                        // Ghi nhật ký xóa với dữ liệu cũ
-                        var log = new ActionLog
+                        // Ghi nháº­t kÃ½ xÃ³a vá»›i dá»¯ liá»‡u cÅ©
+                        var log = new Actions
                         {
                             ActionType = "DELETE_PRODUCT",
-                            Descriptions = $"Xóa sản phẩm: {product.ProductName}",
+                            Descriptions = $"XÃ³a sáº£n pháº©m: {product.ProductName}",
                             DataBefore = JsonConvert.SerializeObject(beforeData),
                             CreatedAt = DateTime.Now
                         };
                         _logRepo.LogAction(log);
                         
                         // Mark as changed for save manager
-                        SaveManager.Instance.MarkAsChanged();
+                        ActionsService.Instance.MarkAsChanged();
                     }
                     
                     return result;
@@ -317,29 +317,29 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa sản phẩm: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a sáº£n pháº©m: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy thông tin sản phẩm theo ID
+        /// Láº¥y thÃ´ng tin sáº£n pháº©m theo ID
         /// </summary>
         public Product GetProductById(int productId)
         {
             try
             {
                 if (productId <= 0)
-                    throw new ArgumentException("ID sản phẩm không hợp lệ");
+                    throw new ArgumentException("ID sáº£n pháº©m khÃ´ng há»£p lá»‡");
                 return _productRepo.GetProductById(productId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy thông tin sản phẩm: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y thÃ´ng tin sáº£n pháº©m: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiểm tra sản phẩm có phụ thuộc khóa ngoài hay không
+        /// Kiá»ƒm tra sáº£n pháº©m cÃ³ phá»¥ thuá»™c khÃ³a ngoÃ i hay khÃ´ng
         /// </summary>
         public bool ProductHasDependencies(int productId)
         {
@@ -349,8 +349,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi kiểm tra phụ thuộc: " + ex.Message);
+                throw new Exception("Lá»—i kiá»ƒm tra phá»¥ thuá»™c: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

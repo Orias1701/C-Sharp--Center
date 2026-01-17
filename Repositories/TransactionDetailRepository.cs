@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -7,12 +7,12 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository để quản lý chi tiết phiếu Nhập/Xuất kho
+    /// Repository Ä‘á»ƒ quáº£n lÃ½ chi tiáº¿t phiáº¿u Nháº­p/Xuáº¥t kho
     /// </summary>
     public class TransactionDetailRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách chi tiết theo Transaction ID
+        /// Láº¥y danh sÃ¡ch chi tiáº¿t theo Transaction ID
         /// </summary>
         public List<TransactionDetail> GetDetailsByTransactionId(int transactionId)
         {
@@ -46,13 +46,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy chi tiết phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y chi tiáº¿t phiáº¿u: " + ex.Message);
             }
             return details;
         }
 
         /// <summary>
-        /// Lấy chi tiết theo ID
+        /// Láº¥y chi tiáº¿t theo ID
         /// </summary>
         public TransactionDetail GetDetailById(int detailId)
         {
@@ -85,13 +85,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi lấy chi tiết ID {detailId}: " + ex.Message);
+                throw new Exception($"Lá»—i khi láº¥y chi tiáº¿t ID {detailId}: " + ex.Message);
             }
             return null;
         }
 
         /// <summary>
-        /// Thêm chi tiết vào phiếu
+        /// ThÃªm chi tiáº¿t vÃ o phiáº¿u
         /// </summary>
         public int AddTransactionDetail(TransactionDetail detail)
         {
@@ -115,12 +115,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi thêm chi tiết phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi thÃªm chi tiáº¿t phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cập nhật chi tiết phiếu
+        /// Cáº­p nháº­t chi tiáº¿t phiáº¿u
         /// </summary>
         public bool UpdateTransactionDetail(TransactionDetail detail)
         {
@@ -144,12 +144,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật chi tiết phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi cáº­p nháº­t chi tiáº¿t phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa chi tiết phiếu
+        /// XÃ³a chi tiáº¿t phiáº¿u
         /// </summary>
         public bool DeleteTransactionDetail(int detailId)
         {
@@ -168,12 +168,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa chi tiết phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a chi tiáº¿t phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa tất cả chi tiết của một phiếu
+        /// XÃ³a táº¥t cáº£ chi tiáº¿t cá»§a má»™t phiáº¿u
         /// </summary>
         public bool DeleteAllDetails(int transactionId)
         {
@@ -192,12 +192,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa chi tiết phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a chi tiáº¿t phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy tổng số sản phẩm trong chi tiết phiếu
+        /// Láº¥y tá»•ng sá»‘ sáº£n pháº©m trong chi tiáº¿t phiáº¿u
         /// </summary>
         public int GetTotalQuantity(int transactionId)
         {
@@ -217,8 +217,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tính tổng số lượng: " + ex.Message);
+                throw new Exception("Lá»—i khi tÃ­nh tá»•ng sá»‘ lÆ°á»£ng: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

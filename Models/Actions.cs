@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 
 namespace WarehouseManagement.Models
 {
     /// <summary>
-    /// Lớp thực thể Nhật ký hành động (Hỗ trợ Undo)
+    /// Lá»›p thá»±c thá»ƒ Nháº­t kÃ½ hÃ nh Ä‘á»™ng (Há»— trá»£ Undo)
     /// </summary>
-    public class ActionLog
+    public class Actions
     {
         public int LogID { get; set; }
         public string ActionType { get; set; } // 'UPDATE_STOCK', 'CREATE_TRANSACTION', etc.
@@ -14,3 +14,7 @@ namespace WarehouseManagement.Models
         public DateTime CreatedAt { get; set; }
     }
 }
+
+
+
+

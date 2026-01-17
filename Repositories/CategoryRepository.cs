@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -7,12 +7,12 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository để quản lý danh mục sản phẩm
+    /// Repository Ä‘á»ƒ quáº£n lÃ½ danh má»¥c sáº£n pháº©m
     /// </summary>
     public class CategoryRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách tất cả danh mục (chỉ visible records)
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ danh má»¥c (chá»‰ visible records)
         /// </summary>
         public List<Category> GetAllCategories()
         {
@@ -40,13 +40,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch danh má»¥c: " + ex.Message);
             }
             return categories;
         }
 
         /// <summary>
-        /// Lấy danh mục theo ID
+        /// Láº¥y danh má»¥c theo ID
         /// </summary>
         public Category GetCategoryById(int categoryId)
         {
@@ -74,13 +74,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi lấy danh mục ID {categoryId}: " + ex.Message);
+                throw new Exception($"Lá»—i khi láº¥y danh má»¥c ID {categoryId}: " + ex.Message);
             }
             return null;
         }
 
         /// <summary>
-        /// Thêm danh mục mới
+        /// ThÃªm danh má»¥c má»›i
         /// </summary>
         public int AddCategory(Category category)
         {
@@ -100,12 +100,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi thêm danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi thÃªm danh má»¥c: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cập nhật danh mục
+        /// Cáº­p nháº­t danh má»¥c
         /// </summary>
         public bool UpdateCategory(Category category)
         {
@@ -125,12 +125,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi cáº­p nháº­t danh má»¥c: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa danh mục (soft delete)
+        /// XÃ³a danh má»¥c (soft delete)
         /// </summary>
         public bool DeleteCategory(int categoryId)
         {
@@ -149,12 +149,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a danh má»¥c: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Phục hồi danh mục đã xóa (restore deleted category)
+        /// Phá»¥c há»“i danh má»¥c Ä‘Ã£ xÃ³a (restore deleted category)
         /// </summary>
         public bool RestoreDeletedCategory(int categoryId, string categoryName)
         {
@@ -174,12 +174,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi phục hồi danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi phá»¥c há»“i danh má»¥c: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiểm tra danh mục có sản phẩm hay không
+        /// Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
         /// </summary>
         public bool CategoryHasProducts(int categoryId)
         {
@@ -199,8 +199,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi kiểm tra danh mục: " + ex.Message);
+                throw new Exception("Lá»—i khi kiá»ƒm tra danh má»¥c: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

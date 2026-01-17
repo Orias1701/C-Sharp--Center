@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
@@ -8,11 +8,11 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
-    /// Form Tạo phiếu Nhập/Xuất kho
+    /// Form Táº¡o phiáº¿u Nháº­p/Xuáº¥t kho
     /// </summary>
     public partial class TransactionAllForm : Form
     {
-        private string _transactionType; // "Import" hoặc "Export"
+        private string _transactionType; // "Import" hoáº·c "Export"
         private InventoryController _inventoryController;
         private ProductController _productController;
         private ComboBox cmbProduct;
@@ -28,7 +28,7 @@ namespace WarehouseManagement.Views.Forms
             _details = new List<(int, int, decimal)>();
             _inventoryController = new InventoryController();
             _productController = new ProductController();
-            Text = type == "Import" ? "Phiếu Nhập Kho" : "Phiếu Xuất Kho";
+            Text = type == "Import" ? "Phiáº¿u Nháº­p Kho" : "Phiáº¿u Xuáº¥t Kho";
         }
 
         private void InitializeComponent()
@@ -44,21 +44,21 @@ namespace WarehouseManagement.Views.Forms
             const int BUTTON_WIDTH = 100;
             const int BUTTON_HEIGHT = 35;
 
-            // Labels và controls
-            Label lblProduct = new Label { Text = "Sản phẩm:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            // Labels vÃ  controls
+            Label lblProduct = new Label { Text = "Sáº£n pháº©m:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             cmbProduct = new ComboBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25, DropDownStyle = ComboBoxStyle.DropDownList };
 
-            Label lblQuantity = new Label { Text = "Số lượng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblQuantity = new Label { Text = "Sá»‘ lÆ°á»£ng:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtQuantity = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = 140, Height = 25 };
 
-            Label lblPrice = new Label { Text = "Đơn giá:", Left = LABEL_LEFT + 160, Top = 20 + ITEM_SPACING, Width = 60, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblPrice = new Label { Text = "ÄÆ¡n giÃ¡:", Left = LABEL_LEFT + 160, Top = 20 + ITEM_SPACING, Width = 60, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtUnitPrice = new TextBox { Left = LABEL_LEFT + 230, Top = 20 + ITEM_SPACING, Width = 130, Height = 25 };
 
-            Label lblNote = new Label { Text = "Ghi chú:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
+            Label lblNote = new Label { Text = "Ghi chÃº:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
             txtNote = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 50, Multiline = true };
 
-            btnAddDetail = new Button { Text = "➕ Thêm", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnRemoveDetail = new Button { Text = "🗑️ Xóa", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnAddDetail = new Button { Text = "âž• ThÃªm", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnRemoveDetail = new Button { Text = "ðŸ—‘ï¸ XÃ³a", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 3 + 20, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnAddDetail.Click += BtnAddDetail_Click;
             btnRemoveDetail.Click += BtnRemoveDetail_Click;
@@ -75,13 +75,13 @@ namespace WarehouseManagement.Views.Forms
                 ReadOnly = true
             };
 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sáº£n pháº©m", DataPropertyName = "ProductName", Width = 250 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sá»‘ lÆ°á»£ng", DataPropertyName = "Quantity", Width = 80 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ÄÆ¡n giÃ¡", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
 
-            btnSaveTransaction = new Button { Text = "💾 Lưu Phiếu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
-            Button btnExportVoucher = new Button { Text = "📄 Xuất Phiếu", Left = INPUT_LEFT + (BUTTON_WIDTH + 10) * 2, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnSaveTransaction = new Button { Text = "ðŸ’¾ LÆ°u Phiáº¿u", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "âŒ Há»§y", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            Button btnExportVoucher = new Button { Text = "ðŸ“„ Xuáº¥t Phiáº¿u", Left = INPUT_LEFT + (BUTTON_WIDTH + 10) * 2, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnSaveTransaction.Click += BtnSaveTransaction_Click;
             btnExportVoucher.Click += BtnExportVoucher_Click;
@@ -117,7 +117,7 @@ namespace WarehouseManagement.Views.Forms
         {
             if (_details.Count == 0)
             {
-                MessageBox.Show("❌ Vui lòng thêm ít nhất 1 sản phẩm trước khi xuất phiếu");
+                MessageBox.Show("âŒ Vui lÃ²ng thÃªm Ã­t nháº¥t 1 sáº£n pháº©m trÆ°á»›c khi xuáº¥t phiáº¿u");
                 return;
             }
 
@@ -133,12 +133,12 @@ namespace WarehouseManagement.Views.Forms
                 if (saveDialog.ShowDialog() == DialogResult.OK)
                 {
                     ExportVoucherToFile(saveDialog.FileName);
-                    MessageBox.Show("Xuất phiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Xuáº¥t phiáº¿u thÃ nh cÃ´ng!", "ThÃ´ng bÃ¡o", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi xuất phiếu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lá»—i xuáº¥t phiáº¿u: {ex.Message}", "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -147,24 +147,24 @@ namespace WarehouseManagement.Views.Forms
             using (var writer = new System.IO.StreamWriter(filePath, false, System.Text.Encoding.UTF8))
             {
                 // Header
-                writer.WriteLine("╔═══════════════════════════════════════════════╗");
-                writer.WriteLine($"║ PHIẾU {(_transactionType == "Import" ? "NHẬP KHO" : "XUẤT KHO"),-42} ║");
-                writer.WriteLine("╚═══════════════════════════════════════════════╝");
+                writer.WriteLine("â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—");
+                writer.WriteLine($"â•‘ PHIáº¾U {(_transactionType == "Import" ? "NHáº¬P KHO" : "XUáº¤T KHO"),-42} â•‘");
+                writer.WriteLine("â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•");
                 writer.WriteLine();
 
-                // Thông tin phiếu
-                writer.WriteLine($"Ngày tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
-                writer.WriteLine($"Loại phiếu: {(_transactionType == "Import" ? "Nhập kho" : "Xuất kho")}");
+                // ThÃ´ng tin phiáº¿u
+                writer.WriteLine($"NgÃ y táº¡o: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+                writer.WriteLine($"Loáº¡i phiáº¿u: {(_transactionType == "Import" ? "Nháº­p kho" : "Xuáº¥t kho")}");
                 if (!string.IsNullOrEmpty(txtNote.Text))
                 {
-                    writer.WriteLine($"Ghi chú: {txtNote.Text}");
+                    writer.WriteLine($"Ghi chÃº: {txtNote.Text}");
                 }
                 writer.WriteLine();
 
-                // Chi tiết
-                writer.WriteLine("┌─────────────────────────────────────────────────┐");
-                writer.WriteLine("│ CHI TIẾT PHIẾU                                  │");
-                writer.WriteLine("├─────────────────────────────────────────────────┤");
+                // Chi tiáº¿t
+                writer.WriteLine("â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”");
+                writer.WriteLine("â”‚ CHI TIáº¾T PHIáº¾U                                  â”‚");
+                writer.WriteLine("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
 
                 decimal totalAmount = 0;
                 foreach (var detail in _details)
@@ -173,17 +173,17 @@ namespace WarehouseManagement.Views.Forms
                     decimal amount = detail.Quantity * detail.UnitPrice;
                     totalAmount += amount;
 
-                    writer.WriteLine($"│ Sản phẩm: {product?.ProductName ?? "N/A",-35} │");
-                    writer.WriteLine($"│   Số lượng: {detail.Quantity,-38} │");
-                    writer.WriteLine($"│   Đơn giá: {detail.UnitPrice:N0} ₫{"",-31} │");
-                    writer.WriteLine($"│   Thành tiền: {amount:N0} ₫{"",-25} │");
-                    writer.WriteLine("├─────────────────────────────────────────────────┤");
+                    writer.WriteLine($"â”‚ Sáº£n pháº©m: {product?.ProductName ?? "N/A",-35} â”‚");
+                    writer.WriteLine($"â”‚   Sá»‘ lÆ°á»£ng: {detail.Quantity,-38} â”‚");
+                    writer.WriteLine($"â”‚   ÄÆ¡n giÃ¡: {detail.UnitPrice:N0} â‚«{"",-31} â”‚");
+                    writer.WriteLine($"â”‚   ThÃ nh tiá»n: {amount:N0} â‚«{"",-25} â”‚");
+                    writer.WriteLine("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
                 }
 
-                writer.WriteLine($"│ TỔNG CỘNG: {totalAmount:N0} ₫{"",-21} │");
-                writer.WriteLine("└─────────────────────────────────────────────────┘");
+                writer.WriteLine($"â”‚ Tá»”NG Cá»˜NG: {totalAmount:N0} â‚«{"",-21} â”‚");
+                writer.WriteLine("â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜");
                 writer.WriteLine();
-                writer.WriteLine($"In lúc: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+                writer.WriteLine($"In lÃºc: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
             }
         }
 
@@ -201,7 +201,7 @@ namespace WarehouseManagement.Views.Forms
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Lỗi tải sản phẩm: " + ex.Message);
+            MessageBox.Show("Lá»—i táº£i sáº£n pháº©m: " + ex.Message);
         }
     }
 
@@ -209,74 +209,74 @@ namespace WarehouseManagement.Views.Forms
         {
             if (cmbProduct.SelectedIndex < 0)
             {
-                MessageBox.Show("❌ Vui lòng chọn sản phẩm");
+                MessageBox.Show("âŒ Vui lÃ²ng chá»n sáº£n pháº©m");
                 cmbProduct.Focus();
                 return;
             }
 
             if (!int.TryParse(txtQuantity.Text, out int quantity))
             {
-                MessageBox.Show("❌ Số lượng phải là số nguyên");
+                MessageBox.Show("âŒ Sá»‘ lÆ°á»£ng pháº£i lÃ  sá»‘ nguyÃªn");
                 txtQuantity.Focus();
                 return;
             }
 
             if (quantity <= 0)
             {
-                MessageBox.Show("❌ Số lượng phải lớn hơn 0");
+                MessageBox.Show("âŒ Sá»‘ lÆ°á»£ng pháº£i lá»›n hÆ¡n 0");
                 txtQuantity.Focus();
                 return;
             }
 
             if (quantity > 999999)
             {
-                MessageBox.Show("❌ Số lượng quá lớn (tối đa: 999,999)");
+                MessageBox.Show("âŒ Sá»‘ lÆ°á»£ng quÃ¡ lá»›n (tá»‘i Ä‘a: 999,999)");
                 txtQuantity.Focus();
                 return;
             }
 
             if (!decimal.TryParse(txtUnitPrice.Text, out decimal price))
             {
-                MessageBox.Show("❌ Đơn giá phải là số");
+                MessageBox.Show("âŒ ÄÆ¡n giÃ¡ pháº£i lÃ  sá»‘");
                 txtUnitPrice.Focus();
                 return;
             }
 
             if (price < 0)
             {
-                MessageBox.Show("❌ Đơn giá không được âm");
+                MessageBox.Show("âŒ ÄÆ¡n giÃ¡ khÃ´ng Ä‘Æ°á»£c Ã¢m");
                 txtUnitPrice.Focus();
                 return;
             }
 
             if (price > 999999999)
             {
-                MessageBox.Show("❌ Đơn giá quá lớn (tối đa: 999,999,999)");
+                MessageBox.Show("âŒ ÄÆ¡n giÃ¡ quÃ¡ lá»›n (tá»‘i Ä‘a: 999,999,999)");
                 txtUnitPrice.Focus();
                 return;
             }
 
             if (cmbProduct.SelectedValue == null)
             {
-                MessageBox.Show("❌ Vui lòng chọn sản phẩm hợp lệ từ danh sách");
+                MessageBox.Show("âŒ Vui lÃ²ng chá»n sáº£n pháº©m há»£p lá»‡ tá»« danh sÃ¡ch");
                 cmbProduct.Focus();
                 return;
             }
 
             int productId = (int)cmbProduct.SelectedValue;
             
-            // Kiểm tra tồn kho nếu là Xuất
+            // Kiá»ƒm tra tá»“n kho náº¿u lÃ  Xuáº¥t
             if (_transactionType == "Export")
             {
                 Product product = _productController.GetProductById(productId);
                 if (product == null)
                 {
-                    MessageBox.Show("❌ Không tìm thấy thông tin sản phẩm");
+                    MessageBox.Show("âŒ KhÃ´ng tÃ¬m tháº¥y thÃ´ng tin sáº£n pháº©m");
                     return;
                 }
                 if (product.Quantity < quantity)
                 {
-                    MessageBox.Show($"❌ Tồn kho không đủ (hiện có: {product.Quantity})");
+                    MessageBox.Show($"âŒ Tá»“n kho khÃ´ng Ä‘á»§ (hiá»‡n cÃ³: {product.Quantity})");
                     txtQuantity.Focus();
                     return;
                 }
@@ -304,7 +304,7 @@ namespace WarehouseManagement.Views.Forms
         {
             if (dgvDetails.SelectedRows.Count == 0)
             {
-                MessageBox.Show("❌ Vui lòng chọn dòng để xóa");
+                MessageBox.Show("âŒ Vui lÃ²ng chá»n dÃ²ng Ä‘á»ƒ xÃ³a");
                 return;
             }
 
@@ -320,7 +320,7 @@ namespace WarehouseManagement.Views.Forms
         {
             if (_details.Count == 0)
             {
-                MessageBox.Show("❌ Vui lòng thêm ít nhất một sản phẩm");
+                MessageBox.Show("âŒ Vui lÃ²ng thÃªm Ã­t nháº¥t má»™t sáº£n pháº©m");
                 return;
             }
 
@@ -334,15 +334,19 @@ namespace WarehouseManagement.Views.Forms
                 {
                     _inventoryController.ExportBatch(_details, txtNote.Text);
                 }
-                MessageBox.Show("✅ Lưu phiếu thành công!");
+                MessageBox.Show("âœ… LÆ°u phiáº¿u thÃ nh cÃ´ng!");
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("❌ Lỗi: " + ex.Message);
+                MessageBox.Show("âŒ Lá»—i: " + ex.Message);
             }
         }
     }
 }
+
+
+
+
 

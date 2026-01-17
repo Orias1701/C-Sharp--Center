@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Services;
 using WarehouseManagement.Models;
@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller điều hướng các thao tác liên quan đến kho (Nhập/Xuất)
+    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n kho (Nháº­p/Xuáº¥t)
     /// </summary>
     public class InventoryController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thực hiện phiếu nhập kho
+        /// Thá»±c hiá»‡n phiáº¿u nháº­p kho
         /// </summary>
         public bool Import(int productId, int quantity, decimal unitPrice, string note = "")
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thực hiện phiếu xuất kho
+        /// Thá»±c hiá»‡n phiáº¿u xuáº¥t kho
         /// </summary>
         public bool Export(int productId, int quantity, decimal unitPrice, string note = "")
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thực hiện phiếu nhập kho batch (nhiều sản phẩm, 1 transaction)
+        /// Thá»±c hiá»‡n phiáº¿u nháº­p kho batch (nhiá»u sáº£n pháº©m, 1 transaction)
         /// </summary>
         public bool ImportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thực hiện phiếu xuất kho batch (nhiều sản phẩm, 1 transaction)
+        /// Thá»±c hiá»‡n phiáº¿u xuáº¥t kho batch (nhiá»u sáº£n pháº©m, 1 transaction)
         /// </summary>
         public bool ExportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "")
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách sản phẩm cảnh báo (tồn kho thấp)
+        /// Láº¥y danh sÃ¡ch sáº£n pháº©m cáº£nh bÃ¡o (tá»“n kho tháº¥p)
         /// </summary>
         public List<Product> GetLowStockProducts()
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Tính tổng giá trị tồn kho
+        /// TÃ­nh tá»•ng giÃ¡ trá»‹ tá»“n kho
         /// </summary>
         public decimal GetTotalInventoryValue()
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Hoàn tác thao tác cuối cùng
+        /// HoÃ n tÃ¡c thao tÃ¡c cuá»‘i cÃ¹ng
         /// </summary>
         public bool UndoLastAction()
         {
@@ -74,7 +74,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả giao dịch
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ giao dá»‹ch
         /// </summary>
         public List<StockTransaction> GetAllTransactions()
         {
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy giao dịch theo ID (bao gồm chi tiết)
+        /// Láº¥y giao dá»‹ch theo ID (bao gá»“m chi tiáº¿t)
         /// </summary>
         public StockTransaction GetTransactionById(int transactionId)
         {
@@ -90,12 +90,16 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách nhật ký hành động
+        /// Láº¥y danh sÃ¡ch nháº­t kÃ½ hÃ nh Ä‘á»™ng
         /// </summary>
-        public List<ActionLog> GetAllLogs()
+        public List<Actions> GetAllLogs()
         {
             return _inventoryService.GetAllLogs();
         }
     }
 }
+
+
+
+
 

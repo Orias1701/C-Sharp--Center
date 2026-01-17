@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using WarehouseManagement.Controllers;
@@ -7,7 +7,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
-    /// Form Thêm/Sửa danh mục sản phẩm
+    /// Form ThÃªm/Sá»­a danh má»¥c sáº£n pháº©m
     /// </summary>
     public partial class CategoryForm : Form
     {
@@ -21,7 +21,7 @@ namespace WarehouseManagement.Views.Forms
             _categoryId = categoryId;
             _categoryController = new CategoryController();
             InitializeComponent();
-            Text = categoryId.HasValue ? "Sửa danh mục" : "Thêm danh mục";
+            Text = categoryId.HasValue ? "Sá»­a danh má»¥c" : "ThÃªm danh má»¥c";
         }
 
         private void InitializeComponent()
@@ -37,14 +37,14 @@ namespace WarehouseManagement.Views.Forms
             const int BUTTON_WIDTH = 100;
             const int BUTTON_HEIGHT = 35;
 
-            // Labels và TextBoxes
-            Label lblCategoryName = new Label { Text = "Tên danh mục:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            // Labels vÃ  TextBoxes
+            Label lblCategoryName = new Label { Text = "TÃªn danh má»¥c:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtCategoryName = new TextBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25 };
 
-            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
-            btnEdit = new Button { Text = "✏️ Sửa", Left = 420 - 220, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnDelete = new Button { Text = "🗑️ Xóa", Left = 420 - 110, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnSave = new Button { Text = "ðŸ’¾ LÆ°u", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "âŒ Há»§y", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            btnEdit = new Button { Text = "âœï¸ Sá»­a", Left = 420 - 220, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnDelete = new Button { Text = "ðŸ—‘ï¸ XÃ³a", Left = 420 - 110, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnSave.Click += BtnSave_Click;
             btnEdit.Click += BtnEdit_Click;
@@ -102,12 +102,12 @@ namespace WarehouseManagement.Views.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message);
+                MessageBox.Show("Lá»—i: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Nút Lưu
+        /// NÃºt LÆ°u
         /// </summary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
@@ -115,14 +115,14 @@ namespace WarehouseManagement.Views.Forms
             string categoryName = txtCategoryName.Text.Trim();
             if (string.IsNullOrWhiteSpace(categoryName))
             {
-                MessageBox.Show("❌ Vui lòng nhập tên danh mục");
+                MessageBox.Show("âŒ Vui lÃ²ng nháº­p tÃªn danh má»¥c");
                 txtCategoryName.Focus();
                 return;
             }
 
             if (categoryName.Length > 100)
             {
-                MessageBox.Show("❌ Tên danh mục không được vượt quá 100 ký tự");
+                MessageBox.Show("âŒ TÃªn danh má»¥c khÃ´ng Ä‘Æ°á»£c vÆ°á»£t quÃ¡ 100 kÃ½ tá»±");
                 txtCategoryName.Focus();
                 return;
             }
@@ -132,24 +132,24 @@ namespace WarehouseManagement.Views.Forms
                 if (_categoryId.HasValue)
                 {
                     _categoryController.UpdateCategory(_categoryId.Value, categoryName);
-                    MessageBox.Show("Cập nhật danh mục thành công!");
+                    MessageBox.Show("Cáº­p nháº­t danh má»¥c thÃ nh cÃ´ng!");
                 }
                 else
                 {
                     _categoryController.CreateCategory(categoryName);
-                    MessageBox.Show("Thêm danh mục thành công!");
+                    MessageBox.Show("ThÃªm danh má»¥c thÃ nh cÃ´ng!");
                 }
                 DialogResult = DialogResult.OK;
                 Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi: " + ex.Message);
+                MessageBox.Show("Lá»—i: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Nút Hủy
+        /// NÃºt Há»§y
         /// </summary>
         private void BtnCancel_Click(object sender, EventArgs e)
         {
@@ -173,8 +173,8 @@ namespace WarehouseManagement.Views.Forms
             string categoryName = txtCategoryName.Text;
             
             DialogResult result = MessageBox.Show(
-                $"Bạn chắc chắn muốn xóa danh mục '{categoryName}'?",
-                "Xác nhận xóa",
+                $"Báº¡n cháº¯c cháº¯n muá»‘n xÃ³a danh má»¥c '{categoryName}'?",
+                "XÃ¡c nháº­n xÃ³a",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
 
@@ -183,15 +183,18 @@ namespace WarehouseManagement.Views.Forms
                 try
                 {
                     _categoryController.DeleteCategory(_categoryId.Value);
-                    MessageBox.Show("Danh mục đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Danh má»¥c Ä‘Ã£ Ä‘Æ°á»£c xÃ³a thÃ nh cÃ´ng.", "ThÃ nh cÃ´ng", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     DialogResult = DialogResult.OK;
                     Close();
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Lỗi xóa danh mục: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Lá»—i xÃ³a danh má»¥c: " + ex.Message, "Lá»—i", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
     }
 }
+
+
+

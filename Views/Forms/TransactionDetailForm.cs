@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using WarehouseManagement.Models;
@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
-    /// Form hiển thị chi tiết giao dịch (Nhập/Xuất kho) - Chế độ xem
+    /// Form hiá»ƒn thá»‹ chi tiáº¿t giao dá»‹ch (Nháº­p/Xuáº¥t kho) - Cháº¿ Ä‘á»™ xem
     /// </summary>
     public partial class TransactionDetailForm : Form
     {
@@ -19,7 +19,7 @@ namespace WarehouseManagement.Views.Forms
         {
             InitializeComponent();
             _transaction = transaction;
-            Text = $"Chi Tiết Giao Dịch #{transaction.TransactionID}";
+            Text = $"Chi Tiáº¿t Giao Dá»‹ch #{transaction.TransactionID}";
         }
 
         private void InitializeComponent()
@@ -35,14 +35,14 @@ namespace WarehouseManagement.Views.Forms
             const int BUTTON_WIDTH = 100;
             const int BUTTON_HEIGHT = 35;
 
-            // Labels và controls (Read-only)
-            Label lblTypeLabel = new Label { Text = "Loại Giao Dịch:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            // Labels vÃ  controls (Read-only)
+            Label lblTypeLabel = new Label { Text = "Loáº¡i Giao Dá»‹ch:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             lblType = new Label { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft, BorderStyle = BorderStyle.FixedSingle, BackColor = System.Drawing.Color.White };
 
-            Label lblDateLabel = new Label { Text = "Ngày Tạo:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            Label lblDateLabel = new Label { Text = "NgÃ y Táº¡o:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             lblDate = new Label { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING, Width = INPUT_WIDTH, Height = 25, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft, BorderStyle = BorderStyle.FixedSingle, BackColor = System.Drawing.Color.White };
 
-            Label lblNoteLabel = new Label { Text = "Ghi Chú:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
+            Label lblNoteLabel = new Label { Text = "Ghi ChÃº:", Left = LABEL_LEFT, Top = 20 + ITEM_SPACING * 2, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft };
             lblNote = new Label { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 2, Width = INPUT_WIDTH, Height = 50, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.TopLeft, BorderStyle = BorderStyle.FixedSingle, BackColor = System.Drawing.Color.White, Padding = new Padding(5) };
 
             // DataGridView - Read-only
@@ -57,13 +57,13 @@ namespace WarehouseManagement.Views.Forms
                 ReadOnly = true
             };
 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "TotalPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sáº£n pháº©m", DataPropertyName = "ProductName", Width = 250 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sá»‘ lÆ°á»£ng", DataPropertyName = "Quantity", Width = 80 });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ÄÆ¡n giÃ¡", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ThÃ nh tiá»n", DataPropertyName = "TotalPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
 
-            // Nút đóng
-            btnClose = new Button { Text = "✖️ Đóng", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.OK };
+            // NÃºt Ä‘Ã³ng
+            btnClose = new Button { Text = "âœ–ï¸ ÄÃ³ng", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.OK };
             btnClose.Click += (s, e) => Close();
 
             Controls.Add(lblTypeLabel);
@@ -90,12 +90,12 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                // Set các giá trị cho label
+                // Set cÃ¡c giÃ¡ trá»‹ cho label
                 lblType.Text = _transaction.Type;
                 lblDate.Text = _transaction.DateCreated.ToString("dd/MM/yyyy HH:mm");
                 lblNote.Text = _transaction.Note ?? "";
                 
-                // Hiển thị chi tiết giao dịch
+                // Hiá»ƒn thá»‹ chi tiáº¿t giao dá»‹ch
                 if (_transaction.Details != null && _transaction.Details.Count > 0)
                 {
                     dgvDetails.DataSource = _transaction.Details;
@@ -106,10 +106,14 @@ namespace WarehouseManagement.Views.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải chi tiết giao dịch: " + ex.Message);
+                MessageBox.Show("Lá»—i táº£i chi tiáº¿t giao dá»‹ch: " + ex.Message);
             }
         }
     }
 }
+
+
+
+
 
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Models;
 using WarehouseManagement.Repositories;
@@ -7,33 +7,33 @@ using Newtonsoft.Json;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xử lý logic phiếu Nhập/Xuất kho
+    /// Service xá»­ lÃ½ logic phiáº¿u Nháº­p/Xuáº¥t kho
     /// 
-    /// CHỨC NĂNG:
-    /// - Quản lý phiếu (CRUD): Thêm, sửa, xóa
-    /// - Tìm kiếm phiếu: Theo loại, ngày tháng
-    /// - Tính toán: Tính tổng giá trị, tổng số lượng
+    /// CHá»¨C NÄ‚NG:
+    /// - Quáº£n lÃ½ phiáº¿u (CRUD): ThÃªm, sá»­a, xÃ³a
+    /// - TÃ¬m kiáº¿m phiáº¿u: Theo loáº¡i, ngÃ y thÃ¡ng
+    /// - TÃ­nh toÃ¡n: TÃ­nh tá»•ng giÃ¡ trá»‹, tá»•ng sá»‘ lÆ°á»£ng
     /// 
-    /// LUỒNG:
-    /// 1. Validation: Kiểm tra đầu vào
-    /// 2. Repository call: Gọi DB để thực hiện thao tác
-    /// 3. Logging: Ghi nhật ký ActionLogs
-    /// 4. Change tracking: Gọi SaveManager.MarkAsChanged()
-    /// 5. Return: Trả về kết quả
+    /// LUá»’NG:
+    /// 1. Validation: Kiá»ƒm tra Ä‘áº§u vÃ o
+    /// 2. Repository call: Gá»i DB Ä‘á»ƒ thá»±c hiá»‡n thao tÃ¡c
+    /// 3. Logging: Ghi nháº­t kÃ½ Actions
+    /// 4. Change tracking: Gá»i ActionsService.MarkAsChanged()
+    /// 5. Return: Tráº£ vá» káº¿t quáº£
     /// </summary>
     public class StockTransactionService
     {
         private readonly StockTransactionRepository _transactionRepo;
-        private readonly ActionLogRepository _logRepo;
+        private readonly ActionsRepository _logRepo;
 
         public StockTransactionService()
         {
             _transactionRepo = new StockTransactionRepository();
-            _logRepo = new ActionLogRepository();
+            _logRepo = new ActionsRepository();
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả phiếu
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ phiáº¿u
         /// </summary>
         public List<StockTransaction> GetAllTransactions()
         {
@@ -43,29 +43,29 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy phiếu theo ID (bao gồm chi tiết)
+        /// Láº¥y phiáº¿u theo ID (bao gá»“m chi tiáº¿t)
         /// </summary>
         public StockTransaction GetTransactionById(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiếu không hợp lệ");
+                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
                 return _transactionRepo.GetTransactionById(transactionId);
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi lấy phiếu ID {transactionId}: " + ex.Message);
+                throw new Exception($"Lá»—i khi láº¥y phiáº¿u ID {transactionId}: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Tạo phiếu nhập/xuất mới
+        /// Táº¡o phiáº¿u nháº­p/xuáº¥t má»›i
         /// </summary>
         public int CreateTransaction(string type, string note = "")
         {
@@ -73,9 +73,9 @@ namespace WarehouseManagement.Services
             {
                 // Validation
                 if (string.IsNullOrWhiteSpace(type))
-                    throw new ArgumentException("Loại phiếu không được trống");
+                    throw new ArgumentException("Loáº¡i phiáº¿u khÃ´ng Ä‘Æ°á»£c trá»‘ng");
                 if (type != "Import" && type != "Export")
-                    throw new ArgumentException("Loại phiếu phải là Import hoặc Export");
+                    throw new ArgumentException("Loáº¡i phiáº¿u pháº£i lÃ  Import hoáº·c Export");
 
                 var transaction = new StockTransaction
                 {
@@ -87,42 +87,42 @@ namespace WarehouseManagement.Services
 
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                // Ghi nhật ký
-                var log = new ActionLog
+                // Ghi nháº­t kÃ½
+                var log = new Actions
                 {
                     ActionType = "CREATE_TRANSACTION",
-                    Descriptions = $"Tạo phiếu {type}: {note}",
+                    Descriptions = $"Táº¡o phiáº¿u {type}: {note}",
                     DataBefore = "",
                     CreatedAt = DateTime.Now
                 };
                 _logRepo.LogAction(log);
 
-                SaveManager.Instance.MarkAsChanged();
+                ActionsService.Instance.MarkAsChanged();
                 return transId;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tạo phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi táº¡o phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cập nhật phiếu
+        /// Cáº­p nháº­t phiáº¿u
         /// </summary>
         public bool UpdateTransaction(int transactionId, string type, string note)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiếu không hợp lệ");
+                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
                 if (string.IsNullOrWhiteSpace(type))
-                    throw new ArgumentException("Loại phiếu không được trống");
+                    throw new ArgumentException("Loáº¡i phiáº¿u khÃ´ng Ä‘Æ°á»£c trá»‘ng");
                 if (type != "Import" && type != "Export")
-                    throw new ArgumentException("Loại phiếu phải là Import hoặc Export");
+                    throw new ArgumentException("Loáº¡i phiáº¿u pháº£i lÃ  Import hoáº·c Export");
 
                 var oldTransaction = _transactionRepo.GetTransactionById(transactionId);
                 if (oldTransaction == null)
-                    throw new ArgumentException("Phiếu không tồn tại");
+                    throw new ArgumentException("Phiáº¿u khÃ´ng tá»“n táº¡i");
 
                 var beforeData = new
                 {
@@ -142,39 +142,39 @@ namespace WarehouseManagement.Services
 
                 if (result)
                 {
-                    var log = new ActionLog
+                    var log = new Actions
                     {
                         ActionType = "UPDATE_TRANSACTION",
-                        Descriptions = $"Cập nhật phiếu ID {transactionId}",
+                        Descriptions = $"Cáº­p nháº­t phiáº¿u ID {transactionId}",
                         DataBefore = JsonConvert.SerializeObject(beforeData),
                         CreatedAt = DateTime.Now
                     };
                     _logRepo.LogAction(log);
 
-                    SaveManager.Instance.MarkAsChanged();
+                    ActionsService.Instance.MarkAsChanged();
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi cáº­p nháº­t phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa phiếu
+        /// XÃ³a phiáº¿u
         /// </summary>
         public bool DeleteTransaction(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiếu không hợp lệ");
+                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
 
                 var transaction = _transactionRepo.GetTransactionById(transactionId);
                 if (transaction == null)
-                    throw new ArgumentException("Phiếu không tồn tại");
+                    throw new ArgumentException("Phiáº¿u khÃ´ng tá»“n táº¡i");
 
                 var beforeData = new
                 {
@@ -189,77 +189,77 @@ namespace WarehouseManagement.Services
 
                 if (result)
                 {
-                    var log = new ActionLog
+                    var log = new Actions
                     {
                         ActionType = "DELETE_TRANSACTION",
-                        Descriptions = $"Xóa phiếu ID {transactionId}",
+                        Descriptions = $"XÃ³a phiáº¿u ID {transactionId}",
                         DataBefore = JsonConvert.SerializeObject(beforeData),
                         CreatedAt = DateTime.Now
                     };
                     _logRepo.LogAction(log);
 
-                    SaveManager.Instance.MarkAsChanged();
+                    ActionsService.Instance.MarkAsChanged();
                 }
 
                 return result;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy danh sách phiếu theo loại (Import/Export)
+        /// Láº¥y danh sÃ¡ch phiáº¿u theo loáº¡i (Import/Export)
         /// </summary>
         public List<StockTransaction> GetTransactionsByType(string type)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(type))
-                    throw new ArgumentException("Loại phiếu không được trống");
+                    throw new ArgumentException("Loáº¡i phiáº¿u khÃ´ng Ä‘Æ°á»£c trá»‘ng");
                 if (type != "Import" && type != "Export")
-                    throw new ArgumentException("Loại phiếu phải là Import hoặc Export");
+                    throw new ArgumentException("Loáº¡i phiáº¿u pháº£i lÃ  Import hoáº·c Export");
 
                 return _transactionRepo.GetTransactionsByType(type.Trim());
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy phiếu theo loại: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y phiáº¿u theo loáº¡i: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy danh sách phiếu trong một khoảng thời gian
+        /// Láº¥y danh sÃ¡ch phiáº¿u trong má»™t khoáº£ng thá»i gian
         /// </summary>
         public List<StockTransaction> GetTransactionsByDateRange(DateTime startDate, DateTime endDate)
         {
             try
             {
                 if (startDate > endDate)
-                    throw new ArgumentException("Ngày bắt đầu không được lớn hơn ngày kết thúc");
+                    throw new ArgumentException("NgÃ y báº¯t Ä‘áº§u khÃ´ng Ä‘Æ°á»£c lá»›n hÆ¡n ngÃ y káº¿t thÃºc");
 
                 return _transactionRepo.GetTransactionsByDateRange(startDate, endDate);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy phiếu theo ngày: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y phiáº¿u theo ngÃ y: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Tính tổng giá trị một phiếu
+        /// TÃ­nh tá»•ng giÃ¡ trá»‹ má»™t phiáº¿u
         /// </summary>
         public decimal GetTransactionTotalValue(int transactionId)
         {
             try
             {
                 if (transactionId <= 0)
-                    throw new ArgumentException("ID phiếu không hợp lệ");
+                    throw new ArgumentException("ID phiáº¿u khÃ´ng há»£p lá»‡");
 
                 var transaction = _transactionRepo.GetTransactionById(transactionId);
                 if (transaction == null)
-                    throw new ArgumentException("Phiếu không tồn tại");
+                    throw new ArgumentException("Phiáº¿u khÃ´ng tá»“n táº¡i");
 
                 decimal total = 0;
                 foreach (var detail in transaction.Details)
@@ -270,12 +270,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tính tổng giá trị phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi tÃ­nh tá»•ng giÃ¡ trá»‹ phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Đếm tổng số phiếu
+        /// Äáº¿m tá»•ng sá»‘ phiáº¿u
         /// </summary>
         public int CountTransactions()
         {
@@ -285,8 +285,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi đếm phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi Ä‘áº¿m phiáº¿u: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

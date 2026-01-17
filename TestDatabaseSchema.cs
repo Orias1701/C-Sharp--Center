@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Configuration;
 using MySql.Data.MySqlClient;
 
@@ -23,11 +23,11 @@ class TestSchema
                 
                 if (result != null)
                 {
-                    Console.WriteLine("✓ Database schema is correct - 'Visible' column found in Products table!");
+                    Console.WriteLine("âœ“ Database schema is correct - 'Visible' column found in Products table!");
                 }
                 else
                 {
-                    Console.WriteLine("✗ 'Visible' column NOT found in Products table");
+                    Console.WriteLine("âœ— 'Visible' column NOT found in Products table");
                 }
             }
         }
@@ -37,3 +37,7 @@ class TestSchema
         }
     }
 }
+
+
+
+

@@ -1,10 +1,14 @@
-namespace WarehouseManagement.Models
+﻿namespace WarehouseManagement.Models
 {
     /// <summary>
-    /// Lưu thông tin user hiện tại
+    /// LÆ°u thÃ´ng tin user hiá»‡n táº¡i
     /// </summary>
     public static class GlobalUser
     {
         public static User CurrentUser { get; set; }
     }
 }
+
+
+
+

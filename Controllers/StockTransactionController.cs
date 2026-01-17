@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Services;
 using WarehouseManagement.Models;
@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller điều hướng các thao tác liên quan đến phiếu Nhập/Xuất kho
+    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n phiáº¿u Nháº­p/Xuáº¥t kho
     /// </summary>
     public class StockTransactionController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả phiếu
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ phiáº¿u
         /// </summary>
         public List<StockTransaction> GetAllTransactions()
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy phiếu theo ID (bao gồm chi tiết)
+        /// Láº¥y phiáº¿u theo ID (bao gá»“m chi tiáº¿t)
         /// </summary>
         public StockTransaction GetTransactionById(int transactionId)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Tạo phiếu nhập/xuất mới
+        /// Táº¡o phiáº¿u nháº­p/xuáº¥t má»›i
         /// </summary>
         public int CreateTransaction(string type, string note = "")
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Cập nhật phiếu
+        /// Cáº­p nháº­t phiáº¿u
         /// </summary>
         public bool UpdateTransaction(int transactionId, string type, string note)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Xóa phiếu
+        /// XÃ³a phiáº¿u
         /// </summary>
         public bool DeleteTransaction(int transactionId)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách phiếu theo loại (Import/Export)
+        /// Láº¥y danh sÃ¡ch phiáº¿u theo loáº¡i (Import/Export)
         /// </summary>
         public List<StockTransaction> GetTransactionsByType(string type)
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách phiếu trong một khoảng thời gian
+        /// Láº¥y danh sÃ¡ch phiáº¿u trong má»™t khoáº£ng thá»i gian
         /// </summary>
         public List<StockTransaction> GetTransactionsByDateRange(DateTime startDate, DateTime endDate)
         {
@@ -74,7 +74,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Tính tổng giá trị một phiếu
+        /// TÃ­nh tá»•ng giÃ¡ trá»‹ má»™t phiáº¿u
         /// </summary>
         public decimal GetTransactionTotalValue(int transactionId)
         {
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Đếm tổng số phiếu
+        /// Äáº¿m tá»•ng sá»‘ phiáº¿u
         /// </summary>
         public int CountTransactions()
         {
@@ -90,3 +90,7 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
+
+
+
+

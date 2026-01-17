@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Views.Panels
             };
 
             dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "CategoryID", Width = 50 });
-            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Danh Mục", DataPropertyName = "CategoryName", Width = 400 });
+            dgvCategories.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "TÃªn Danh Má»¥c", DataPropertyName = "CategoryName", Width = 400 });
 
             dgvCategories.CellClick += DgvCategories_CellClick;
             dgvCategories.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
@@ -51,7 +51,7 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải danh mục: " + ex.Message);
+                MessageBox.Show("Lá»—i táº£i danh má»¥c: " + ex.Message);
             }
         }
 
@@ -69,3 +69,7 @@ namespace WarehouseManagement.Views.Panels
         }
     }
 }
+
+
+
+

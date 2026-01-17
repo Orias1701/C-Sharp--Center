@@ -10,7 +10,7 @@
 ## Giai đoạn 2: Hoàn thiện Logic (Services)
 
 * [X] **InventoryService:** Viết logic trừ tồn kho tự động khi xuất và cộng khi nhập.
-* [X] **Undo Logic:** Xử lý đọc dữ liệu JSON từ `ActionLogs` để hoàn tác giao dịch.
+* [X] **Undo Logic:** Xử lý đọc dữ liệu JSON từ `Actions` để hoàn tác giao dịch.
 * [X] **Alert Logic:** Kiểm tra ngưỡng `MinThreshold` để kích hoạt cảnh báo.
 
 ## Giai đoạn 3: Giao diện & Sự kiện (UI)

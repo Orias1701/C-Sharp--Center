@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
@@ -46,12 +46,12 @@ namespace WarehouseManagement.Views.Panels
             };
 
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ProductID", Width = 50 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên Sản Phẩm", DataPropertyName = "ProductName", Width = 180 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Danh Mục", DataPropertyName = "CategoryID", Width = 80 });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Giá", DataPropertyName = "Price", Width = 90, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Kho", DataPropertyName = "Quantity", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Ngưỡng Min", DataPropertyName = "MinThreshold", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
-            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tổng Giá Trị", DataPropertyName = "InventoryValue", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "TÃªn Sáº£n Pháº©m", DataPropertyName = "ProductName", Width = 180 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Danh Má»¥c", DataPropertyName = "CategoryID", Width = 80 });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "GiÃ¡", DataPropertyName = "Price", Width = 90, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tá»“n Kho", DataPropertyName = "Quantity", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "NgÆ°á»¡ng Min", DataPropertyName = "MinThreshold", Width = 80, DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight } });
+            dgvProducts.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tá»•ng GiÃ¡ Trá»‹", DataPropertyName = "InventoryValue", Width = 120, DefaultCellStyle = new DataGridViewCellStyle { Format = "C", Alignment = DataGridViewContentAlignment.MiddleRight } });
 
             dgvProducts.CellFormatting += DgvProducts_CellFormatting;
             dgvProducts.CellClick += DgvProducts_CellClick;
@@ -69,7 +69,7 @@ namespace WarehouseManagement.Views.Panels
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+                MessageBox.Show("Lá»—i táº£i dá»¯ liá»‡u: " + ex.Message);
             }
         }
 
@@ -115,3 +115,7 @@ namespace WarehouseManagement.Views.Panels
         }
     }
 }
+
+
+
+

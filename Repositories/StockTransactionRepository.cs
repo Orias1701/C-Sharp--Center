@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -7,7 +7,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository để quản lý phiếu Nhập/Xuất kho
+    /// Repository Ä‘á»ƒ quáº£n lÃ½ phiáº¿u Nháº­p/Xuáº¥t kho
     /// </summary>
     public class StockTransactionRepository : BaseRepository
     {
@@ -19,7 +19,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả phiếu
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ phiáº¿u
         /// </summary>
         public List<StockTransaction> GetAllTransactions()
         {
@@ -50,13 +50,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch phiáº¿u: " + ex.Message);
             }
             return transactions;
         }
 
         /// <summary>
-        /// Lấy phiếu theo ID (bao gồm chi tiết)
+        /// Láº¥y phiáº¿u theo ID (bao gá»“m chi tiáº¿t)
         /// </summary>
         public StockTransaction GetTransactionById(int transactionId)
         {
@@ -68,7 +68,7 @@ namespace WarehouseManagement.Repositories
                     
                     var transaction = new StockTransaction { TransactionID = transactionId };
                     
-                    // Lấy thông tin giao dịch
+                    // Láº¥y thÃ´ng tin giao dá»‹ch
                     using (var cmd = new MySqlCommand("SELECT * FROM StockTransactions WHERE TransactionID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", transactionId);
@@ -85,7 +85,7 @@ namespace WarehouseManagement.Repositories
                         }
                     }
 
-                    // Lấy chi tiết giao dịch
+                    // Láº¥y chi tiáº¿t giao dá»‹ch
                     transaction.Details = _detailRepo.GetDetailsByTransactionId(transactionId);
                     
                     return transaction;
@@ -93,12 +93,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception($"Lỗi khi lấy phiếu ID {transactionId}: " + ex.Message);
+                throw new Exception($"Lá»—i khi láº¥y phiáº¿u ID {transactionId}: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Tạo phiếu nhập/xuất mới
+        /// Táº¡o phiáº¿u nháº­p/xuáº¥t má»›i
         /// </summary>
         public int CreateTransaction(StockTransaction transaction)
         {
@@ -121,12 +121,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi tạo phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi táº¡o phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Cập nhật thông tin phiếu (không cập nhật chi tiết)
+        /// Cáº­p nháº­t thÃ´ng tin phiáº¿u (khÃ´ng cáº­p nháº­t chi tiáº¿t)
         /// </summary>
         public bool UpdateTransaction(StockTransaction transaction)
         {
@@ -147,12 +147,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi cập nhật phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi cáº­p nháº­t phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Xóa phiếu (CASCADE xóa chi tiết tự động)
+        /// XÃ³a phiáº¿u (CASCADE xÃ³a chi tiáº¿t tá»± Ä‘á»™ng)
         /// </summary>
         public bool DeleteTransaction(int transactionId)
         {
@@ -170,12 +170,12 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa phiếu: " + ex.Message);
+                throw new Exception("Lá»—i khi xÃ³a phiáº¿u: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy danh sách phiếu theo loại (Import/Export)
+        /// Láº¥y danh sÃ¡ch phiáº¿u theo loáº¡i (Import/Export)
         /// </summary>
         public List<StockTransaction> GetTransactionsByType(string type)
         {
@@ -208,13 +208,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy phiếu theo loại: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y phiáº¿u theo loáº¡i: " + ex.Message);
             }
             return transactions;
         }
 
         /// <summary>
-        /// Lấy danh sách phiếu trong một khoảng thời gian
+        /// Láº¥y danh sÃ¡ch phiáº¿u trong má»™t khoáº£ng thá»i gian
         /// </summary>
         public List<StockTransaction> GetTransactionsByDateRange(DateTime startDate, DateTime endDate)
         {
@@ -248,9 +248,13 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy phiếu theo ngày: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y phiáº¿u theo ngÃ y: " + ex.Message);
             }
             return transactions;
         }
     }
 }
+
+
+
+

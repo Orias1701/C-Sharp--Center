@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Models;
 using WarehouseManagement.Repositories;
@@ -6,17 +6,17 @@ using WarehouseManagement.Repositories;
 namespace WarehouseManagement.Services
 {
     /// <summary>
-    /// Service xử lý logic người dùng
+    /// Service xá»­ lÃ½ logic ngÆ°á»i dÃ¹ng
     /// 
-    /// CHỨC NĂNG:
-    /// - Quản lý người dùng (CRUD): Thêm, sửa, xóa
-    /// - Xác thực: Đăng nhập, kiểm tra mật khẩu
-    /// - Tìm kiếm người dùng: Theo tên, ID
+    /// CHá»¨C NÄ‚NG:
+    /// - Quáº£n lÃ½ ngÆ°á»i dÃ¹ng (CRUD): ThÃªm, sá»­a, xÃ³a
+    /// - XÃ¡c thá»±c: ÄÄƒng nháº­p, kiá»ƒm tra máº­t kháº©u
+    /// - TÃ¬m kiáº¿m ngÆ°á»i dÃ¹ng: Theo tÃªn, ID
     /// 
-    /// LUỒNG:
-    /// 1. Validation: Kiểm tra đầu vào (ID, tên, mật khẩu, v.v...)
-    /// 2. Repository call: Gọi DB để thực hiện thao tác
-    /// 3. Return: Trả về kết quả
+    /// LUá»’NG:
+    /// 1. Validation: Kiá»ƒm tra Ä‘áº§u vÃ o (ID, tÃªn, máº­t kháº©u, v.v...)
+    /// 2. Repository call: Gá»i DB Ä‘á»ƒ thá»±c hiá»‡n thao tÃ¡c
+    /// 3. Return: Tráº£ vá» káº¿t quáº£
     /// </summary>
     public class UserService
     {
@@ -28,48 +28,48 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Đăng nhập người dùng
+        /// ÄÄƒng nháº­p ngÆ°á»i dÃ¹ng
         /// </summary>
         public User Login(string username, string password)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(username))
-                    throw new ArgumentException("Tên đăng nhập không được trống");
+                    throw new ArgumentException("TÃªn Ä‘Äƒng nháº­p khÃ´ng Ä‘Æ°á»£c trá»‘ng");
                 if (string.IsNullOrWhiteSpace(password))
-                    throw new ArgumentException("Mật khẩu không được trống");
+                    throw new ArgumentException("Máº­t kháº©u khÃ´ng Ä‘Æ°á»£c trá»‘ng");
 
                 var user = _userRepo.Login(username, password);
                 if (user == null)
-                    throw new Exception("Tên đăng nhập hoặc mật khẩu không đúng");
+                    throw new Exception("TÃªn Ä‘Äƒng nháº­p hoáº·c máº­t kháº©u khÃ´ng Ä‘Ãºng");
 
                 return user;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi đăng nhập: " + ex.Message);
+                throw new Exception("Lá»—i khi Ä‘Äƒng nháº­p: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy người dùng theo ID
+        /// Láº¥y ngÆ°á»i dÃ¹ng theo ID
         /// </summary>
         public User GetUserById(int userId)
         {
             try
             {
                 if (userId <= 0)
-                    throw new ArgumentException("ID người dùng không hợp lệ");
+                    throw new ArgumentException("ID ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»‡");
                 return _userRepo.GetUserById(userId);
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy người dùng: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y ngÆ°á»i dÃ¹ng: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả người dùng
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ ngÆ°á»i dÃ¹ng
         /// </summary>
         public List<User> GetAllUsers()
         {
@@ -79,19 +79,19 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy danh sách người dùng: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y danh sÃ¡ch ngÆ°á»i dÃ¹ng: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiểm tra tên đăng nhập có tồn tại hay không
+        /// Kiá»ƒm tra tÃªn Ä‘Äƒng nháº­p cÃ³ tá»“n táº¡i hay khÃ´ng
         /// </summary>
         public bool UsernameExists(string username)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(username))
-                    throw new ArgumentException("Tên đăng nhập không được trống");
+                    throw new ArgumentException("TÃªn Ä‘Äƒng nháº­p khÃ´ng Ä‘Æ°á»£c trá»‘ng");
 
                 var users = GetAllUsers();
                 foreach (var user in users)
@@ -103,31 +103,31 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi kiểm tra tên đăng nhập: " + ex.Message);
+                throw new Exception("Lá»—i khi kiá»ƒm tra tÃªn Ä‘Äƒng nháº­p: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Kiểm tra người dùng có hoạt động hay không
+        /// Kiá»ƒm tra ngÆ°á»i dÃ¹ng cÃ³ hoáº¡t Ä‘á»™ng hay khÃ´ng
         /// </summary>
         public bool IsUserActive(int userId)
         {
             try
             {
                 if (userId <= 0)
-                    throw new ArgumentException("ID người dùng không hợp lệ");
+                    throw new ArgumentException("ID ngÆ°á»i dÃ¹ng khÃ´ng há»£p lá»‡");
 
                 var user = _userRepo.GetUserById(userId);
                 return user != null && user.IsActive;
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi kiểm tra người dùng: " + ex.Message);
+                throw new Exception("Lá»—i khi kiá»ƒm tra ngÆ°á»i dÃ¹ng: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Đếm tổng số người dùng
+        /// Äáº¿m tá»•ng sá»‘ ngÆ°á»i dÃ¹ng
         /// </summary>
         public int CountUsers()
         {
@@ -137,12 +137,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi đếm người dùng: " + ex.Message);
+                throw new Exception("Lá»—i khi Ä‘áº¿m ngÆ°á»i dÃ¹ng: " + ex.Message);
             }
         }
 
         /// <summary>
-        /// Lấy danh sách người dùng hoạt động
+        /// Láº¥y danh sÃ¡ch ngÆ°á»i dÃ¹ng hoáº¡t Ä‘á»™ng
         /// </summary>
         public List<User> GetActiveUsers()
         {
@@ -159,8 +159,12 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi lấy người dùng hoạt động: " + ex.Message);
+                throw new Exception("Lá»—i khi láº¥y ngÆ°á»i dÃ¹ng hoáº¡t Ä‘á»™ng: " + ex.Message);
             }
         }
     }
 }
+
+
+
+

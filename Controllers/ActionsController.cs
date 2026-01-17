@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Services;
 using WarehouseManagement.Models;
@@ -6,35 +6,35 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller điều hướng các thao tác liên quan đến nhật ký hành động
+    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n nháº­t kÃ½ hÃ nh Ä‘á»™ng
     /// </summary>
-    public class ActionLogController
+    public class ActionsController
     {
-        private readonly ActionLogService _logService;
+        private readonly ActionsService _logService;
 
-        public ActionLogController()
+        public ActionsController()
         {
-            _logService = new ActionLogService();
+            _logService = ActionsService.Instance;
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả nhật ký
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ nháº­t kÃ½
         /// </summary>
-        public List<ActionLog> GetAllLogs()
+        public List<Actions> GetAllLogs()
         {
             return _logService.GetAllLogs();
         }
 
         /// <summary>
-        /// Lấy nhật ký theo ID
+        /// Láº¥y nháº­t kÃ½ theo ID
         /// </summary>
-        public ActionLog GetLogById(int logId)
+        public Actions GetLogById(int logId)
         {
             return _logService.GetLogById(logId);
         }
 
         /// <summary>
-        /// Ghi nhật ký hành động mới
+        /// Ghi nháº­t kÃ½ hÃ nh Ä‘á»™ng má»›i
         /// </summary>
         public int LogAction(string actionType, string descriptions, string dataBefore = "")
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Xóa nhật ký
+        /// XÃ³a nháº­t kÃ½
         /// </summary>
         public bool DeleteLog(int logId)
         {
@@ -50,31 +50,31 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy nhật ký theo loại hành động
+        /// Láº¥y nháº­t kÃ½ theo loáº¡i hÃ nh Ä‘á»™ng
         /// </summary>
-        public List<ActionLog> GetLogsByActionType(string actionType)
+        public List<Actions> GetLogsByActionType(string actionType)
         {
             return _logService.GetLogsByActionType(actionType);
         }
 
         /// <summary>
-        /// Lấy nhật ký trong một khoảng thời gian
+        /// Láº¥y nháº­t kÃ½ trong má»™t khoáº£ng thá»i gian
         /// </summary>
-        public List<ActionLog> GetLogsByDateRange(DateTime startDate, DateTime endDate)
+        public List<Actions> GetLogsByDateRange(DateTime startDate, DateTime endDate)
         {
             return _logService.GetLogsByDateRange(startDate, endDate);
         }
 
         /// <summary>
-        /// Lấy nhật ký gần nhất của một loại hành động
+        /// Láº¥y nháº­t kÃ½ gáº§n nháº¥t cá»§a má»™t loáº¡i hÃ nh Ä‘á»™ng
         /// </summary>
-        public ActionLog GetLatestLog(string actionType)
+        public Actions GetLatestLog(string actionType)
         {
             return _logService.GetLatestLog(actionType);
         }
 
         /// <summary>
-        /// Kiểm tra có nhật ký nào không
+        /// Kiá»ƒm tra cÃ³ nháº­t kÃ½ nÃ o khÃ´ng
         /// </summary>
         public bool HasLogs()
         {
@@ -82,7 +82,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Đếm tổng số nhật ký
+        /// Äáº¿m tá»•ng sá»‘ nháº­t kÃ½
         /// </summary>
         public int CountLogs()
         {
@@ -90,7 +90,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Xóa tất cả nhật ký khi kết thúc phiên
+        /// XÃ³a táº¥t cáº£ nháº­t kÃ½ khi káº¿t thÃºc phiÃªn
         /// </summary>
         public bool ClearAllLogs()
         {
@@ -98,4 +98,8 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
+
+
+
+
 

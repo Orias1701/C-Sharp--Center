@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using WarehouseManagement.Services;
 using WarehouseManagement.Models;
@@ -6,7 +6,7 @@ using WarehouseManagement.Models;
 namespace WarehouseManagement.Controllers
 {
     /// <summary>
-    /// Controller điều hướng các thao tác liên quan đến danh mục sản phẩm
+    /// Controller Ä‘iá»u hÆ°á»›ng cÃ¡c thao tÃ¡c liÃªn quan Ä‘áº¿n danh má»¥c sáº£n pháº©m
     /// </summary>
     public class CategoryController
     {
@@ -18,7 +18,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả danh mục
+        /// Láº¥y danh sÃ¡ch táº¥t cáº£ danh má»¥c
         /// </summary>
         public List<Category> GetAllCategories()
         {
@@ -26,7 +26,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh mục theo ID
+        /// Láº¥y danh má»¥c theo ID
         /// </summary>
         public Category GetCategoryById(int categoryId)
         {
@@ -34,7 +34,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Tìm kiếm danh mục theo tên
+        /// TÃ¬m kiáº¿m danh má»¥c theo tÃªn
         /// </summary>
         public List<Category> SearchCategory(string keyword)
         {
@@ -42,7 +42,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Thêm danh mục mới
+        /// ThÃªm danh má»¥c má»›i
         /// </summary>
         public int CreateCategory(string categoryName)
         {
@@ -50,7 +50,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Cập nhật danh mục
+        /// Cáº­p nháº­t danh má»¥c
         /// </summary>
         public bool UpdateCategory(int categoryId, string categoryName)
         {
@@ -58,7 +58,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Xóa danh mục
+        /// XÃ³a danh má»¥c
         /// </summary>
         public bool DeleteCategory(int categoryId)
         {
@@ -66,7 +66,7 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Kiểm tra danh mục có sản phẩm hay không
+        /// Kiá»ƒm tra danh má»¥c cÃ³ sáº£n pháº©m hay khÃ´ng
         /// </summary>
         public bool CategoryHasProducts(int categoryId)
         {
@@ -74,3 +74,7 @@ namespace WarehouseManagement.Controllers
         }
     }
 }
+
+
+
+
