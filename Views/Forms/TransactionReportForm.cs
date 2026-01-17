@@ -267,7 +267,7 @@ namespace WarehouseManagement.Views.Forms
                     if (importValue > maxValue) maxValue = importValue;
                     if (exportValue > maxValue) maxValue = exportValue;
 
-                    dgvReport.Rows.Add(day, importValue.ToString("C"), exportValue.ToString("C"));
+                    dgvReport.Rows.Add(day, importValue.ToString("N0"), exportValue.ToString("N0"));
                 }
 
                 Console.WriteLine($"[TransactionReportForm] LoadReport: Max value = {maxValue}, days.Count = {days.Count}");

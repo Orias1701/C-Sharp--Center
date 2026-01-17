@@ -77,13 +77,14 @@ namespace WarehouseManagement.Views.Forms
 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
 
             btnSaveTransaction = new Button { Text = "💾 Lưu Phiếu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, CausesValidation = false };
             Button btnExportVoucher = new Button { Text = "📄 Xuất Phiếu", Left = INPUT_LEFT + (BUTTON_WIDTH + 10) * 2, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnSaveTransaction.Click += BtnSaveTransaction_Click;
+            btnCancel.Click += BtnCancel_Click;
             btnExportVoucher.Click += BtnExportVoucher_Click;
 
             Controls.Add(lblProduct);
@@ -107,7 +108,6 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            CancelButton = btnCancel;
 
             Load += TransactionAllForm_Load;
             ResumeLayout(false);
@@ -342,6 +342,12 @@ namespace WarehouseManagement.Views.Forms
             {
                 MessageBox.Show("❌ Lỗi: " + ex.Message);
             }
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
         }
     }
 }

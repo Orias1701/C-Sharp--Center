@@ -59,12 +59,15 @@ namespace WarehouseManagement.Views.Forms
 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "TotalPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "C" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "TotalPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
 
             // Nút đóng
-            btnClose = new Button { Text = "✖️ Đóng", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.OK };
-            btnClose.Click += (s, e) => Close();
+            btnClose = new Button { Text = "✖️ Đóng", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnClose.Click += (s, e) => {
+                DialogResult = DialogResult.OK;
+                Close();
+            };
 
             Controls.Add(lblTypeLabel);
             Controls.Add(lblType);

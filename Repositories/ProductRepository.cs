@@ -39,7 +39,8 @@ namespace WarehouseManagement.Repositories
                                     CategoryID = reader.GetInt32("CategoryID"),
                                     Price = reader.GetDecimal("Price"),
                                     Quantity = reader.GetInt32("Quantity"),
-                                    MinThreshold = reader.GetInt32("MinThreshold")
+                                    MinThreshold = reader.GetInt32("MinThreshold"),
+                                    InventoryValue = reader.GetDecimal("InventoryValue")
                                 });
                             }
                         }
@@ -77,7 +78,8 @@ namespace WarehouseManagement.Repositories
                                     CategoryID = reader.GetInt32("CategoryID"),
                                     Price = reader.GetDecimal("Price"),
                                     Quantity = reader.GetInt32("Quantity"),
-                                    MinThreshold = reader.GetInt32("MinThreshold")
+                                    MinThreshold = reader.GetInt32("MinThreshold"),
+                                    InventoryValue = reader.GetDecimal("InventoryValue")
                                 };
                             }
                         }

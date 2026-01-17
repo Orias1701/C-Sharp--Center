@@ -68,8 +68,9 @@ namespace WarehouseManagement.Views.Forms
                 Top = 100,
                 Width = 100,
                 Height = 35,
-                DialogResult = DialogResult.Cancel
+                CausesValidation = false
             };
+            btnCancel.Click += BtnCancel_Click;
 
             Controls.Add(lblShowHidden);
             Controls.Add(chkShowHidden);
@@ -82,7 +83,6 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            CancelButton = btnCancel;
 
             ResumeLayout(false);
         }
@@ -97,6 +97,12 @@ namespace WarehouseManagement.Views.Forms
 
             MessageBox.Show("Cài đặt đã được lưu.");
             DialogResult = DialogResult.OK;
+            Close();
+        }
+
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
             Close();
         }
     }

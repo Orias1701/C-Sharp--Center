@@ -46,9 +46,10 @@ namespace WarehouseManagement.Views.Forms
             txtCategoryDesc = new TextBox { Left = INPUT_LEFT, Top = 60, Width = INPUT_WIDTH, Height = 60, Multiline = true, ScrollBars = ScrollBars.Vertical };
 
             btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, CausesValidation = false };
 
             btnSave.Click += BtnSave_Click;
+            btnCancel.Click += BtnCancel_Click;
 
             Controls.Add(lblCategoryName);
             Controls.Add(txtCategoryName);
@@ -63,11 +64,10 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            CancelButton = btnCancel;
             Padding = new Padding(10);
 
             Load += CategoryForm_Load;
-            ResumeLayout(false);
+            ResumeLayout(true);
         }
 
         private void CategoryForm_Load(object sender, EventArgs e)
@@ -97,7 +97,16 @@ namespace WarehouseManagement.Views.Forms
 
         /// <summary>
         /// Nút Lưu
+        /// </suHủy
         /// </summary>
+        private void BtnCancel_Click(object sender, EventArgs e)
+        {
+            DialogResult = DialogResult.Cancel;
+            Close();
+        }
+
+        /// <summary>
+        /// Nút mmary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             // Frontend validation

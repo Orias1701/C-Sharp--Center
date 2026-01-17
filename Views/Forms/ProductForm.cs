@@ -57,9 +57,10 @@ namespace WarehouseManagement.Views.Forms
             txtMinThreshold = new TextBox { Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4, Width = INPUT_WIDTH, Height = 25 };
 
             btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, CausesValidation = false };
 
             btnSave.Click += BtnSave_Click;
+            btnCancel.Click += BtnCancel_Click;
 
             Controls.Add(lblProductName);
             Controls.Add(txtProductName);
@@ -80,11 +81,10 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            CancelButton = btnCancel;
             Padding = new Padding(10);
 
             Load += ProductForm_Load;
-            ResumeLayout(false);
+            ResumeLayout(true);
         }
 
         private void ProductForm_Load(object sender, EventArgs e)
@@ -114,7 +114,7 @@ namespace WarehouseManagement.Views.Forms
                 if (product != null)
                 {
                     txtProductName.Text = product.ProductName;
-                    txtPrice.Text = product.Price.ToString();
+                    txtPrice.Text = product.Price.ToString("N0");
                     txtQuantity.Text = product.Quantity.ToString();
                     txtMinThreshold.Text = product.MinThreshold.ToString();
                     cmbCategory.SelectedIndex = Math.Max(0, product.CategoryID - 1);
@@ -264,6 +264,7 @@ namespace WarehouseManagement.Views.Forms
         /// </summary>
         private void BtnCancel_Click(object sender, EventArgs e)
         {
+            DialogResult = DialogResult.Cancel;
             Close();
         }
     }
