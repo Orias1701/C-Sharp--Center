@@ -287,6 +287,9 @@ namespace WarehouseManagement.Services
                     _productRepo.UpdateQuantity(productId, newQuantity);
                 }
 
+                // Cập nhật tổng giá trị của phiếu sau khi thêm tất cả chi tiết
+                _transactionRepo.UpdateTransactionTotalValue(transId);
+
                 // Ghi nhật ký
                 _logRepo.LogAction("IMPORT_BATCH", 
                     $"Nhập {details.Count} sản phẩm, Transaction ID {transId}",
@@ -392,6 +395,9 @@ namespace WarehouseManagement.Services
                     _productRepo.UpdateQuantity(productId, newQuantity);
                 }
 
+                // Cập nhật tổng giá trị của phiếu sau khi thêm tất cả chi tiết
+                _transactionRepo.UpdateTransactionTotalValue(transId);
+
                 // Ghi nhật ký
                 _logRepo.LogAction("EXPORT_BATCH",
                     $"Xuất {details.Count} sản phẩm, Transaction ID {transId}",
@@ -446,10 +452,11 @@ namespace WarehouseManagement.Services
         {
             try
             {
-                // Get the last 10 actions (LIFO stack)
+                // Get the last 10 actions (LIFO stack) - only Visible=TRUE entries
                 var logs = _logRepo.GetLastNLogs(10);
                 if (logs == null || logs.Count == 0)
                 {
+                    System.Diagnostics.Debug.WriteLine("UndoLastAction: No logs available");
                     return false;
                 }
 
@@ -457,18 +464,31 @@ namespace WarehouseManagement.Services
                 var lastLog = logs.First();
                 if (lastLog == null)
                 {
+                    System.Diagnostics.Debug.WriteLine("UndoLastAction: LastLog is null");
                     return false;
                 }
+
+                System.Diagnostics.Debug.WriteLine($"UndoLastAction: Processing LogID={lastLog.LogID}, ActionType={lastLog.ActionType}");
                 
                 // Check if data is available
                 if (string.IsNullOrWhiteSpace(lastLog.DataBefore))
                 {
                     // For ADD actions, we can try to delete the record
-                    if (lastLog.ActionType.StartsWith("ADD_"))
+                    if (lastLog.ActionType != null && lastLog.ActionType.StartsWith("ADD_"))
                     {
-                        // Remove from undo stack after processing
-                        _logRepo.RemoveFromUndoStack(lastLog.LogID);
-                        _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
+                        try
+                        {
+                            // Remove from undo stack after processing
+                            if (_logRepo != null)
+                            {
+                                _logRepo.RemoveFromUndoStack(lastLog.LogID);
+                                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Lỗi khi xóa hành động khỏi stack: {ex.Message}");
+                        }
                         return true;
                     }
                     return false;
@@ -484,6 +504,9 @@ namespace WarehouseManagement.Services
                     bool undoSuccess = false;
 
                     // Handle different action types
+                    if (string.IsNullOrWhiteSpace(lastLog.ActionType))
+                        return false;
+
                     switch (lastLog.ActionType)
                     {
                         case "IMPORT_STOCK":
@@ -491,10 +514,14 @@ namespace WarehouseManagement.Services
                             // Restore product quantity
                             if (jsonObj.ContainsKey("ProductID") && jsonObj.ContainsKey("Quantity"))
                             {
-                                int productId = (int)jsonObj["ProductID"];
-                                int oldQuantity = (int)jsonObj["Quantity"];
-                                _productRepo.UpdateQuantity(productId, oldQuantity);
-                                undoSuccess = true;
+                                try
+                                {
+                                    int productId = (int)jsonObj["ProductID"];
+                                    int oldQuantity = (int)jsonObj["Quantity"];
+                                    _productRepo?.UpdateQuantity(productId, oldQuantity);
+                                    undoSuccess = true;
+                                }
+                                catch { /* Suppress error */ }
                             }
                             break;
 
@@ -502,17 +529,21 @@ namespace WarehouseManagement.Services
                             // Restore all product fields
                             if (jsonObj.ContainsKey("ProductID"))
                             {
-                                var product = new Product
+                                try
                                 {
-                                    ProductID = (int)jsonObj["ProductID"],
-                                    ProductName = (string)jsonObj["ProductName"],
-                                    CategoryID = (int)jsonObj["CategoryID"],
-                                    Price = (decimal)jsonObj["Price"],
-                                    Quantity = (int)jsonObj["Quantity"],
-                                    MinThreshold = (int)jsonObj["MinThreshold"]
-                                };
-                                _productRepo.UpdateProduct(product);
-                                undoSuccess = true;
+                                    var product = new Product
+                                    {
+                                        ProductID = (int)jsonObj["ProductID"],
+                                        ProductName = (string)jsonObj["ProductName"],
+                                        CategoryID = (int)jsonObj["CategoryID"],
+                                        Price = (decimal)jsonObj["Price"],
+                                        Quantity = (int)jsonObj["Quantity"],
+                                        MinThreshold = (int)jsonObj["MinThreshold"]
+                                    };
+                                    _productRepo?.UpdateProduct(product);
+                                    undoSuccess = true;
+                                }
+                                catch { /* Suppress error */ }
                             }
                             break;
 
@@ -520,25 +551,29 @@ namespace WarehouseManagement.Services
                             // Restore deleted product
                             if (jsonObj.ContainsKey("ProductID"))
                             {
-                                int productId = (int)jsonObj["ProductID"];
-                                string productName = (string)jsonObj["ProductName"];
-                                int categoryId = (int)jsonObj["CategoryID"];
-                                decimal price = (decimal)jsonObj["Price"];
-                                int quantity = (int)jsonObj["Quantity"];
-                                int minThreshold = (int)jsonObj["MinThreshold"];
-                                
-                                // Restore by updating product visibility
-                                var product = new Product
+                                try
                                 {
-                                    ProductID = productId,
-                                    ProductName = productName,
-                                    CategoryID = categoryId,
-                                    Price = price,
-                                    Quantity = quantity,
-                                    MinThreshold = minThreshold
-                                };
-                                _productRepo.UpdateProduct(product);
-                                undoSuccess = true;
+                                    int productId = (int)jsonObj["ProductID"];
+                                    string productName = (string)jsonObj["ProductName"];
+                                    int categoryId = (int)jsonObj["CategoryID"];
+                                    decimal price = (decimal)jsonObj["Price"];
+                                    int quantity = (int)jsonObj["Quantity"];
+                                    int minThreshold = (int)jsonObj["MinThreshold"];
+                                    
+                                    // Restore by updating product visibility
+                                    var product = new Product
+                                    {
+                                        ProductID = productId,
+                                        ProductName = productName,
+                                        CategoryID = categoryId,
+                                        Price = price,
+                                        Quantity = quantity,
+                                        MinThreshold = minThreshold
+                                    };
+                                    _productRepo?.UpdateProduct(product);
+                                    undoSuccess = true;
+                                }
+                                catch { /* Suppress error */ }
                             }
                             break;
 
@@ -546,10 +581,14 @@ namespace WarehouseManagement.Services
                             // Restore category
                             if (jsonObj.ContainsKey("CategoryID"))
                             {
-                                int categoryId = (int)jsonObj["CategoryID"];
-                                string categoryName = (string)jsonObj["CategoryName"];
-                                _categoryRepo.UpdateCategory(new Category { CategoryID = categoryId, CategoryName = categoryName });
-                                undoSuccess = true;
+                                try
+                                {
+                                    int categoryId = (int)jsonObj["CategoryID"];
+                                    string categoryName = (string)jsonObj["CategoryName"];
+                                    _categoryRepo?.UpdateCategory(new Category { CategoryID = categoryId, CategoryName = categoryName });
+                                    undoSuccess = true;
+                                }
+                                catch { /* Suppress error */ }
                             }
                             break;
 
@@ -557,11 +596,15 @@ namespace WarehouseManagement.Services
                             // Restore deleted category
                             if (jsonObj.ContainsKey("CategoryID"))
                             {
-                                int categoryId = (int)jsonObj["CategoryID"];
-                                string categoryName = (string)jsonObj["CategoryName"];
-                                // Create a restored category
-                                _categoryRepo.RestoreDeletedCategory(categoryId, categoryName);
-                                undoSuccess = true;
+                                try
+                                {
+                                    int categoryId = (int)jsonObj["CategoryID"];
+                                    string categoryName = (string)jsonObj["CategoryName"];
+                                    // Create a restored category
+                                    _categoryRepo?.RestoreDeletedCategory(categoryId, categoryName);
+                                    undoSuccess = true;
+                                }
+                                catch { /* Suppress error */ }
                             }
                             break;
 
@@ -573,11 +616,29 @@ namespace WarehouseManagement.Services
                     // Remove from undo stack after successful undo
                     if (undoSuccess)
                     {
-                        _logRepo.RemoveFromUndoStack(lastLog.LogID);
-                        _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
+                        try
+                        {
+                            // Ensure the action is marked as processed
+                            if (_logRepo != null)
+                            {
+                                bool removeSuccess = _logRepo.RemoveFromUndoStack(lastLog.LogID);
+                                System.Diagnostics.Debug.WriteLine($"UndoLastAction: Removed LogID={lastLog.LogID} from stack, success={removeSuccess}");
+                                
+                                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
+                                System.Diagnostics.Debug.WriteLine($"UndoLastAction: Logged UNDO_ACTION for {lastLog.ActionType}");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Lỗi khi xóa hành động khỏi stack: {ex.Message}\n{ex.StackTrace}");
+                        }
                         return true;
                     }
 
+                    return false;
+                }
+                catch (JsonException)
+                {
                     return false;
                 }
                 catch (Exception)
@@ -587,7 +648,8 @@ namespace WarehouseManagement.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi hoàn tác: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine($"Lỗi khi hoàn tác: {ex.Message}\n{ex.StackTrace}");
+                return false;
             }
         }
 

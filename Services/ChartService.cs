@@ -199,15 +199,19 @@ namespace WarehouseManagement.Services
         /// </summary>
         public Dictionary<string, Dictionary<string, decimal>> GetImportExportByDay()
         {
+            return GetImportExportByDay(DateTime.Now);
+        }
+
+        public Dictionary<string, Dictionary<string, decimal>> GetImportExportByDay(DateTime anchorDate)
+        {
             var result = new Dictionary<string, Dictionary<string, decimal>>();
             try
             {
                 var transactions = _transactionRepo.GetAllTransactions();
                 Console.WriteLine($"[ChartService] GetImportExportByDay: Total transactions = {transactions.Count}");
 
-                // Lấy 30 ngày gần nhất
-                DateTime now = DateTime.Now;
-                DateTime startDate = now.AddDays(-29);
+                // Lấy 30 ngày trước từ ngày được chọn (anchorDate)
+                DateTime startDate = anchorDate.AddDays(-29);
 
                 // Tạo danh sách các ngày
                 for (int i = 0; i < 30; i++)
@@ -227,7 +231,7 @@ namespace WarehouseManagement.Services
                 {
                     string dayKey = transaction.DateCreated.ToString("yyyy-MM-dd");
                     
-                    // Chỉ xử lý các giao dịch trong 30 ngày gần nhất
+                    // Chỉ xử lý các giao dịch trong 30 ngày đã chọn
                     if (!result.ContainsKey(dayKey))
                         continue;
 

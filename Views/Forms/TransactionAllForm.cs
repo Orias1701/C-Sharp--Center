@@ -5,12 +5,12 @@ using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 
-namespace WarehouseManagement.Views
+namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
     /// Form Tạo phiếu Nhập/Xuất kho
     /// </summary>
-    public partial class TransactionForm : Form
+    public partial class TransactionAllForm : Form
     {
         private string _transactionType; // "Import" hoặc "Export"
         private InventoryController _inventoryController;
@@ -21,7 +21,7 @@ namespace WarehouseManagement.Views
         private Button btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel;
         private List<(int ProductID, int Quantity, decimal UnitPrice)> _details;
 
-        public TransactionForm(string type)
+        public TransactionAllForm(string type)
         {
             InitializeComponent();
             _transactionType = type;
@@ -81,8 +81,10 @@ namespace WarehouseManagement.Views
 
             btnSaveTransaction = new Button { Text = "💾 Lưu Phiếu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
             btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 10, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            Button btnExportVoucher = new Button { Text = "📄 Xuất Phiếu", Left = INPUT_LEFT + (BUTTON_WIDTH + 10) * 2, Top = 20 + ITEM_SPACING * 4 + 220, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnSaveTransaction.Click += BtnSaveTransaction_Click;
+            btnExportVoucher.Click += BtnExportVoucher_Click;
 
             Controls.Add(lblProduct);
             Controls.Add(cmbProduct);
@@ -95,6 +97,7 @@ namespace WarehouseManagement.Views
             Controls.Add(btnAddDetail);
             Controls.Add(btnRemoveDetail);
             Controls.Add(btnSaveTransaction);
+            Controls.Add(btnExportVoucher);
             Controls.Add(btnCancel);
             Controls.Add(dgvDetails);
 
@@ -106,15 +109,89 @@ namespace WarehouseManagement.Views
             MinimizeBox = false;
             CancelButton = btnCancel;
 
-            Load += TransactionForm_Load;
+            Load += TransactionAllForm_Load;
             ResumeLayout(false);
         }
 
-    private void TransactionForm_Load(object sender, EventArgs e)
-    {
-        try
+        private void BtnExportVoucher_Click(object sender, EventArgs e)
         {
-            List<Product> products = _productController.GetAllProducts();
+            if (_details.Count == 0)
+            {
+                MessageBox.Show("❌ Vui lòng thêm ít nhất 1 sản phẩm trước khi xuất phiếu");
+                return;
+            }
+
+            try
+            {
+                SaveFileDialog saveDialog = new SaveFileDialog
+                {
+                    Filter = "Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv",
+                    DefaultExt = "txt",
+                    FileName = $"Phieu_{_transactionType}_{DateTime.Now:yyyyMMdd_HHmmss}"
+                };
+
+                if (saveDialog.ShowDialog() == DialogResult.OK)
+                {
+                    ExportVoucherToFile(saveDialog.FileName);
+                    MessageBox.Show("Xuất phiếu thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi xuất phiếu: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ExportVoucherToFile(string filePath)
+        {
+            using (var writer = new System.IO.StreamWriter(filePath, false, System.Text.Encoding.UTF8))
+            {
+                // Header
+                writer.WriteLine("╔═══════════════════════════════════════════════╗");
+                writer.WriteLine($"║ PHIẾU {(_transactionType == "Import" ? "NHẬP KHO" : "XUẤT KHO"),-42} ║");
+                writer.WriteLine("╚═══════════════════════════════════════════════╝");
+                writer.WriteLine();
+
+                // Thông tin phiếu
+                writer.WriteLine($"Ngày tạo: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+                writer.WriteLine($"Loại phiếu: {(_transactionType == "Import" ? "Nhập kho" : "Xuất kho")}");
+                if (!string.IsNullOrEmpty(txtNote.Text))
+                {
+                    writer.WriteLine($"Ghi chú: {txtNote.Text}");
+                }
+                writer.WriteLine();
+
+                // Chi tiết
+                writer.WriteLine("┌─────────────────────────────────────────────────┐");
+                writer.WriteLine("│ CHI TIẾT PHIẾU                                  │");
+                writer.WriteLine("├─────────────────────────────────────────────────┤");
+
+                decimal totalAmount = 0;
+                foreach (var detail in _details)
+                {
+                    var product = _productController.GetProductById(detail.ProductID);
+                    decimal amount = detail.Quantity * detail.UnitPrice;
+                    totalAmount += amount;
+
+                    writer.WriteLine($"│ Sản phẩm: {product?.ProductName ?? "N/A",-35} │");
+                    writer.WriteLine($"│   Số lượng: {detail.Quantity,-38} │");
+                    writer.WriteLine($"│   Đơn giá: {detail.UnitPrice:N0} ₫{"",-31} │");
+                    writer.WriteLine($"│   Thành tiền: {amount:N0} ₫{"",-25} │");
+                    writer.WriteLine("├─────────────────────────────────────────────────┤");
+                }
+
+                writer.WriteLine($"│ TỔNG CỘNG: {totalAmount:N0} ₫{"",-21} │");
+                writer.WriteLine("└─────────────────────────────────────────────────┘");
+                writer.WriteLine();
+                writer.WriteLine($"In lúc: {DateTime.Now:dd/MM/yyyy HH:mm:ss}");
+            }
+        }
+
+        private void TransactionAllForm_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                List<Product> products = _productController.GetAllProducts();
             
             cmbProduct.DataSource = products;
             cmbProduct.DisplayMember = "ProductName";

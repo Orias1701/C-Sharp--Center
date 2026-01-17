@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using WarehouseManagement.Models;
 
-namespace WarehouseManagement.Views
+namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
     /// Form hiển thị chi tiết giao dịch (Nhập/Xuất kho) - Chế độ xem

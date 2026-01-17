@@ -44,11 +44,11 @@ namespace WarehouseManagement
                 }
 
                 // Hiển thị form đăng nhập
-                LoginForm loginForm = new LoginForm();
+                Login loginForm = new Login();
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
                     // Nếu đăng nhập thành công, chạy form chính
-                    Application.Run(new MainForm());
+                    Application.Run(new Main());
                 }
             }
             catch (Exception ex)

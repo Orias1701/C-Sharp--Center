@@ -6,17 +6,17 @@ using WarehouseManagement.Helpers;
 
 namespace WarehouseManagement.Views
 {
-    public partial class LoginForm : Form
+    public partial class Login : Form
     {
         private UserController _userController;
 
-        public LoginForm()
+        public Login()
         {
             InitializeComponent();
             _userController = new UserController();
         }
 
-        private void LoginForm_Load(object sender, EventArgs e)
+        private void Login_Load(object sender, EventArgs e)
         {
             this.Text = "Đăng Nhập Hệ Thống";
             this.StartPosition = FormStartPosition.CenterScreen;
@@ -50,6 +50,7 @@ namespace WarehouseManagement.Views
             if (user != null && user.IsActive)
             {
                 GlobalUser.CurrentUser = user;
+                MessageBox.Show($"Đăng nhập thành công!\nChào mừng {user.Username}!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.DialogResult = DialogResult.OK;
                 this.Close();
             }
@@ -154,9 +155,9 @@ namespace WarehouseManagement.Views
             this.Controls.Add(this.lblPassword);
             this.Controls.Add(this.txtUsername);
             this.Controls.Add(this.lblUsername);
-            this.Name = "LoginForm";
-            this.Text = "LoginForm";
-            this.Load += new System.EventHandler(this.LoginForm_Load);
+            this.Name = "Login";
+            this.Text = "Login";
+            this.Load += new System.EventHandler(this.Login_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
         }

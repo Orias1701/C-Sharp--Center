@@ -63,6 +63,24 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
+        /// Giảm số lượng thay đổi khi hoàn tác hành động
+        /// Được gọi từ Undo functionality
+        /// </summary>
+        public void DecrementChangeCount()
+        {
+            if (_changeCount > 0)
+            {
+                _changeCount--;
+            }
+            
+            // Nếu không còn thay đổi nào, reset trạng thái
+            if (_changeCount == 0)
+            {
+                _hasUnsavedChanges = false;
+            }
+        }
+
+        /// <summary>
         /// Kiểm tra có thay đổi chưa lưu hay không
         /// </summary>
         public bool HasUnsavedChanges => _hasUnsavedChanges;

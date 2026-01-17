@@ -11,6 +11,7 @@ namespace WarehouseManagement.Models
         public decimal Price { get; set; }
         public int Quantity { get; set; }
         public int MinThreshold { get; set; }
+        public decimal InventoryValue { get; set; } // Tổng giá trị tồn kho (Quantity * Price)
 
         /// <summary>
         /// Kiểm tra xem sản phẩm có cảnh báo tồn kho hay không

@@ -146,13 +146,14 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO StockTransactions (Type, DateCreated, CreatedByUserID, Note) " +
-                        "VALUES (@type, @date, @userId, @note); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO StockTransactions (Type, DateCreated, CreatedByUserID, Note, TotalValue) " +
+                        "VALUES (@type, @date, @userId, @note, @totalValue); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", transaction.Type);
                         cmd.Parameters.AddWithValue("@date", transaction.DateCreated);
                         cmd.Parameters.AddWithValue("@userId", transaction.CreatedByUserID);
                         cmd.Parameters.AddWithValue("@note", transaction.Note ?? "");
+                        cmd.Parameters.AddWithValue("@totalValue", transaction.TotalValue);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
@@ -189,6 +190,30 @@ namespace WarehouseManagement.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi thêm chi tiết phiếu: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật tổng giá trị của phiếu (sau khi thêm tất cả chi tiết)
+        /// </summary>
+        public bool UpdateTransactionTotalValue(int transactionId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand(
+                        "UPDATE StockTransactions SET TotalValue = (SELECT COALESCE(SUM(Quantity * UnitPrice), 0) FROM TransactionDetails WHERE TransactionID = @transId) WHERE TransactionID = @transId", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@transId", transactionId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi cập nhật tổng giá trị phiếu: " + ex.Message);
             }
         }
 

@@ -98,13 +98,14 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO Products (ProductName, CategoryID, Price, Quantity, MinThreshold) " +
-                        "VALUES (@name, @catId, @price, @qty, @threshold); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO Products (ProductName, CategoryID, Price, Quantity, InventoryValue, MinThreshold) " +
+                        "VALUES (@name, @catId, @price, @qty, @invValue, @threshold); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@name", product.ProductName);
                         cmd.Parameters.AddWithValue("@catId", product.CategoryID);
                         cmd.Parameters.AddWithValue("@price", product.Price);
                         cmd.Parameters.AddWithValue("@qty", product.Quantity);
+                        cmd.Parameters.AddWithValue("@invValue", product.Quantity * product.Price);
                         cmd.Parameters.AddWithValue("@threshold", product.MinThreshold);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -128,12 +129,13 @@ namespace WarehouseManagement.Repositories
                     conn.Open();
                     using (var cmd = new MySqlCommand(
                         "UPDATE Products SET ProductName=@name, CategoryID=@catId, Price=@price, " +
-                        "Quantity=@qty, MinThreshold=@threshold WHERE ProductID=@id", conn))
+                        "Quantity=@qty, InventoryValue=@invValue, MinThreshold=@threshold WHERE ProductID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@name", product.ProductName);
                         cmd.Parameters.AddWithValue("@catId", product.CategoryID);
                         cmd.Parameters.AddWithValue("@price", product.Price);
                         cmd.Parameters.AddWithValue("@qty", product.Quantity);
+                        cmd.Parameters.AddWithValue("@invValue", product.Quantity * product.Price);
                         cmd.Parameters.AddWithValue("@threshold", product.MinThreshold);
                         cmd.Parameters.AddWithValue("@id", product.ProductID);
                         return cmd.ExecuteNonQuery() > 0;
@@ -181,11 +183,24 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("UPDATE Products SET Quantity=@qty WHERE ProductID=@id", conn))
+                    // First get the price to calculate InventoryValue
+                    using (var cmd = new MySqlCommand("SELECT Price FROM Products WHERE ProductID=@id", conn))
                     {
-                        cmd.Parameters.AddWithValue("@qty", newQuantity);
                         cmd.Parameters.AddWithValue("@id", productId);
-                        return cmd.ExecuteNonQuery() > 0;
+                        var price = cmd.ExecuteScalar();
+                        if (price == null || price == DBNull.Value)
+                            throw new Exception($"Sản phẩm ID {productId} không tồn tại");
+
+                        decimal productPrice = Convert.ToDecimal(price);
+                        decimal inventoryValue = newQuantity * productPrice;
+
+                        using (var updateCmd = new MySqlCommand("UPDATE Products SET Quantity=@qty, InventoryValue=@invValue WHERE ProductID=@id", conn))
+                        {
+                            updateCmd.Parameters.AddWithValue("@qty", newQuantity);
+                            updateCmd.Parameters.AddWithValue("@invValue", inventoryValue);
+                            updateCmd.Parameters.AddWithValue("@id", productId);
+                            return updateCmd.ExecuteNonQuery() > 0;
+                        }
                     }
                 }
             }

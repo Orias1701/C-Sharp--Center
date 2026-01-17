@@ -10,8 +10,8 @@ CREATE TABLE Users (
     FullName VARCHAR(100) COMMENT 'Họ tên',
     Role ENUM('Admin', 'Staff') DEFAULT 'Staff' COMMENT 'Quyền: Admin/Staff',
     IsActive BOOLEAN DEFAULT TRUE COMMENT 'Trạng thái hoạt động',
-    Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)',
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Ngày tạo'
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Ngày tạo',
+    Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)'
 ) COMMENT = 'Người dùng';
 
 -- 1. Danh mục
@@ -29,6 +29,7 @@ CREATE TABLE Products (
     Price DECIMAL(18, 2) DEFAULT 0 COMMENT 'Giá bán',
     Quantity INT DEFAULT 0 COMMENT 'Tồn kho',
     MinThreshold INT DEFAULT 10 COMMENT 'Ngưỡng báo',
+    InventoryValue DECIMAL(18, 2) DEFAULT 0 COMMENT 'Tổng giá trị tồn kho (Quantity × Price)',
     Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)',
     FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
 ) COMMENT = 'Hàng hóa';
@@ -39,6 +40,7 @@ CREATE TABLE StockTransactions (
     Type ENUM('Import', 'Export') NOT NULL COMMENT 'Loại: Nhập/Xuất',
     DateCreated DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Ngày lập',
     CreatedByUserID INT COMMENT 'Người tạo phiếu',
+    TotalValue DECIMAL(18, 2) DEFAULT 0 COMMENT 'Tổng giá trị đơn hàng',
     Note TEXT COMMENT 'Ghi chú',
     Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)',
     FOREIGN KEY (CreatedByUserID) REFERENCES Users(UserID)
@@ -63,8 +65,8 @@ CREATE TABLE ActionLogs (
     ActionType VARCHAR(50) COMMENT 'Hành động',
     Descriptions TEXT COMMENT 'Mô tả',
     DataBefore JSON COMMENT 'Dữ liệu cũ',
-    Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)',
-    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian'
+    CreatedAt DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT 'Thời gian',
+    Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)'
 ) COMMENT = 'Nhật ký';
 
 -- SEED DATA

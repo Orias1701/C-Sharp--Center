@@ -3,7 +3,7 @@ using System.Windows.Forms;
 using WarehouseManagement.Controllers;
 using WarehouseManagement.Models;
 
-namespace WarehouseManagement.Views
+namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
     /// Form Thêm/Sửa sản phẩm
@@ -15,7 +15,7 @@ namespace WarehouseManagement.Views
         private int? _productId = null;
         private TextBox txtProductName, txtPrice, txtQuantity, txtMinThreshold;
         private ComboBox cmbCategory;
-        private Button btnSave, btnCancel;
+        private Button btnSave, btnCancel, btnEdit, btnDelete;
 
         public ProductForm(int? productId = null)
         {
@@ -58,8 +58,12 @@ namespace WarehouseManagement.Views
 
             btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
             btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
+            btnEdit = new Button { Text = "✏️ Sửa", Left = 520 - 220, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnDelete = new Button { Text = "🗑️ Xóa", Left = 520 - 110, Top = 20 + ITEM_SPACING * 5 + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
 
             btnSave.Click += BtnSave_Click;
+            btnEdit.Click += BtnEdit_Click;
+            btnDelete.Click += BtnDelete_Click;
 
             Controls.Add(lblProductName);
             Controls.Add(txtProductName);
@@ -73,6 +77,8 @@ namespace WarehouseManagement.Views
             Controls.Add(txtMinThreshold);
             Controls.Add(btnSave);
             Controls.Add(btnCancel);
+            Controls.Add(btnEdit);
+            Controls.Add(btnDelete);
 
             Width = 520;
             Height = 420;
@@ -92,10 +98,23 @@ namespace WarehouseManagement.Views
             if (_productId.HasValue)
             {
                 LoadProduct();
+                // Read-only mode by default
+                txtProductName.ReadOnly = true;
+                cmbCategory.Enabled = false;
+                txtPrice.ReadOnly = true;
+                txtQuantity.ReadOnly = true;
+                txtMinThreshold.ReadOnly = true;
+                
+                btnSave.Visible = false;
+                btnEdit.Visible = true;
+                btnDelete.Visible = true;
             }
             else
             {
                 cmbCategory.SelectedIndex = 0;
+                btnSave.Visible = true;
+                btnEdit.Visible = false;
+                btnDelete.Visible = false;
             }
         }
 
@@ -237,6 +256,48 @@ namespace WarehouseManagement.Views
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void BtnEdit_Click(object sender, EventArgs e)
+        {
+            // Enable edit mode
+            txtProductName.ReadOnly = false;
+            cmbCategory.Enabled = true;
+            txtPrice.ReadOnly = false;
+            txtQuantity.ReadOnly = false;
+            txtMinThreshold.ReadOnly = false;
+
+            btnEdit.Visible = false;
+            btnDelete.Visible = false;
+            btnSave.Visible = true;
+        }
+
+        private void BtnDelete_Click(object sender, EventArgs e)
+        {
+            if (!_productId.HasValue) return;
+
+            string productName = txtProductName.Text;
+            
+            DialogResult result = MessageBox.Show(
+                $"Bạn chắc chắn muốn xóa sản phẩm '{productName}'?",
+                "Xác nhận xóa",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (result == DialogResult.Yes)
+            {
+                try
+                {
+                    _productController.DeleteProduct(_productId.Value);
+                    MessageBox.Show("Sản phẩm đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    DialogResult = DialogResult.OK;
+                    Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Lỗi xóa sản phẩm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }
