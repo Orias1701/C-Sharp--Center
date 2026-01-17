@@ -1,54 +1,91 @@
 ﻿using System;
 using System.IO;
 using MySql.Data.MySqlClient;
+using System.Configuration;
 
-class DatabaseInitializer
+namespace WarehouseManagement.Scripts
 {
-    static void Main()
+    /// <summary>
+    /// Script khởi tạo cơ sở dữ liệu từ file SQL (schema và seed data)
+    /// </summary>
+    public class InitializeDatabase
     {
-        try
+        private readonly string _connectionString;
+
+        public InitializeDatabase()
         {
-            string connectionString = "Server=localhost;Uid=root;Pwd=LongK@170105;CharSet=utf8mb4;";
-            string schemaPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Assets", "SQL", "schema.sql");
-            
-            if (!File.Exists(schemaPath))
+            // Lấy connection string từ file App.config
+            _connectionString = ConfigurationManager.ConnectionStrings["WarehouseDB"].ConnectionString;
+        }
+
+        /// <summary>
+        /// Thực thi script SQL từ file
+        /// </summary>
+        /// <param name="filePath">Đường dẫn tương đối đến file .sql</param>
+        public void ExecuteSqlScript(string filePath)
+        {
+            string scriptContent;
+            try
             {
-                Console.WriteLine($"Schema file not found at: {schemaPath}");
+                // Đọc nội dung file SQL
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                // Điều chỉnh đường dẫn để tìm đúng file trong thư mục Assets/SQL
+                // Khi chạy debug, file exe thường nằm trong bin/Debug/, cần đi ngược ra
+                string fullPath = Path.Combine(baseDir, "..", "..", filePath); 
+                
+                if (!File.Exists(fullPath))
+                {
+                    // Thử tìm trực tiếp nếu file được copy to output directory
+                    fullPath = Path.Combine(baseDir, filePath);
+                    if (!File.Exists(fullPath))
+                    {
+                        Console.WriteLine($"Không tìm thấy file SQL: {filePath}");
+                        return;
+                    }
+                }
+
+                scriptContent = File.ReadAllText(fullPath);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi đọc file SQL: {ex.Message}");
                 return;
             }
 
-            string sqlContent = File.ReadAllText(schemaPath);
-            
-            using (var conn = new MySqlConnection(connectionString))
+            try
             {
-                conn.Open();
-                Console.WriteLine("Connected to MySQL server.");
-                
-                // Split by GO statements or semicolon
-                string[] statements = sqlContent.Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
-                
-                foreach (string stmt in statements)
+                using (var conn = new MySqlConnection(_connectionString))
                 {
-                    string trimmed = stmt.Trim();
-                    if (string.IsNullOrWhiteSpace(trimmed)) continue;
+                    conn.Open();
                     
-                    using (var cmd = new MySqlCommand(trimmed, conn))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
+                    // MySqlScript hỗ trợ chạy nhiều lệnh SQL phân cách bởi dấu ;
+                    MySqlScript script = new MySqlScript(conn, scriptContent);
+                    script.Delimiter = ";";
+                    int count = script.Execute();
+                    
+                    Console.WriteLine($"Đã thực thi script {filePath} thành công. {count} lệnh được thực hiện.");
                 }
-                
-                conn.Close();
-                Console.WriteLine("Schema script executed successfully!");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Lỗi thực thi SQL: {ex.Message}");
             }
         }
-        catch (Exception ex)
+
+        /// <summary>
+        /// Chạy toàn bộ quá trình khởi tạo (Schema + Seed)
+        /// </summary>
+        public void RunInitialization()
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            Console.WriteLine("Bắt đầu khởi tạo cơ sở dữ liệu...");
+            
+            // 1. Tạo bảng (Schema)
+            ExecuteSqlScript("Assets/SQL/schema.sql");
+            
+            // 2. Chèn dữ liệu mẫu (Seed)
+            ExecuteSqlScript("Assets/SQL/seed.sql");
+            
+            Console.WriteLine("Hoàn tất khởi tạo cơ sở dữ liệu!");
         }
     }
 }
-
-
-
-
