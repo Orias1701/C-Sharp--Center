@@ -12,9 +12,9 @@ namespace WarehouseManagement.Repositories
     public class TransactionRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách tất cả phiếu (bao gồm chi tiết)
+        /// Lấy danh sách tất cả phiếu (bao gồm chi tiết, chỉ visible records trừ khi includeHidden=true)
         /// </summary>
-        public List<StockTransaction> GetAllTransactions()
+        public List<StockTransaction> GetAllTransactions(bool includeHidden = false)
         {
             var transactions = new List<StockTransaction>();
             try
@@ -22,7 +22,11 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM StockTransactions ORDER BY DateCreated DESC", conn))
+                    string query = includeHidden
+                        ? "SELECT * FROM StockTransactions ORDER BY DateCreated DESC"
+                        : "SELECT * FROM StockTransactions WHERE Visible=TRUE ORDER BY DateCreated DESC";
+                    
+                    using (var cmd = new MySqlCommand(query, conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -239,6 +243,29 @@ namespace WarehouseManagement.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi xóa phiếu: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Đảo ngược trạng thái ẩn hiện của giao dịch (Visible: 1 -> 0, 0 -> 1)
+        /// </summary>
+        public bool HideTransaction(int transactionId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("UPDATE StockTransactions SET Visible = NOT Visible WHERE TransactionID = @id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", transactionId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi đảo trạng thái giao dịch: " + ex.Message);
             }
         }
     }

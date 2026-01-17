@@ -14,7 +14,8 @@ namespace WarehouseManagement.Views.Forms
         private CategoryController _categoryController;
         private int? _categoryId = null;
         private TextBox txtCategoryName;
-        private Button btnSave, btnCancel, btnEdit, btnDelete;
+        private TextBox txtCategoryDesc;
+        private Button btnSave, btnCancel;
 
         public CategoryForm(int? categoryId = null)
         {
@@ -33,7 +34,7 @@ namespace WarehouseManagement.Views.Forms
             const int INPUT_WIDTH = 300;
             const int LABEL_LEFT = 20;
             const int INPUT_LEFT = 130;
-            const int ITEM_SPACING = 35;
+            // const int ITEM_SPACING = 35;
             const int BUTTON_WIDTH = 100;
             const int BUTTON_HEIGHT = 35;
 
@@ -41,24 +42,23 @@ namespace WarehouseManagement.Views.Forms
             Label lblCategoryName = new Label { Text = "Tên danh mục:", Left = LABEL_LEFT, Top = 20, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
             txtCategoryName = new TextBox { Left = INPUT_LEFT, Top = 20, Width = INPUT_WIDTH, Height = 25 };
 
-            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
-            btnEdit = new Button { Text = "✏️ Sửa", Left = 420 - 220, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
-            btnDelete = new Button { Text = "🗑️ Xóa", Left = 420 - 110, Top = 20 + ITEM_SPACING + 10, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            Label lblCategoryDesc = new Label { Text = "Mô tả:", Left = LABEL_LEFT, Top = 60, Width = LABEL_WIDTH, AutoSize = false, TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
+            txtCategoryDesc = new TextBox { Left = INPUT_LEFT, Top = 60, Width = INPUT_WIDTH, Height = 60, Multiline = true, ScrollBars = ScrollBars.Vertical };
+
+            btnSave = new Button { Text = "💾 Lưu", Left = INPUT_LEFT, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT };
+            btnCancel = new Button { Text = "❌ Hủy", Left = INPUT_LEFT + BUTTON_WIDTH + 15, Top = 130, Width = BUTTON_WIDTH, Height = BUTTON_HEIGHT, DialogResult = DialogResult.Cancel };
 
             btnSave.Click += BtnSave_Click;
-            btnEdit.Click += BtnEdit_Click;
-            btnDelete.Click += BtnDelete_Click;
 
             Controls.Add(lblCategoryName);
             Controls.Add(txtCategoryName);
+            Controls.Add(lblCategoryDesc);
+            Controls.Add(txtCategoryDesc);
             Controls.Add(btnSave);
             Controls.Add(btnCancel);
-            Controls.Add(btnEdit);
-            Controls.Add(btnDelete);
 
             Width = 480;
-            Height = 180;
+            Height = 230;
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -75,18 +75,6 @@ namespace WarehouseManagement.Views.Forms
             if (_categoryId.HasValue)
             {
                 LoadCategory();
-                // Read-only mode by default
-                txtCategoryName.ReadOnly = true;
-                
-                btnSave.Visible = false;
-                btnEdit.Visible = true;
-                btnDelete.Visible = true;
-            }
-            else
-            {
-                btnSave.Visible = true;
-                btnEdit.Visible = false;
-                btnDelete.Visible = false;
             }
         }
 
@@ -98,6 +86,7 @@ namespace WarehouseManagement.Views.Forms
                 if (category != null)
                 {
                     txtCategoryName.Text = category.CategoryName;
+                    txtCategoryDesc.Text = category.Description ?? "";
                 }
             }
             catch (Exception ex)
@@ -131,6 +120,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (_categoryId.HasValue)
                 {
+                    // Update: cần thêm UpdateCategory với description
                     _categoryController.UpdateCategory(_categoryId.Value, categoryName);
                     MessageBox.Show("Cập nhật danh mục thành công!");
                 }
@@ -145,52 +135,6 @@ namespace WarehouseManagement.Views.Forms
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi: " + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Nút Hủy
-        /// </summary>
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            Close();
-        }
-
-        private void BtnEdit_Click(object sender, EventArgs e)
-        {
-            // Enable edit mode
-            txtCategoryName.ReadOnly = false;
-
-            btnEdit.Visible = false;
-            btnDelete.Visible = false;
-            btnSave.Visible = true;
-        }
-
-        private void BtnDelete_Click(object sender, EventArgs e)
-        {
-            if (!_categoryId.HasValue) return;
-
-            string categoryName = txtCategoryName.Text;
-            
-            DialogResult result = MessageBox.Show(
-                $"Bạn chắc chắn muốn xóa danh mục '{categoryName}'?",
-                "Xác nhận xóa",
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question);
-
-            if (result == DialogResult.Yes)
-            {
-                try
-                {
-                    _categoryController.DeleteCategory(_categoryId.Value);
-                    MessageBox.Show("Danh mục đã được xóa thành công.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    DialogResult = DialogResult.OK;
-                    Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Lỗi xóa danh mục: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
             }
         }
     }

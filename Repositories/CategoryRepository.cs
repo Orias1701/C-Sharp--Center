@@ -12,9 +12,9 @@ namespace WarehouseManagement.Repositories
     public class CategoryRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách tất cả danh mục (chỉ visible records)
+        /// Lấy danh sách tất cả danh mục (chỉ visible records, trừ khi includeHidden=true)
         /// </summary>
-        public List<Category> GetAllCategories()
+        public List<Category> GetAllCategories(bool includeHidden = false)
         {
             var categories = new List<Category>();
             try
@@ -22,7 +22,11 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM Categories WHERE Visible=TRUE ORDER BY CategoryID DESC", conn))
+                    string query = includeHidden 
+                        ? "SELECT * FROM Categories ORDER BY CategoryID DESC"
+                        : "SELECT * FROM Categories WHERE Visible=TRUE ORDER BY CategoryID DESC";
+                    
+                    using (var cmd = new MySqlCommand(query, conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -31,7 +35,8 @@ namespace WarehouseManagement.Repositories
                                 categories.Add(new Category
                                 {
                                     CategoryID = reader.GetInt32("CategoryID"),
-                                    CategoryName = reader.GetString("CategoryName")
+                                    CategoryName = reader.GetString("CategoryName"),
+                                    Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? "" : reader.GetString("Description")
                                 });
                             }
                         }
@@ -65,7 +70,8 @@ namespace WarehouseManagement.Repositories
                                 return new Category
                                 {
                                     CategoryID = reader.GetInt32("CategoryID"),
-                                    CategoryName = reader.GetString("CategoryName")
+                                    CategoryName = reader.GetString("CategoryName"),
+                                    Description = reader.IsDBNull(reader.GetOrdinal("Description")) ? "" : reader.GetString("Description")
                                 };
                             }
                         }
@@ -90,10 +96,11 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO Categories (CategoryName, Visible) " +
-                        "VALUES (@name, TRUE); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO Categories (CategoryName, Description, Visible) " +
+                        "VALUES (@name, @desc, TRUE); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@name", category.CategoryName);
+                        cmd.Parameters.AddWithValue("@desc", category.Description ?? "");
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
@@ -115,9 +122,10 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "UPDATE Categories SET CategoryName=@name WHERE CategoryID=@id", conn))
+                        "UPDATE Categories SET CategoryName=@name, Description=@desc WHERE CategoryID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@name", category.CategoryName);
+                        cmd.Parameters.AddWithValue("@desc", category.Description ?? "");
                         cmd.Parameters.AddWithValue("@id", category.CategoryID);
                         return cmd.ExecuteNonQuery() > 0;
                     }
@@ -200,6 +208,29 @@ namespace WarehouseManagement.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi kiểm tra danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Đảo ngược trạng thái ẩn hiện của danh mục (Visible: 1 -> 0, 0 -> 1)
+        /// </summary>
+        public bool HideCategory(int categoryId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("UPDATE Categories SET Visible = NOT Visible WHERE CategoryID = @id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", categoryId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi đảo trạng thái danh mục: " + ex.Message);
             }
         }
     }

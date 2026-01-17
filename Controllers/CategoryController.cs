@@ -18,11 +18,11 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả danh mục
+        /// Lấy danh sách tất cả danh mục (bao gồm ẩn nếu includeHidden=true)
         /// </summary>
-        public List<Category> GetAllCategories()
+        public List<Category> GetAllCategories(bool includeHidden = false)
         {
-            return _categoryService.GetAllCategories();
+            return _categoryService.GetAllCategories(includeHidden);
         }
 
         /// <summary>
@@ -63,6 +63,14 @@ namespace WarehouseManagement.Controllers
         public bool DeleteCategory(int categoryId)
         {
             return _categoryService.DeleteCategory(categoryId);
+        }
+
+        /// <summary>
+        /// Ẩn danh mục (soft delete)
+        /// </summary>
+        public bool HideCategory(int categoryId)
+        {
+            return _categoryService.HideCategory(categoryId);
         }
 
         /// <summary>

@@ -74,11 +74,11 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả giao dịch
+        /// Lấy danh sách tất cả giao dịch (bao gồm ẩn nếu includeHidden=true)
         /// </summary>
-        public List<StockTransaction> GetAllTransactions()
+        public List<StockTransaction> GetAllTransactions(bool includeHidden = false)
         {
-            return _inventoryService.GetAllTransactions();
+            return _inventoryService.GetAllTransactions(includeHidden);
         }
 
         /// <summary>
@@ -95,6 +95,14 @@ namespace WarehouseManagement.Controllers
         public List<Actions> GetAllLogs()
         {
             return _inventoryService.GetAllLogs();
+        }
+
+        /// <summary>
+        /// Ẩn giao dịch
+        /// </summary>
+        public bool HideTransaction(int transactionId)
+        {
+            return _inventoryService.HideTransaction(transactionId);
         }
     }
 }

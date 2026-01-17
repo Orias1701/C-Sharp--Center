@@ -252,5 +252,28 @@ namespace WarehouseManagement.Repositories
             }
             return transactions;
         }
+
+        /// <summary>
+        /// Ẩn giao dịch (soft delete - set Visible = 0)
+        /// </summary>
+        public bool HideTransaction(int transactionId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("UPDATE StockTransactions SET Visible = 0 WHERE TransactionID = @id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", transactionId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi ẩn giao dịch: " + ex.Message);
+            }
+        }
     }
 }

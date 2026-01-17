@@ -654,13 +654,13 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả giao dịch
+        /// Lấy danh sách tất cả giao dịch (bao gồm ẩn nếu includeHidden=true)
         /// </summary>
-        public List<StockTransaction> GetAllTransactions()
+        public List<StockTransaction> GetAllTransactions(bool includeHidden = false)
         {
             try
             {
-                return _transactionRepo.GetAllTransactions();
+                return _transactionRepo.GetAllTransactions(includeHidden);
             }
             catch (Exception ex)
             {
@@ -696,6 +696,21 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi lấy danh sách nhật ký: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Ẩn giao dịch (soft delete)
+        /// </summary>
+        public bool HideTransaction(int transactionId)
+        {
+            try
+            {
+                return _transactionRepo.HideTransaction(transactionId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi ẩn giao dịch: " + ex.Message);
             }
         }
     }

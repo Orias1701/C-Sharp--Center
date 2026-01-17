@@ -18,6 +18,7 @@ CREATE TABLE Users (
 CREATE TABLE Categories (
     CategoryID INT PRIMARY KEY AUTO_INCREMENT COMMENT 'Mã danh mục',
     CategoryName VARCHAR(100) NOT NULL COMMENT 'Tên danh mục',
+    Description TEXT COMMENT 'Mô tả danh mục',
     Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị (soft delete)'
 ) COMMENT = 'Danh mục SP';
 
@@ -70,11 +71,11 @@ CREATE TABLE Actions (
 ) COMMENT = 'Nhật ký';
 
 -- SEED DATA
-INSERT INTO Categories (CategoryName, Visible) VALUES 
-('Thực phẩm', TRUE),
-('Điện tử', TRUE),
-('Quần áo', TRUE),
-('Khác', TRUE);
+INSERT INTO Categories (CategoryName, Description, Visible) VALUES 
+('Thực phẩm', 'Các sản phẩm thực phẩm, đồ uống và nguyên liệu nấu ăn', TRUE),
+('Điện tử', 'Các thiết bị điện tử và phụ kiện công nghệ', TRUE),
+('Quần áo', 'Quần áo, giày dép và các phụ kiện thời trang', TRUE),
+('Khác', 'Các sản phẩm khác không thuộc các danh mục trên', TRUE);
 
 -- Seed default users (password: 123, 456)
 -- admin: username=admin, password=123 (SHA256: a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3)

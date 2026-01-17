@@ -37,13 +37,13 @@ namespace WarehouseManagement.Services
         // ========== PRODUCT CRUD ==========
 
         /// <summary>
-        /// Lấy tất cả sản phẩm
+        /// Lấy tất cả sản phẩm (bao gồm ẩn nếu includeHidden=true)
         /// </summary>
-        public List<Product> GetAllProducts()
+        public List<Product> GetAllProducts(bool includeHidden = false)
         {
             try
             {
-                return _productRepo.GetAllProducts();
+                return _productRepo.GetAllProducts(includeHidden);
             }
             catch (Exception ex)
             {
@@ -350,6 +350,23 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 throw new Exception("Lỗi kiểm tra phụ thuộc: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Ẩn sản phẩm (soft delete - set Visible=0)
+        /// </summary>
+        public bool HideProduct(int productId)
+        {
+            try
+            {
+                if (productId <= 0)
+                    throw new ArgumentException("ID sản phẩm không hợp lệ");
+                return _productRepo.HideProduct(productId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi ẩn sản phẩm: " + ex.Message);
             }
         }
     }

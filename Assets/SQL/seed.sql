@@ -12,10 +12,17 @@ TRUNCATE TABLE Categories;
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- 1. Thêm 10 Danh mục
-INSERT INTO Categories (CategoryName) VALUES 
-('Điện thoại & Phụ kiện'), ('Máy tính & Laptop'), ('Thiết bị gia dụng'), 
-('Thời trang Nam'), ('Thời trang Nữ'), ('Mỹ phẩm & Làm đẹp'), 
-('Sách & Văn phòng phẩm'), ('Thể thao & Du lịch'), ('Đồ chơi & Mẹ bé'), ('Ô tô & Xe máy');
+INSERT INTO Categories (CategoryName, Description) VALUES 
+('Điện thoại & Phụ kiện', 'Điện thoại thông minh, phụ kiện, sạc, cáp, ốp lưng, kính cường lực'),
+('Máy tính & Laptop', 'Máy tính xách tay, máy tính để bàn, thiết bị ngoại vi, màn hình, bàn phím, chuột'),
+('Thiết bị gia dụng', 'Tủ lạnh, máy giặt, máy hút bụi, nồi chiên không dầu, máy lọc không khí'),
+('Thời trang Nam', 'Áo sơ mi, quần âu, giày da, thắt lưng, đồng hồ, phụ kiện thời trang nam'),
+('Thời trang Nữ', 'Đầm, áo khoác, quần tây, giày cao gót, túi xách, kính mát, phụ kiện nữ'),
+('Mỹ phẩm & Làm đẹp', 'Son môi, nước hoa, kem dưỡng, máy rửa mặt, bộ trang điểm chuyên nghiệp'),
+('Sách & Văn phòng phẩm', 'Sách, truyện, bút ký, máy tính cầm tay, sổ tay, bàn cắt giấy'),
+('Thể thao & Du lịch', 'Máy chạy bộ, xe đạp, lều cắm trại, vợt tennis, vali, ba lô du lịch'),
+('Đồ chơi & Mẹ bé', 'Đồ chơi LEGO, xe đẩy em bé, máy hút sữa, ghế ngồi trẻ em, nhà banh'),
+('Ô tô & Xe máy', 'Xe máy, mũ bảo hiểm, lốp xe, camera hành trình, phụ kiện ô tô');
 
 -- 2. Thêm 50 Sản phẩm
 INSERT INTO Products (ProductName, CategoryID, Price, Quantity, MinThreshold, InventoryValue) VALUES 
@@ -93,8 +100,9 @@ BEGIN
             FROM Products 
             ORDER BY RAND() 
             LIMIT 3;
+        ELSEIF v_type = 'Export' THEN
             INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice)
-            SELECT v_tid, ProductID, ProductName, FLOOR(1 + RAND() * 5), Price * 1.2
+            SELECT v_tid, ProductID, ProductName, FLOOR(3 + RAND() * 5), Price * 1.2
             FROM Products 
             ORDER BY RAND() 
             LIMIT 3;
@@ -110,17 +118,13 @@ END$$
 
 DELIMITER ;
 
--- Gọi thủ tục để sinh dữ liệu
 CALL GenerateTransactions();
-
--- Xóa thủ tục sau khi dùng xong
 DROP PROCEDURE IF EXISTS GenerateTransactions;
 
 -- =================================================================================
 -- PHẦN 3: CẬP NHẬT TỒN KHO CUỐI CÙNG (CHẠY 1 LẦN DUY NHẤT)
 -- =================================================================================
 
--- Tắt chế độ Safe Update để cho phép update nhiều dòng
 SET SQL_SAFE_UPDATES = 0;
 
 UPDATE Products p
@@ -141,6 +145,4 @@ SET
         ), 0)
     ),
     p.InventoryValue = p.Quantity * p.Price;
-
--- Bật lại chế độ an toàn (tùy chọn)
 SET SQL_SAFE_UPDATES = 1;

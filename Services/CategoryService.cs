@@ -34,13 +34,13 @@ namespace WarehouseManagement.Services
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả danh mục
+        /// Lấy danh sách tất cả danh mục (bao gồm ẩn nếu includeHidden=true)
         /// </summary>
-        public List<Category> GetAllCategories()
+        public List<Category> GetAllCategories(bool includeHidden = false)
         {
             try
             {
-                return _categoryRepo.GetAllCategories();
+                return _categoryRepo.GetAllCategories(includeHidden);
             }
             catch (Exception ex)
             {
@@ -276,6 +276,23 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 throw new Exception("Lỗi kiểm tra danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Ẩn danh mục (soft delete - set Visible=0)
+        /// </summary>
+        public bool HideCategory(int categoryId)
+        {
+            try
+            {
+                if (categoryId <= 0)
+                    throw new ArgumentException("ID danh mục không hợp lệ");
+                return _categoryRepo.HideCategory(categoryId);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi ẩn danh mục: " + ex.Message);
             }
         }
     }

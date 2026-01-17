@@ -18,11 +18,11 @@ namespace WarehouseManagement.Controllers
         }
 
         /// <summary>
-        /// Lấy danh sách tất cả sản phẩm
+        /// Lấy danh sách tất cả sản phẩm (bao gồm ẩn nếu includeHidden=true)
         /// </summary>
-        public List<Product> GetAllProducts()
+        public List<Product> GetAllProducts(bool includeHidden = false)
         {
-            return _productService.GetAllProducts();
+            return _productService.GetAllProducts(includeHidden);
         }
 
         /// <summary>
@@ -87,6 +87,14 @@ namespace WarehouseManagement.Controllers
         public bool DeleteProduct(int productId)
         {
             return _productService.DeleteProduct(productId);
+        }
+
+        /// <summary>
+        /// Ẩn sản phẩm (soft delete)
+        /// </summary>
+        public bool HideProduct(int productId)
+        {
+            return _productService.HideProduct(productId);
         }
 
         /// <summary>

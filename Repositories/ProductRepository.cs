@@ -12,9 +12,9 @@ namespace WarehouseManagement.Repositories
     public class ProductRepository : BaseRepository
     {
         /// <summary>
-        /// Lấy danh sách tất cả sản phẩm (chỉ những sản phẩm Visible=true)
+        /// Lấy danh sách tất cả sản phẩm (chỉ những sản phẩm Visible=true, trừ khi includeHidden=true)
         /// </summary>
-        public List<Product> GetAllProducts()
+        public List<Product> GetAllProducts(bool includeHidden = false)
         {
             var products = new List<Product>();
             try
@@ -22,7 +22,11 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("SELECT * FROM Products WHERE Visible=TRUE ORDER BY ProductID DESC", conn))
+                    string query = includeHidden
+                        ? "SELECT * FROM Products ORDER BY ProductID DESC"
+                        : "SELECT * FROM Products WHERE Visible=TRUE ORDER BY ProductID DESC";
+                    
+                    using (var cmd = new MySqlCommand(query, conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -379,6 +383,29 @@ namespace WarehouseManagement.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Lỗi xóa vật lý danh mục: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Đảo ngược trạng thái ẩn hiện của sản phẩm (Visible: 1 -> 0, 0 -> 1)
+        /// </summary>
+        public bool HideProduct(int productId)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("UPDATE Products SET Visible = NOT Visible WHERE ProductID = @id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@id", productId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi đảo trạng thái sản phẩm: " + ex.Message);
             }
         }
     }
