@@ -174,6 +174,32 @@ namespace WarehouseManagement.UI.Components
             UpdatePlaceholder();
         }
 
+        /// <summary>
+        /// Override Focus để forward vào inner textbox
+        /// </summary>
+        public new bool Focus()
+        {
+            return _textBox != null && _textBox.Focus();
+        }
+
+        /// <summary>
+        /// Override OnGotFocus để forward vào inner textbox
+        /// </summary>
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            _textBox?.Focus();
+        }
+
+        /// <summary>
+        /// Override OnEnter để forward vào inner textbox
+        /// </summary>
+        protected override void OnEnter(EventArgs e)
+        {
+            base.OnEnter(e);
+            _textBox?.Focus();
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
