@@ -44,139 +44,163 @@ namespace WarehouseManagement.Views.Forms
                 Dock = DockStyle.Fill,
                 BorderRadius = UIConstants.Borders.RadiusLarge,
                 ShowBorder = false,
-                Padding = new Padding(UIConstants.Spacing.Padding.XLarge)
+                Padding = new Padding(0)  // Không dùng padding của panel
             };
 
-            // Layout
-            const int LABEL_WIDTH = 130;
-            const int INPUT_WIDTH = 320;
-            const int LEFT_MARGIN = 20;
-            int currentY = 20;
-            int spacing = UIConstants.Spacing.Margin.Large;
+            // Layout constants
+            const int INPUT_WIDTH = 400;
+            const int LEFT_MARGIN = 40;  // Margin từ bên trái
+            int currentY = 30;
+            int inputSpacing = 20;
 
-            // Product Name
+            // Product Name Label
             Label lblProductName = new Label 
             { 
-                Text = $"{UIConstants.Icons.Product} Tên sản phẩm:", 
+                Text = "Tên sản phẩm",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             txtProductName = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
                 Width = INPUT_WIDTH,
-                Placeholder = "Nhập tên sản phẩm..."
+                Placeholder = "Nhập tên sản phẩm...",
+                TabIndex = 0
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            // Category
+            // Category Label
             Label lblCategory = new Label 
             { 
-                Text = $"{UIConstants.Icons.Category} Danh mục:", 
+                Text = "Danh mục",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             cmbCategory = new CustomComboBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = INPUT_WIDTH
+                Width = INPUT_WIDTH,
+                TabIndex = 1
             };
             LoadCategories();
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            // Price
+            // Price Label
             Label lblPrice = new Label 
             { 
-                Text = $"{UIConstants.Icons.Money} Giá (VNĐ):", 
+                Text = "Giá (VNĐ)",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             txtPrice = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
                 Width = INPUT_WIDTH,
-                Placeholder = "Nhập giá..."
+                Placeholder = "Nhập giá...",
+                TabIndex = 2
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            // Quantity
+            // Quantity Label
             Label lblQuantity = new Label 
             { 
-                Text = $"{UIConstants.Icons.Package} Số lượng:", 
+                Text = "Số lượng",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             txtQuantity = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
                 Width = INPUT_WIDTH,
-                Placeholder = "Nhập số lượng..."
+                Placeholder = "Nhập số lượng...",
+                TabIndex = 3
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            // Min Threshold
+            // Min Threshold Label
             Label lblMinThreshold = new Label 
             { 
-                Text = $"{UIConstants.Icons.Warning} Ngưỡng tối thiểu:", 
+                Text = "Ngưỡng tối thiểu",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             txtMinThreshold = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
                 Width = INPUT_WIDTH,
-                Placeholder = "Nhập ngưỡng tối thiểu..."
+                Placeholder = "Nhập ngưỡng tối thiểu...",
+                TabIndex = 4
             };
-            currentY += UIConstants.Sizes.InputHeight + UIConstants.Spacing.Margin.XLarge;
+            currentY += UIConstants.Sizes.InputHeight + 30;
 
-            // Buttons
+            // Buttons - Centered
+            int totalButtonWidth = 120 + 10 + 120; // Lưu + spacing + Hủy
+            int buttonStartX = LEFT_MARGIN + (INPUT_WIDTH - totalButtonWidth) / 2;
+
             btnSave = new CustomButton 
             { 
-                Text = $"{UIConstants.Icons.Save} Lưu", 
-                Left = LEFT_MARGIN, 
+                Text = "Lưu",
+                Left = buttonStartX, 
                 Top = currentY, 
                 Width = 120,
-                ButtonStyleType = ButtonStyle.FilledNoOutline
+                ButtonStyleType = ButtonStyle.FilledNoOutline,
+                TabIndex = 5
             };
 
             btnCancel = new CustomButton 
             { 
-                Text = $"{UIConstants.Icons.Cancel} Hủy", 
-                Left = LEFT_MARGIN + 120 + UIConstants.Spacing.Margin.Medium, 
+                Text = "Hủy",
+                Left = buttonStartX + 120 + 10, 
                 Top = currentY, 
                 Width = 120,
                 ButtonStyleType = ButtonStyle.Outlined,
-                CausesValidation = false
+                CausesValidation = false,
+                TabIndex = 6
             };
 
             btnSave.Click += BtnSave_Click;
@@ -197,12 +221,14 @@ namespace WarehouseManagement.Views.Forms
 
             Controls.Add(mainPanel);
 
-            ClientSize = new Size(500, 500);
+            ClientSize = new Size(480, 560);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             BackColor = ThemeManager.Instance.BackgroundLight;
+            AcceptButton = btnSave;
+            CancelButton = btnCancel;
 
             Load += ProductForm_Load;
             ResumeLayout(false);

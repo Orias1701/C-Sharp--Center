@@ -42,47 +42,54 @@ namespace WarehouseManagement.Views.Forms
                 Dock = DockStyle.Fill,
                 BorderRadius = UIConstants.Borders.RadiusLarge,
                 ShowBorder = false,
-                Padding = new Padding(UIConstants.Spacing.Padding.XLarge)
+                Padding = new Padding(0)  // Không dùng padding của panel
             };
 
-            // Layout
-            const int LABEL_WIDTH = 110;
-            const int INPUT_WIDTH = 350;
-            const int LEFT_MARGIN = 20;
-            int currentY = 20;
+            // Layout constants
+            const int INPUT_WIDTH = 400;
+            const int LEFT_MARGIN = 40;  // Margin từ bên trái
+            int currentY = 30;
+            int inputSpacing = 20;
 
-            // Category Name
+            // Category Name Label
             Label lblCategoryName = new Label 
             { 
-                Text = $"{UIConstants.Icons.Tag} Tên danh mục:", 
+                Text = "Tên danh mục",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             txtCategoryName = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
                 Width = INPUT_WIDTH,
-                Placeholder = "Nhập tên danh mục..."
+                Placeholder = "Nhập tên danh mục...",
+                TabIndex = 0
             };
-            currentY += UIConstants.Sizes.InputHeight + UIConstants.Spacing.Margin.Large;
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            // Category Description
+            // Category Description Label
             Label lblCategoryDesc = new Label 
             { 
-                Text = $"{UIConstants.Icons.FileText} Mô tả:", 
+                Text = "Mô tả",
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = LABEL_WIDTH,
-                Font = ThemeManager.Instance.FontRegular,
-                TextAlign = ContentAlignment.MiddleLeft
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B),
+                TabStop = false
             };
-            currentY += 25;
+            currentY += 20;
 
             txtCategoryDesc = new CustomTextArea 
             { 
@@ -90,28 +97,34 @@ namespace WarehouseManagement.Views.Forms
                 Top = currentY, 
                 Width = INPUT_WIDTH, 
                 Height = 90,
-                Placeholder = "Nhập mô tả (không bắt buộc)..."
+                Placeholder = "Nhập mô tả (không bắt buộc)...",
+                TabIndex = 1
             };
-            currentY += 90 + UIConstants.Spacing.Margin.XLarge;
+            currentY += 90 + 30;
 
-            // Buttons
+            // Buttons - Centered
+            int totalButtonWidth = 120 + 10 + 120; // Lưu + spacing + Hủy
+            int buttonStartX = LEFT_MARGIN + (INPUT_WIDTH - totalButtonWidth) / 2;
+
             btnSave = new CustomButton 
             { 
-                Text = $"{UIConstants.Icons.Save} Lưu", 
-                Left = LEFT_MARGIN, 
+                Text = "Lưu",
+                Left = buttonStartX, 
                 Top = currentY, 
                 Width = 120,
-                ButtonStyleType = ButtonStyle.FilledNoOutline
+                ButtonStyleType = ButtonStyle.FilledNoOutline,
+                TabIndex = 2
             };
 
             btnCancel = new CustomButton 
             { 
-                Text = $"{UIConstants.Icons.Cancel} Hủy", 
-                Left = LEFT_MARGIN + 120 + UIConstants.Spacing.Margin.Medium, 
+                Text = "Hủy",
+                Left = buttonStartX + 120 + 10, 
                 Top = currentY, 
                 Width = 120,
                 ButtonStyleType = ButtonStyle.Outlined,
-                CausesValidation = false
+                CausesValidation = false,
+                TabIndex = 3
             };
 
             btnSave.Click += BtnSave_Click;
@@ -126,12 +139,14 @@ namespace WarehouseManagement.Views.Forms
 
             Controls.Add(mainPanel);
 
-            ClientSize = new Size(510, 300);
+            ClientSize = new Size(480, 330);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             BackColor = ThemeManager.Instance.BackgroundLight;
+            AcceptButton = btnSave;
+            CancelButton = btnCancel;
 
             Load += CategoryForm_Load;
             ResumeLayout(false);
