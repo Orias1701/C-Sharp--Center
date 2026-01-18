@@ -43,14 +43,12 @@ namespace WarehouseManagement.Views.Panels
                 BorderStyle = BorderStyle.None,
                 CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
                 ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
-                EnableHeadersVisualStyles = false,  // Quan trọng: cho phép custom màu header
+                EnableHeadersVisualStyles = false,
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
-                    Alignment = DataGridViewContentAlignment.MiddleCenter,
                     BackColor = UIConstants.PrimaryColor.Default,
                     ForeColor = Color.White,
-                    Font = ThemeManager.Instance.FontBold,
-                    Padding = new Padding(10, 0, 0, 0)
+                    Font = ThemeManager.Instance.FontBold
                 },
                 RowHeadersVisible = false,
                 SelectionMode = DataGridViewSelectionMode.FullRowSelect,
@@ -66,21 +64,33 @@ namespace WarehouseManagement.Views.Panels
                 DataPropertyName = "ProductID", 
                 Width = 100,
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 30, 5)
+                }
             });
             
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Tên Sản Phẩm", 
                 DataPropertyName = "ProductName", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5)
+                }
             });
             
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Danh Mục", 
                 DataPropertyName = "CategoryID", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Padding = new Padding(10, 5, 30, 5)
+                }
             });
             
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
@@ -91,7 +101,8 @@ namespace WarehouseManagement.Views.Panels
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0", 
-                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5)
                 } 
             });
             
@@ -102,7 +113,8 @@ namespace WarehouseManagement.Views.Panels
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
-                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5)
                 } 
             });
             
@@ -113,7 +125,8 @@ namespace WarehouseManagement.Views.Panels
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
-                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5)
                 } 
             });
             
@@ -125,7 +138,8 @@ namespace WarehouseManagement.Views.Panels
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0", 
-                    Alignment = DataGridViewContentAlignment.MiddleRight 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5)
                 } 
             });
             
@@ -141,7 +155,11 @@ namespace WarehouseManagement.Views.Panels
                 ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
                 VisitedLinkColor = ThemeManager.Instance.TextPrimary,
                 TrackVisitedState = false,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
             
             dgvProducts.Columns.Add(new DataGridViewLinkColumn 
@@ -156,8 +174,24 @@ namespace WarehouseManagement.Views.Panels
                 ActiveLinkColor = UIConstants.SemanticColors.Error,
                 VisitedLinkColor = ThemeManager.Instance.TextPrimary,
                 TrackVisitedState = false,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 10, 5)
+                }
             });
+
+            // Sync alignment và padding từ content lên header
+            foreach (DataGridViewColumn col in dgvProducts.Columns)
+            {
+                // Copy alignment
+                if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
+                {
+                    col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
+                }
+                // Copy padding (vì khi set alignment, padding có thể bị mất)
+                col.HeaderCell.Style.Padding = new Padding(10, 5, 10, 5);
+            }
 
             dgvProducts.CellFormatting += DgvProducts_CellFormatting;
             dgvProducts.CellClick += DgvProducts_CellClick;
