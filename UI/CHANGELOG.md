@@ -1,5 +1,31 @@
 # 📝 CHANGELOG - UI Components System
 
+## [1.0.3] - 2026-01-18
+
+### 🐛 Bug Fixes
+
+**ComponentsTestPanel - Colors hiển thị cải thiện:**
+- ✅ Fixed: Colors section hiển thị tên màu thay vì màu sắc thực
+- **Root cause**: Label text overlay lên color box làm che màu
+- **Solution**: Tách color box và label, hiển thị label bên dưới color box
+- **Impact**: Màu sắc hiển thị rõ ràng, trực quan cho người dùng, dễ phân biệt các sắc độ
+
+**CustomTextBox - Text vertical alignment:**
+- ✅ Fixed: Text bị lệch xuống dưới, không center theo chiều dọc
+- **Root cause**: TextBox location được set cố định, không tính toán theo font height
+- **Solution**: Tính toán động Y position = (Height - Font.Height) / 2 trong UpdateTextBoxSize()
+- **Impact**: Text được center hoàn hảo theo chiều dọc
+
+**CustomComboBox - Text vertical alignment:**
+- ✅ Fixed: Text trong combobox và dropdown items bị lệch xuống
+- **Root cause**: Text rendering không có vertical alignment
+- **Solution**: 
+  - OnPaint: Tính Y position động cho selected text
+  - DrawItem: Sử dụng StringFormat với LineAlignment = Center
+- **Impact**: Text được center theo chiều dọc trong cả combobox và dropdown
+
+---
+
 ## [1.0.2] - 2026-01-18
 
 ### 🐛 Bug Fixes

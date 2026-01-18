@@ -166,38 +166,49 @@ namespace WarehouseManagement.UI.Components
 
             foreach (var (name, color) in colors)
             {
-                // Tạo container panel để vẽ màu sắc
-                Panel colorBox = new Panel
+                // Container cho mỗi color item (box + label dưới)
+                Panel colorItem = new Panel
                 {
-                    Width = 80,
-                    Height = 40,
-                    BorderStyle = BorderStyle.FixedSingle,
+                    Width = 90,
+                    Height = 65,
                     Margin = new Padding(5, 0, 5, 0)
                 };
+
+                // Color box - hiển thị màu thuần
+                Panel colorBox = new Panel
+                {
+                    Width = 90,
+                    Height = 45,
+                    BackColor = color,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    Location = new Point(0, 0)
+                };
                 
-                // Set màu và disable paint để giữ màu
-                colorBox.BackColor = color;
+                // Override Paint để đảm bảo màu hiển thị đúng
+                Color capturedColor = color; // Capture biến trong closure
                 colorBox.Paint += (s, e) =>
                 {
-                    // Vẽ lại màu để đảm bảo hiển thị đúng
-                    using (SolidBrush brush = new SolidBrush(color))
+                    using (SolidBrush brush = new SolidBrush(capturedColor))
                     {
                         e.Graphics.FillRectangle(brush, colorBox.ClientRectangle);
                     }
                 };
 
+                // Label tên màu - hiển thị bên dưới
                 Label lblColorName = new Label
                 {
                     Text = name,
-                    Dock = DockStyle.Fill,
-                    TextAlign = ContentAlignment.MiddleCenter,
+                    Width = 90,
+                    Height = 18,
+                    Location = new Point(0, 47),
+                    TextAlign = ContentAlignment.TopCenter,
                     Font = new Font(UIConstants.Fonts.FontFamily, UIConstants.Fonts.XXSmall),
-                    ForeColor = GetContrastColor(color),
-                    BackColor = Color.Transparent
+                    ForeColor = ThemeManager.Instance.TextSecondary
                 };
-                colorBox.Controls.Add(lblColorName);
 
-                row.Controls.Add(colorBox);
+                colorItem.Controls.Add(colorBox);
+                colorItem.Controls.Add(lblColorName);
+                row.Controls.Add(colorItem);
             }
 
             return row;

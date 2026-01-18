@@ -160,18 +160,21 @@ namespace WarehouseManagement.UI.Components
             // Draw arrow
             DrawArrow(g, buttonRect);
             
-            // Draw text
+            // Draw text với vertical center alignment
             if (SelectedIndex >= 0)
             {
+                // Tính toán vị trí text để center theo chiều dọc
+                int textY = (Height - Font.Height) / 2;
+                
                 Rectangle textRect = new Rectangle(
                     UIConstants.Spacing.Padding.Medium, 
-                    0, 
+                    textY, 
                     Width - buttonWidth - UIConstants.Spacing.Padding.Medium - 5, 
-                    Height
+                    Font.Height
                 );
                 
                 TextRenderer.DrawText(g, GetItemText(SelectedItem), Font, textRect, 
-                    ForeColor, TextFormatFlags.Left | TextFormatFlags.VerticalCenter);
+                    ForeColor, TextFormatFlags.Left | TextFormatFlags.Top);
             }
         }
 
@@ -229,7 +232,7 @@ namespace WarehouseManagement.UI.Components
 
             e.DrawBackground();
             
-            // Vẽ item
+            // Vẽ item với vertical center alignment
             string text = GetItemText(Items[e.Index]);
             Color textColor = (e.State & DrawItemState.Selected) == DrawItemState.Selected
                 ? SystemColors.HighlightText
@@ -237,7 +240,14 @@ namespace WarehouseManagement.UI.Components
             
             using (SolidBrush brush = new SolidBrush(textColor))
             {
-                e.Graphics.DrawString(text, Font, brush, e.Bounds);
+                using (StringFormat sf = new StringFormat
+                {
+                    LineAlignment = StringAlignment.Center,
+                    Alignment = StringAlignment.Near
+                })
+                {
+                    e.Graphics.DrawString(text, Font, brush, e.Bounds, sf);
+                }
             }
             
             e.DrawFocusRectangle();

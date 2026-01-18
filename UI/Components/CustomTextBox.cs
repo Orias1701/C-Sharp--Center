@@ -24,8 +24,7 @@ namespace WarehouseManagement.UI.Components
             _textBox = new TextBox
             {
                 BorderStyle = BorderStyle.None,
-                Font = ThemeManager.Instance.FontRegular,
-                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Small + 2),
+                Font = ThemeManager.Instance.FontRegular
             };
 
             _textBox.TextChanged += (s, e) => OnTextChanged(e);
@@ -175,9 +174,14 @@ namespace WarehouseManagement.UI.Components
         {
             if (_textBox != null)
             {
+                // Tính toán vị trí Y để center theo chiều dọc
+                int textBoxHeight = _textBox.Font.Height;
+                int yPosition = (Height - textBoxHeight) / 2;
+                
+                _textBox.Location = new Point(UIConstants.Spacing.Padding.Medium, yPosition);
                 _textBox.Size = new Size(
                     Width - UIConstants.Spacing.Padding.Medium * 2,
-                    Height - UIConstants.Spacing.Padding.Small * 2
+                    textBoxHeight
                 );
             }
         }
