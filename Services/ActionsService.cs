@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using MySql.Data.MySqlClient;
@@ -24,11 +24,6 @@ namespace WarehouseManagement.Services
     public class ActionsService
     {
         private readonly ActionsRepository _logRepo;
-        
-        // Save state tracking (merged from SaveManager)
-        private bool _hasUnsavedChanges = false;
-        private DateTime _lastSaveTime = DateTime.Now;
-        private int _changeCount = 0;
 
         // Singleton pattern
         private static ActionsService _instance;
@@ -46,7 +41,6 @@ namespace WarehouseManagement.Services
         private ActionsService()
         {
             _logRepo = new ActionsRepository();
-            _lastSaveTime = DateTime.Now;
         }
 
         #region Action Logging Methods
@@ -237,158 +231,11 @@ namespace WarehouseManagement.Services
         /// <summary>
         /// Đánh dấu có thay đổi chưa lưu
         /// Được gọi từ các Service methods (AddProduct, ImportStock, v.v...)
+        /// NOTE: Phương thức này giờ không làm gì vì không còn giới hạn số lượng thao tác
         /// </summary>
         public void MarkAsChanged()
         {
-            _hasUnsavedChanges = true;
-            _changeCount++;
-        }
-
-        /// <summary>
-        /// Giảm số lượng thay đổi khi hoàn tác hành động
-        /// Được gọi từ Undo functionality
-        /// </summary>
-        public void DecrementChangeCount()
-        {
-            if (_changeCount > 0)
-            {
-                _changeCount--;
-            }
-            
-            // Nếu không còn thay đổi nào, reset trạng thái
-            if (_changeCount == 0)
-            {
-                _hasUnsavedChanges = false;
-            }
-        }
-
-        /// <summary>
-        /// Kiểm tra có thay đổi chưa lưu hay không
-        /// </summary>
-        public bool HasUnsavedChanges => _hasUnsavedChanges;
-
-        /// <summary>
-        /// Lấy số lượng thay đổi từ lần save cuối cùng
-        /// </summary>
-        public int ChangeCount => _changeCount;
-
-        /// <summary>
-        /// Lấy thời gian Save cuối cùng
-        /// </summary>
-        public DateTime LastSaveTime => _lastSaveTime;
-
-        /// <summary>
-        /// Lưu các thay đổi vào database (CommitChanges)
-        /// 
-        /// LUỒNG:
-        /// 1. Tất cả thay đổi đã được thực hiện qua các Service methods
-        /// 2. Đã được ghi vào Actions với CreatedAt = now
-        /// 3. Chỉ cần update lại _lastSaveTime
-        /// 4. Reset trạng thái HasUnsavedChanges và ChangeCount
-        /// 
-        /// Được gọi khi:
-        /// - User click nút "Lưu" (💾)
-        /// - User chọn "Có" (Yes) khi thoát app
-        /// </summary>
-        public void CommitChanges()
-        {
-            try
-            {
-                // Cập nhật thời gian save cuối cùng
-                // Tất cả thay đổi từ lần save trước đến now đều đã được lưu
-                _lastSaveTime = DateTime.Now;
-                
-                // Reset trạng thái
-                _hasUnsavedChanges = false;
-                _changeCount = 0;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi lưu thay đổi: " + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Khôi phục tất cả thay đổi từ lần save cuối cùng
-        /// 
-        /// LUỒNG:
-        /// 1. Truy vấn Actions
-        /// 2. Tìm tất cả hành động từ _lastSaveTime trở đi (CreatedAt >= _lastSaveTime)
-        /// 3. Set Visible=FALSE để "ẩn" những hành động đó
-        /// 4. Không xóa vật lý, chỉ ẩn để giữ nguyên tính lịch sử
-        /// 
-        /// Được gọi khi:
-        /// - User chọn "Không" (No) khi thoát app
-        /// - System cần revert các thay đổi chưa lưu
-        /// </summary>
-        public void RollbackChanges()
-        {
-            try
-            {
-                // Lấy connection string từ App.config
-                string connString = ConfigurationManager.ConnectionStrings["WarehouseDB"].ConnectionString;
-
-                using (var conn = new MySqlConnection(connString))
-                {
-                    conn.Open();
-                    
-                    // Xóa (ẩn) tất cả hành động từ lần save cuối
-                    // Loại trừ hành động Undo để không ảnh hưởng đến undo stack
-                    using (var cmd = new MySqlCommand(
-                        "UPDATE Actions SET Visible=FALSE " +
-                        "WHERE CreatedAt >= @lastSaveTime AND ActionType != 'UNDO_ACTION'", 
-                        conn))
-                    {
-                        cmd.Parameters.AddWithValue("@lastSaveTime", _lastSaveTime);
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-
-                // Reset trạng thái
-                _hasUnsavedChanges = false;
-                _changeCount = 0;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi khôi phục thay đổi: " + ex.Message);
-            }
-        }
-
-        /// <summary>
-        /// Xóa toàn bộ undo stack
-        /// 
-        /// LUỒNG:
-        /// 1. Xóa tất cả hành động trong LIFO undo stack
-        /// 2. Set Visible=FALSE cho tất cả Actions (trừ UNDO_ACTION)
-        /// 3. App sẽ khởi động lại với trạng thái sạch sẽ
-        /// 
-        /// Được gọi khi:
-        /// - App sắp đóng (sau CommitChanges hoặc RollbackChanges)
-        /// - Reset trạng thái toàn bộ
-        /// </summary>
-        public void ClearUndoStack()
-        {
-            try
-            {
-                string connString = ConfigurationManager.ConnectionStrings["WarehouseDB"].ConnectionString;
-
-                using (var conn = new MySqlConnection(connString))
-                {
-                    conn.Open();
-                    
-                    // Xóa (ẩn) tất cả undo stack entry
-                    using (var cmd = new MySqlCommand(
-                        "UPDATE Actions SET Visible=FALSE WHERE ActionType != 'UNDO_ACTION'", 
-                        conn))
-                    {
-                        cmd.ExecuteNonQuery();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi khi xóa undo stack: " + ex.Message);
-            }
+            // Không làm gì - giữ lại để tương thích với code hiện tại
         }
 
         /// <summary>
@@ -397,9 +244,7 @@ namespace WarehouseManagement.Services
         /// </summary>
         public void Reset()
         {
-            _hasUnsavedChanges = false;
-            _changeCount = 0;
-            _lastSaveTime = DateTime.Now;
+            // Không làm gì - giữ lại để tương thích với code hiện tại
         }
 
         #endregion

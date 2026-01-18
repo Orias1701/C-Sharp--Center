@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows.Forms;
 using WarehouseManagement.Services;
 using WarehouseManagement.Controllers;
@@ -32,27 +32,34 @@ namespace WarehouseManagement.Views
         }
 
         /// <summary>
-        /// Xử lý lưu thay đổi vào database
+        /// Xử lý lưu thay đổi vào database và xóa toàn bộ bản ghi Actions
         /// </summary>
         public void Save()
         {
             try
             {
-                if (!_actionsService.HasUnsavedChanges)
+                int actionCount = _actionsService.CountLogs();
+                
+                if (actionCount == 0)
                 {
                     MessageBox.Show("Không có thay đổi nào để lưu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
 
                 if (MessageBox.Show(
-                    $"Bạn muốn lưu {_actionsService.ChangeCount} thay đổi vào database?",
+                    $"Bạn muốn lưu {actionCount} thay đổi vào database?\nTất cả bản ghi thao tác sẽ được xóa sau khi lưu.",
                     "Xác nhận lưu",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question) == DialogResult.Yes)
                 {
-                    _actionsService.CommitChanges();
+                    // Xóa toàn bộ bản ghi trong bảng Actions
+                    _actionsService.ClearAllLogs();
+                    
+                    // Reset trạng thái
+                    _actionsService.Reset();
+                    
                     UpdateChangeStatus();
-                    MessageBox.Show("Đã lưu thay đổi thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    MessageBox.Show("Đã lưu thay đổi và xóa lịch sử thao tác thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception ex)
@@ -79,9 +86,6 @@ namespace WarehouseManagement.Views
                 {
                     MessageBox.Show("Hoàn tác thành công!\nHành động đã bị xóa khỏi lịch sử.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     
-                    // Giảm số lượng thay đổi chưa lưu
-                    _actionsService.DecrementChangeCount();
-                    
                     // Cập nhật dữ liệu và UI
                     _onDataRefresh?.Invoke();
                     UpdateChangeStatus();
@@ -98,20 +102,23 @@ namespace WarehouseManagement.Views
         }
 
         /// <summary>
-        /// Cập nhật trạng thái lưu trên UI
+        /// Cập nhật trạng thái lưu trên UI - Hiển thị số lượng bản ghi trong bảng Actions
         /// </summary>
         public void UpdateChangeStatus()
         {
-            if (_actionsService.HasUnsavedChanges)
+            int actionCount = _actionsService.CountLogs();
+            
+            if (actionCount > 0)
             {
-                _lblChangeStatus.Text = $"⚠️ Chưa lưu: {_actionsService.ChangeCount} thay đổi";
-                _lblChangeStatus.ForeColor = System.Drawing.Color.Red;
+                string changeText = actionCount == 1 ? "1 change" : $"{actionCount} changes";
+                _lblChangeStatus.Text = changeText;
+                _lblChangeStatus.ForeColor = System.Drawing.Color.Orange;
                 _btnSave.Enabled = true;
             }
             else
             {
-                _lblChangeStatus.Text = "✓ Tất cả thay đổi đã được lưu";
-                _lblChangeStatus.ForeColor = System.Drawing.Color.Green;
+                _lblChangeStatus.Text = "";
+                _lblChangeStatus.ForeColor = System.Drawing.Color.Gray;
                 _btnSave.Enabled = false;
             }
         }

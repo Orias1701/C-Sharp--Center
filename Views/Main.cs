@@ -171,27 +171,20 @@ namespace WarehouseManagement.Views
             );
 
             // ToolsBar events
-            toolsBar.TxtSearch.TextChanged += TxtSearch_TextChanged;
-            toolsBar.BtnSearch.Click += (s, e) => TxtSearch_TextChanged(null, null);
-            toolsBar.BtnAddRecord.Click += BtnAddRecord_Click;
-            toolsBar.BtnImport.Click += BtnImport_Click;
-            toolsBar.BtnExport.Click += BtnExport_Click;
-            toolsBar.BtnUndo.Click += BtnUndo_Click;
-            toolsBar.BtnSave.Click += BtnSave_Click;
-            toolsBar.BtnReport.Click += BtnReport_Click;
+            toolsBar.SearchRequested += OnSearchRequested;
+            toolsBar.AddRequested += OnAddRequested;
+            toolsBar.TransactionRequested += OnTransactionRequested;
+            toolsBar.UndoRequested += OnUndoRequested;
+            toolsBar.SaveRequested += OnSaveRequested;
+            toolsBar.ReportRequested += OnReportRequested;
 
             // MenuBar events
-            menuBar.BtnCategories.Click += (s, e) => ShowPanel(0);
-            menuBar.BtnProducts.Click += (s, e) => ShowPanel(1);
-            menuBar.BtnTransactions.Click += (s, e) => ShowPanel(2);
-            menuBar.BtnSettings.Click += BtnSettings_Click;
-            menuBar.BtnAccount.Click += BtnAccount_Click;
+            menuBar.PanelChangeRequested += OnPanelChangeRequested;
+            menuBar.SettingsRequested += OnSettingsRequested;
+            menuBar.AccountMenuRequested += OnAccountMenuRequested;
 
             // Update account button text
-            if (GlobalUser.CurrentUser != null)
-            {
-                menuBar.BtnAccount.Text = $"{UIConstants.Icons.User} {GlobalUser.CurrentUser.FullName}";
-            }
+            menuBar.UpdateAccountButtonText();
         }
 
         private void InitializeTimers()
@@ -209,81 +202,70 @@ namespace WarehouseManagement.Views
             timeUpdateTimer.Tick += (s, e) => footer.LblFooterTime.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
         }
 
-        private void ShowPanel(int index)
+        // Event handlers for MenuBar
+        private void OnPanelChangeRequested(object sender, int panelIndex)
         {
-            ResetSearch();
+            toolsBar.ResetSearch();
 
             // Hide all panels
             categoriesPanel.Visible = false;
             productsPanel.Visible = false;
             transactionsPanel.Visible = false;
 
-            // Update Menu Button States
-            menuBar.BtnCategories.IsSelected = (index == 0);
-            menuBar.BtnProducts.IsSelected = (index == 1);
-            menuBar.BtnTransactions.IsSelected = (index == 2);
+            // Update menu button states
+            menuBar.SetSelectedPanel(panelIndex);
             
             // Show selected panel
-            switch (index)
+            switch (panelIndex)
             {
-                case 0:
+                case 0: // Categories
                     categoriesPanel.Visible = true;
                     categoriesPanel.BringToFront();
                     break;
-                case 1:
+                case 1: // Products
                     productsPanel.Visible = true;
                     productsPanel.BringToFront();
                     break;
-                case 2:
+                case 2: // Transactions
                     transactionsPanel.Visible = true;
                     transactionsPanel.BringToFront();
                     break;
             }
+            
+            // Update toolbar state based on panel
+            SetToolbarStateForPanel(panelIndex);
         }
-
-        private void BtnAddRecord_Click(object sender, EventArgs e)
+        
+        /// <summary>
+        /// Set trạng thái toolbar (enable/disable và text) dựa trên panel đang hiển thị
+        /// </summary>
+        private void SetToolbarStateForPanel(int panelIndex)
         {
-            // Determine which form to open based on currently visible panel
-            if (categoriesPanel.Visible)
+            switch (panelIndex)
             {
-                CategoryForm form = new CategoryForm();
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    categoriesPanel.LoadData();
-                    productsPanel.LoadData();
-                    _actions?.UpdateChangeStatus();
-                }
-            }
-            else if (productsPanel.Visible)
-            {
-                ProductForm form = new ProductForm();
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    productsPanel.LoadData();
-                    _actions?.UpdateChangeStatus();
-                }
-            }
-            else if (transactionsPanel.Visible)
-            {
-                ProductForm form = new ProductForm();
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    productsPanel.LoadData();
-                    transactionsPanel.LoadData();
-                    _actions?.UpdateChangeStatus();
-                }
+                case 0: // Categories
+                    toolsBar.BtnAdd.Enabled = true;
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm Danh mục";
+                    break;
+                case 1: // Products
+                    toolsBar.BtnAdd.Enabled = true;
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm Sản phẩm";
+                    break;
+                case 2: // Transactions
+                    toolsBar.BtnAdd.Enabled = false;
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm";
+                    break;
             }
         }
 
-        private void BtnSettings_Click(object sender, EventArgs e)
+        private void OnSettingsRequested(object sender, EventArgs e)
         {
             SettingsForm settingsForm = new SettingsForm();
             settingsForm.ShowDialog();
         }
 
-        private void BtnAccount_Click(object sender, EventArgs e)
+        private void OnAccountMenuRequested(object sender, EventArgs e)
         {
-            // Show popup with Switch Account and Quit options
             ContextMenuStrip menu = new ContextMenuStrip();
             menu.Items.Add("🔄 Chuyển Account", null, (s, e) =>
             {
@@ -292,7 +274,7 @@ namespace WarehouseManagement.Views
                 loginForm.ShowDialog();
                 if (GlobalUser.CurrentUser != null)
                 {
-                    menuBar.BtnAccount.Text = "👤 " + GlobalUser.CurrentUser.FullName;
+                    menuBar.UpdateAccountButtonText();
                     this.Show();
                 }
                 else
@@ -304,32 +286,52 @@ namespace WarehouseManagement.Views
             menu.Show(menuBar.BtnAccount, 0, menuBar.BtnAccount.Height);
         }
 
-        private void ResetSearch()
+        // Event handlers for ToolsBar
+        private void OnSearchRequested(object sender, EventArgs e)
         {
-            toolsBar.TxtSearch.Text = "Tìm kiếm...";
-            toolsBar.TxtSearch.ForeColor = Color.Gray;
-        }
+            string searchText = toolsBar.GetSearchText();
 
-        private void TxtSearch_TextChanged(object sender, EventArgs e)
-        {
-            if (toolsBar.TxtSearch.Text == "Tìm kiếm...") return;
-
-            // Determine which panel is visible and search
             Control panel = null;
-
             if (categoriesPanel.Visible) panel = categoriesPanel;
             else if (productsPanel.Visible) panel = productsPanel;
             else if (transactionsPanel.Visible) panel = transactionsPanel;
 
             if (panel is ISearchable searchable)
             {
-                searchable.Search(toolsBar.TxtSearch.Text);
+                // Nếu searchText rỗng, sẽ hiển thị tất cả (Contains("") = true)
+                searchable.Search(searchText);
             }
         }
 
-        private void BtnImport_Click(object sender, EventArgs e)
+        private void OnAddRequested(object sender, EventArgs e)
         {
-            TransactionAllForm form = new TransactionAllForm("Import");
+            // Xác định panel hiện tại và mở form tương ứng
+            if (categoriesPanel.Visible)
+            {
+                // Đang ở trang Categories → Thêm Danh mục
+                CategoryForm form = new CategoryForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    RefreshAllData();
+                    _actions?.UpdateChangeStatus();
+                }
+            }
+            else if (productsPanel.Visible)
+            {
+                // Đang ở trang Products → Thêm Sản phẩm
+                ProductForm form = new ProductForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    RefreshAllData();
+                    _actions?.UpdateChangeStatus();
+                }
+            }
+            // Nếu ở trang Transactions, nút đã bị disable nên không thể vào đây
+        }
+
+        private void OnTransactionRequested(object sender, EventArgs e)
+        {
+            TransactionAllForm form = new TransactionAllForm();
             if (form.ShowDialog() == DialogResult.OK)
             {
                 RefreshAllData();
@@ -337,33 +339,17 @@ namespace WarehouseManagement.Views
             }
         }
 
-        private void BtnExport_Click(object sender, EventArgs e)
+        private void OnUndoRequested(object sender, EventArgs e)
         {
-            TransactionAllForm form = new TransactionAllForm("Export");
-            if (form.ShowDialog() == DialogResult.OK)
-            {
-                RefreshAllData();
-                _actions?.UpdateChangeStatus();
-            }
+            _actions?.Undo();
         }
 
-        private void BtnUndo_Click(object sender, EventArgs e)
+        private void OnSaveRequested(object sender, EventArgs e)
         {
-            if (_actions != null)
-            {
-                _actions.Undo();
-            }
+            _actions?.Save();
         }
 
-        private void BtnSave_Click(object sender, EventArgs e)
-        {
-            if (_actions != null)
-            {
-                _actions.Save();
-            }
-        }
-
-        private void BtnReport_Click(object sender, EventArgs e)
+        private void OnReportRequested(object sender, EventArgs e)
         {
             TransactionReportForm form = new TransactionReportForm();
             form.ShowDialog();
@@ -382,6 +368,16 @@ namespace WarehouseManagement.Views
             {
                 // Staff restrictions here if needed
             }
+
+            // Set initial panel state (Categories is default)
+            int initialPanel = 0; // Categories
+            if (categoriesPanel.Visible) initialPanel = 0;
+            else if (productsPanel.Visible) initialPanel = 1;
+            else if (transactionsPanel.Visible) initialPanel = 2;
+            
+            // Set menu button state và toolbar button state
+            menuBar.SetSelectedPanel(initialPanel);
+            SetToolbarStateForPanel(initialPanel);
 
             statusUpdateTimer?.Start();
             timeUpdateTimer?.Start();
@@ -402,10 +398,12 @@ namespace WarehouseManagement.Views
                 timeUpdateTimer?.Stop();
                 timeUpdateTimer?.Dispose();
 
-                if (_actionsService.HasUnsavedChanges)
+                int actionCount = _actionsService.CountLogs();
+                if (actionCount > 0)
                 {
+                    string changeText = actionCount == 1 ? "1 thay đổi" : $"{actionCount} thay đổi";
                     DialogResult result = MessageBox.Show(
-                        $"Có {_actionsService.ChangeCount} thay đổi chưa được lưu.\n\nBạn muốn lưu trước khi thoát?",
+                        $"Có {changeText} chưa được lưu.\n\nBạn muốn lưu trước khi thoát?",
                         "Xác nhận thoát",
                         MessageBoxButtons.YesNoCancel,
                         MessageBoxIcon.Question);
@@ -418,13 +416,14 @@ namespace WarehouseManagement.Views
 
                     if (result == DialogResult.Yes)
                     {
-                        _actionsService.CommitChanges();
+                        _actionsService.ClearAllLogs();
+                        _actionsService.Reset();
                         MessageBox.Show("Đã lưu thay đổi.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                     else if (result == DialogResult.No)
                     {
-                        _actionsService.RollbackChanges();
-                        MessageBox.Show("Đã hủy bỏ tất cả thay đổi từ lần lưu cuối.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        _actionsService.ClearAllLogs();
+                        MessageBox.Show("Đã hủy bỏ tất cả thay đổi.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
 

@@ -164,6 +164,16 @@ namespace WarehouseManagement.UI.Components
             }
         }
 
+        /// <summary>
+        /// Clear text và hiển thị lại placeholder
+        /// </summary>
+        public void Clear()
+        {
+            _textBox.Text = "";
+            _textBox.ForeColor = ThemeManager.Instance.TextPrimary;
+            UpdatePlaceholder();
+        }
+
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);

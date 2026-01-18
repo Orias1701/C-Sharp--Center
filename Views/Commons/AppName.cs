@@ -15,6 +15,25 @@ namespace WarehouseManagement.Views.Commons
         public AppName()
         {
             InitializeComponent();
+            ApplyPrimaryColor();
+            
+            // Subscribe to theme changes to reapply primary color
+            ThemeManager.Instance.ThemeChanged += (s, e) => ApplyPrimaryColor();
+        }
+        
+        private void ApplyPrimaryColor()
+        {
+            if (lblAppName != null)
+            {
+                lblAppName.ForeColor = UIConstants.PrimaryColor.Default;
+            }
+        }
+        
+        protected override void OnControlAdded(ControlEventArgs e)
+        {
+            base.OnControlAdded(e);
+            // Reapply primary color after controls are added
+            ApplyPrimaryColor();
         }
 
         private void InitializeComponent()
@@ -35,12 +54,12 @@ namespace WarehouseManagement.Views.Commons
             // App name label
             lblAppName = new Label
             {
-                Text = $"{UIConstants.Icons.Warehouse} MANAGER",
-                Font = ThemeManager.Instance.GetFont(UIConstants.Fonts.Large, FontStyle.Bold),
-                ForeColor = ThemeManager.Instance.PrimaryDefault,
+                Text = $"WAREHOUSE",
+                Font = ThemeManager.Instance.FontBold,
+                ForeColor = UIConstants.PrimaryColor.Default,
                 AutoSize = false,
                 Dock = DockStyle.Fill,
-                TextAlign = ContentAlignment.MiddleLeft
+                TextAlign = ContentAlignment.MiddleCenter
             };
 
             Controls.Add(lblAppName);

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WarehouseManagement.Models;
@@ -478,11 +478,10 @@ namespace WarehouseManagement.Services
                     {
                         try
                         {
-                            // Remove from undo stack after processing
+                            // Remove from undo stack after processing (xóa bản ghi Actions)
                             if (_logRepo != null)
                             {
                                 _logRepo.RemoveFromUndoStack(lastLog.LogID);
-                                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
                             }
                         }
                         catch (Exception ex)
@@ -613,19 +612,16 @@ namespace WarehouseManagement.Services
                             return false;
                     }
 
-                    // Remove from undo stack after successful undo
+                    // Remove from undo stack after successful undo (xóa bản ghi Actions đã hoàn tác)
                     if (undoSuccess)
                     {
                         try
                         {
-                            // Ensure the action is marked as processed
+                            // Xóa bản ghi Actions khỏi database
                             if (_logRepo != null)
                             {
                                 bool removeSuccess = _logRepo.RemoveFromUndoStack(lastLog.LogID);
                                 System.Diagnostics.Debug.WriteLine($"UndoLastAction: Removed LogID={lastLog.LogID} from stack, success={removeSuccess}");
-                                
-                                _logRepo.LogAction("UNDO_ACTION", $"Hoàn tác hành động {lastLog.ActionType}");
-                                System.Diagnostics.Debug.WriteLine($"UndoLastAction: Logged UNDO_ACTION for {lastLog.ActionType}");
                             }
                         }
                         catch (Exception ex)

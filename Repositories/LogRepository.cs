@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using MySql.Data.MySqlClient;
@@ -127,7 +127,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        $"SELECT * FROM Actions WHERE Visible=TRUE AND ActionType != 'UNDO_ACTION' ORDER BY CreatedAt DESC LIMIT {Math.Min(count, 10)}", conn))
+                        $"SELECT * FROM Actions WHERE Visible=TRUE ORDER BY CreatedAt DESC LIMIT {Math.Min(count, 10)}", conn))
                     {
                         using (var reader = cmd.ExecuteReader())
                         {
@@ -154,7 +154,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa mềm hành động từ undo stack (set Visible=FALSE)
+        /// Xóa hoàn toàn hành động từ undo stack (hard delete từ database)
         /// </summary>
         public bool RemoveFromUndoStack(int logId)
         {
@@ -164,7 +164,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "UPDATE Actions SET Visible=FALSE WHERE LogID=@id", conn))
+                        "DELETE FROM Actions WHERE LogID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", logId);
                         return cmd.ExecuteNonQuery() > 0;

@@ -143,8 +143,12 @@ namespace WarehouseManagement.Views.Panels
             dgvCategories.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
             dgvCategories.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             dgvCategories.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvCategories.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
+            dgvCategories.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvCategories.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
             dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemeManager.Instance.BackgroundLight;
+            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
         }
 
         public void LoadData()
@@ -167,7 +171,11 @@ namespace WarehouseManagement.Views.Panels
             try
             {
                 string search = searchText.ToLower();
-                List<Category> filtered = allCategories.FindAll(c => c.CategoryName.ToLower().Contains(search));
+                List<Category> filtered = allCategories.FindAll(c => 
+                    c.CategoryID.ToString().Contains(search) ||
+                    c.CategoryName.ToLower().Contains(search) ||
+                    (c.Description != null && c.Description.ToLower().Contains(search))
+                );
                 dgvCategories.DataSource = filtered;
             }
             catch { }

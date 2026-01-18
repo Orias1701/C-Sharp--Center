@@ -16,8 +16,8 @@ namespace WarehouseManagement.UI
             public static readonly Color Active = ColorTranslator.FromHtml("#FF6B62");   // Đậm hơn khi active
             public static readonly Color Hover = ColorTranslator.FromHtml("#FF9D97");    // Sáng hơn khi hover
             public static readonly Color Pressed = ColorTranslator.FromHtml("#E6776F");  // Tối hơn khi pressed
+            public static readonly Color Light = ColorTranslator.FromHtml("#FFE5E3");    // Màu nhẹ cho selection
             public static readonly Color Disabled = ColorTranslator.FromHtml("#FFBFBA"); // Mờ đi khi disabled
-            public static readonly Color Light = ColorTranslator.FromHtml("#FFD1CE");    // Rất sáng
             public static readonly Color Dark = ColorTranslator.FromHtml("#CC6964");     // Rất tối
         }
 
@@ -222,11 +222,11 @@ namespace WarehouseManagement.UI
             public const string EditAlt = "📝";
             public const string Delete = "🗑️";
             public const string DeleteAlt = "✖";
-            public const string Save = "💾";
+            public const string Save = "✔";
             public const string SaveAlt = "✓";
             public const string Cancel = "❌";
             public const string CancelAlt = "✗";
-            public const string Refresh = "🔄";
+            public const string Refresh = "↺";
             public const string RefreshAlt = "↻";
             public const string Search = "🔍";
             public const string Filter = "🔽";
@@ -237,7 +237,7 @@ namespace WarehouseManagement.UI
             public const string Copy = "📋";
             public const string Cut = "✂️";
             public const string Paste = "📄";
-            public const string Undo = "↶";
+            public const string Undo = "➲";
             public const string Redo = "↷";
             public const string Print = "🖨️";
             public const string Download = "⬇️";

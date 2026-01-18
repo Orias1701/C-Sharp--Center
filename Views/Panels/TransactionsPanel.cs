@@ -80,7 +80,11 @@ namespace WarehouseManagement.Views.Panels
                 HeaderText = "Ngày", 
                 DataPropertyName = "DateCreated", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                DefaultCellStyle = new DataGridViewCellStyle { Format = "dd/MM/yyyy HH:mm" } 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "dd/MM/yyyy HH:mm",
+                    Alignment = DataGridViewContentAlignment.MiddleCenter 
+                } 
             });
             
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
@@ -150,8 +154,12 @@ namespace WarehouseManagement.Views.Panels
             dgvTransactions.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
             dgvTransactions.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             dgvTransactions.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvTransactions.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
+            dgvTransactions.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvTransactions.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
             dgvTransactions.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemeManager.Instance.BackgroundLight;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
         }
 
         public void LoadData()

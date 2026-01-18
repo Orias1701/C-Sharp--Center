@@ -11,30 +11,31 @@ using WarehouseManagement.UI.Components;
 namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
-    /// Form Tạo phiếu Nhập/Xuất kho
+    /// Form Tạo phiếu Nhập/Xuất kho với TabControl
     /// </summary>
     public partial class TransactionAllForm : Form
     {
         private string _transactionType; // "Import" hoặc "Export"
         private InventoryController _inventoryController;
         private ProductController _productController;
+        private TabControl tabControl;
         private CustomComboBox cmbProduct;
         private CustomTextBox txtQuantity, txtUnitPrice;
         private CustomTextArea txtNote;
         private DataGridView dgvDetails;
         private CustomButton btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel, btnExportVoucher;
         private List<(int ProductID, int Quantity, decimal UnitPrice)> _details;
+        private Panel contentPanel;
 
-        public TransactionAllForm(string type)
+        public TransactionAllForm()
         {
             InitializeComponent();
-            _transactionType = type;
+            _transactionType = "Import"; // Mặc định là Import
             _details = new List<(int, int, decimal)>();
             _inventoryController = new InventoryController();
             _productController = new ProductController();
             
-            string icon = type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
-            Text = type == "Import" ? $"{icon} Phiếu Nhập Kho" : $"{icon} Phiếu Xuất Kho";
+            Text = $"{UIConstants.Icons.Transaction} Giao dịch";
             
             // Apply theme
             ThemeManager.Instance.ApplyThemeToForm(this);
@@ -44,15 +45,50 @@ namespace WarehouseManagement.Views.Forms
         {
             SuspendLayout();
 
-            // Main container
-            CustomPanel mainPanel = new CustomPanel
+            // TabControl
+            tabControl = new TabControl
+            {
+                Dock = DockStyle.Top,
+                Height = 35,
+                Font = ThemeManager.Instance.FontMedium
+            };
+
+            // Import Tab
+            TabPage importTab = new TabPage($"{UIConstants.Icons.Import} Nhập kho");
+            tabControl.TabPages.Add(importTab);
+
+            // Export Tab
+            TabPage exportTab = new TabPage($"{UIConstants.Icons.Export} Xuất kho");
+            tabControl.TabPages.Add(exportTab);
+
+            tabControl.SelectedIndexChanged += TabControl_SelectedIndexChanged;
+
+            // Content Panel (chứa form content)
+            contentPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BorderRadius = UIConstants.Borders.RadiusLarge,
-                ShowBorder = false,
+                BackColor = ThemeManager.Instance.BackgroundLight,
                 Padding = new Padding(UIConstants.Spacing.Padding.Large)
             };
 
+            InitializeFormContent();
+
+            Controls.Add(contentPanel);
+            Controls.Add(tabControl);
+
+            ClientSize = new Size(620, 635); // Tăng height để chứa TabControl
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            BackColor = ThemeManager.Instance.BackgroundLight;
+
+            Load += TransactionAllForm_Load;
+            ResumeLayout(false);
+        }
+
+        private void InitializeFormContent()
+        {
             const int LEFT_MARGIN = 20;
             int currentY = 20;
             int spacing = UIConstants.Spacing.Margin.Medium;
@@ -213,32 +249,35 @@ namespace WarehouseManagement.Views.Forms
             btnCancel.Click += BtnCancel_Click;
             btnExportVoucher.Click += BtnExportVoucher_Click;
 
-            mainPanel.Controls.Add(lblProduct);
-            mainPanel.Controls.Add(cmbProduct);
-            mainPanel.Controls.Add(lblQuantity);
-            mainPanel.Controls.Add(txtQuantity);
-            mainPanel.Controls.Add(lblPrice);
-            mainPanel.Controls.Add(txtUnitPrice);
-            mainPanel.Controls.Add(lblNote);
-            mainPanel.Controls.Add(txtNote);
-            mainPanel.Controls.Add(btnAddDetail);
-            mainPanel.Controls.Add(btnRemoveDetail);
-            mainPanel.Controls.Add(btnSaveTransaction);
-            mainPanel.Controls.Add(btnExportVoucher);
-            mainPanel.Controls.Add(btnCancel);
-            mainPanel.Controls.Add(dgvDetails);
+            contentPanel.Controls.Add(lblProduct);
+            contentPanel.Controls.Add(cmbProduct);
+            contentPanel.Controls.Add(lblQuantity);
+            contentPanel.Controls.Add(txtQuantity);
+            contentPanel.Controls.Add(lblPrice);
+            contentPanel.Controls.Add(txtUnitPrice);
+            contentPanel.Controls.Add(lblNote);
+            contentPanel.Controls.Add(txtNote);
+            contentPanel.Controls.Add(btnAddDetail);
+            contentPanel.Controls.Add(btnRemoveDetail);
+            contentPanel.Controls.Add(btnSaveTransaction);
+            contentPanel.Controls.Add(btnExportVoucher);
+            contentPanel.Controls.Add(btnCancel);
+            contentPanel.Controls.Add(dgvDetails);
+        }
 
-            Controls.Add(mainPanel);
-
-            ClientSize = new Size(620, 600);
-            StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            BackColor = ThemeManager.Instance.BackgroundLight;
-
-            Load += TransactionAllForm_Load;
-            ResumeLayout(false);
+        private void TabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Đổi transaction type khi chuyển tab
+            _transactionType = tabControl.SelectedIndex == 0 ? "Import" : "Export";
+            
+            // Clear current details when switching tabs
+            _details.Clear();
+            RefreshDetails();
+            
+            // Clear inputs
+            txtQuantity.Text = "";
+            txtUnitPrice.Text = "";
+            txtNote.Text = "";
         }
 
         private void BtnExportVoucher_Click(object sender, EventArgs e)

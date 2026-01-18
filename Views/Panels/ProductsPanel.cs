@@ -190,8 +190,12 @@ namespace WarehouseManagement.Views.Panels
             dgvProducts.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
             dgvProducts.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             dgvProducts.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvProducts.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
+            dgvProducts.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
             dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemeManager.Instance.BackgroundLight;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
         }
 
         public void LoadData()
@@ -213,7 +217,12 @@ namespace WarehouseManagement.Views.Panels
             try
             {
                 string search = searchText.ToLower();
-                List<Product> filtered = allProducts.FindAll(p => p.ProductName.ToLower().Contains(search));
+                List<Product> filtered = allProducts.FindAll(p => 
+                    p.ProductID.ToString().Contains(search) ||
+                    p.ProductName.ToLower().Contains(search) ||
+                    p.Price.ToString().Contains(search) ||
+                    p.Quantity.ToString().Contains(search)
+                );
                 dgvProducts.DataSource = filtered;
             }
             catch { }
