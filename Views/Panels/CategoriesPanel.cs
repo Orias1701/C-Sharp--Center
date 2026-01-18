@@ -43,11 +43,12 @@ namespace WarehouseManagement.Views.Panels
                 BorderStyle = BorderStyle.None,
                 CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
                 ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,  // Quan trọng: cho phép custom màu header
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    BackColor = ThemeManager.Instance.BackgroundLight,
-                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    BackColor = UIConstants.PrimaryColor.Default,
+                    ForeColor = Color.White,
                     Font = ThemeManager.Instance.FontBold,
                     Padding = new Padding(10, 0, 0, 0)
                 },
@@ -145,10 +146,10 @@ namespace WarehouseManagement.Views.Panels
             dgvCategories.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
             dgvCategories.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
             dgvCategories.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
-            dgvCategories.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
-            dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemeManager.Instance.BackgroundLight;
-            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvCategories.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
+            dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()

@@ -42,11 +42,12 @@ namespace WarehouseManagement.Views.Panels
                 BorderStyle = BorderStyle.None,
                 CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
                 ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,  // Quan trọng: cho phép custom màu header
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    BackColor = ThemeManager.Instance.BackgroundLight,
-                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    BackColor = UIConstants.PrimaryColor.Default,
+                    ForeColor = Color.White,
                     Font = ThemeManager.Instance.FontBold,
                     Padding = new Padding(10, 0, 0, 0)
                 },
@@ -156,10 +157,10 @@ namespace WarehouseManagement.Views.Panels
             dgvTransactions.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
             dgvTransactions.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
             dgvTransactions.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
-            dgvTransactions.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
-            dgvTransactions.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-            dgvTransactions.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemeManager.Instance.BackgroundLight;
-            dgvTransactions.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvTransactions.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()

@@ -43,11 +43,12 @@ namespace WarehouseManagement.Views.Panels
                 BorderStyle = BorderStyle.None,
                 CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
                 ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,  // Quan trọng: cho phép custom màu header
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    BackColor = ThemeManager.Instance.BackgroundLight,
-                    ForeColor = ThemeManager.Instance.TextPrimary,
+                    BackColor = UIConstants.PrimaryColor.Default,
+                    ForeColor = Color.White,
                     Font = ThemeManager.Instance.FontBold,
                     Padding = new Padding(10, 0, 0, 0)
                 },
@@ -192,10 +193,10 @@ namespace WarehouseManagement.Views.Panels
             dgvProducts.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
             dgvProducts.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
             dgvProducts.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
-            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundLight;
-            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = ThemeManager.Instance.BackgroundLight;
-            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
+            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvProducts.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()
