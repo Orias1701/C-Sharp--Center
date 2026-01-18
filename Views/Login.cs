@@ -210,7 +210,7 @@ namespace WarehouseManagement.Views
             {
                 Location = new Point(50, 210),
                 Width = 380,
-                Placeholder = "Nhập mật khẩu...",
+                Placeholder = "********",
                 IsPassword = true,
                 TabIndex = 1,
                 TabStop = true

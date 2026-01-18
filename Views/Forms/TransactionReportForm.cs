@@ -10,19 +10,36 @@ namespace WarehouseManagement.Views.Forms
 {
     /// <summary>
     /// Form báo cáo Nhập/Xuất theo ngày (30 ngày gần nhất)
-    /// Hiển thị biểu đồ cột đôi và bảng dữ liệu
+    /// Kích thước cố định dựa trên A4 landscape (1400x900px)
     /// </summary>
     public class TransactionReportForm : Form
     {
-        private PictureBox pictureBox;
+        private PictureBox pictureBoxImport;
+        private PictureBox pictureBoxExport;
         private DataGridView dgvReport;
         private ChartService chartService;
         private List<string> days;
         private List<decimal> imports;
         private List<decimal> exports;
-        private decimal maxValue;
+        private decimal maxImport;
+        private decimal maxExport;
         private CustomDateTimePicker dtpAnchorDate;
         private CustomButton btnExportReport;
+
+        // Kích thước cố định dựa trên A4 landscape scaled 1.4x
+        private const int FORM_WIDTH = 1400;
+        private const int FORM_HEIGHT = 900;
+        private const int MARGIN = 75; // 2cm vùng an toàn
+        private const int BUTTON_HEIGHT = 65;
+        private const int GAP = 20;
+        
+        // Tính toán kích thước nội dung
+        private const int CONTENT_WIDTH = FORM_WIDTH - (MARGIN * 2); // 1250px - margin trái phải
+        // CONTENT_HEIGHT = Total height - Button height - Margin below button - Margin at bottom
+        private const int CONTENT_HEIGHT = FORM_HEIGHT - BUTTON_HEIGHT - (MARGIN * 2); // 900 - 65 - 150 = 685px
+        private const int TABLE_WIDTH = (int)(CONTENT_WIDTH * 0.34); // 34%
+        private const int CHART_AREA_WIDTH = CONTENT_WIDTH - TABLE_WIDTH - GAP;
+        private const int CHART_HEIGHT = (CONTENT_HEIGHT - GAP) / 2;
 
         public TransactionReportForm()
         {
@@ -30,9 +47,7 @@ namespace WarehouseManagement.Views.Forms
             days = new List<string>();
             imports = new List<decimal>();
             exports = new List<decimal>();
-            Console.WriteLine("[TransactionReportForm] Constructor started");
             InitializeComponent();
-            Console.WriteLine("[TransactionReportForm] Constructor completed");
             
             // Apply theme
             ThemeManager.Instance.ApplyThemeToForm(this);
@@ -40,106 +55,219 @@ namespace WarehouseManagement.Views.Forms
 
         private void InitializeComponent()
         {
-            try
+            SuspendLayout();
+
+            // Form settings - FIXED SIZE based on A4 landscape
+            Text = $"{UIConstants.Icons.Chart} Báo Cáo Nhập/Xuất";
+            ClientSize = new Size(FORM_WIDTH, FORM_HEIGHT);
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = true;
+            BackColor = ThemeManager.Instance.BackgroundLight;
+
+            // Button panel (top area with margin from form edges)
+            CustomPanel buttonPanel = new CustomPanel
             {
-                Console.WriteLine("[INFO] InitializeComponent: Bắt đầu");
+                Location = new Point(MARGIN, MARGIN / 2), // Margin từ trái và trên
+                Size = new Size(CONTENT_WIDTH, BUTTON_HEIGHT),
+                BackColor = ThemeManager.Instance.BackgroundLight,
+                ShowBorder = false
+            };
 
-                // Form settings
-                Text = $"{UIConstants.Icons.Chart} Báo Cáo Nhập/Xuất";
-                Width = 1000;
-                Height = 700;
-                StartPosition = FormStartPosition.CenterParent;
-                MaximizeBox = true;
-                MinimizeBox = true;
-                BackColor = ThemeManager.Instance.BackgroundLight;
-
-                // Panel nút (trên cùng)
-                CustomPanel buttonPanel = new CustomPanel
-                {
-                    Dock = DockStyle.Top,
-                    Height = 65,
-                    BackColor = ThemeManager.Instance.BackgroundLight,
-                    ShowBorder = false,
-                    Padding = new Padding(UIConstants.Spacing.Padding.Medium)
-                };
-
-                Label lblAnchorDate = new Label
-                {
-                    Text = $"{UIConstants.Icons.Calendar} Chọn ngày:",
-                    Left = 15,
-                    Top = 18,
-                    Width = 95,
-                    Height = 25,
-                    Font = ThemeManager.Instance.FontRegular,
-                    TextAlign = ContentAlignment.MiddleLeft
-                };
-                buttonPanel.Controls.Add(lblAnchorDate);
-
-                dtpAnchorDate = new CustomDateTimePicker
-                {
-                    Left = 115,
-                    Top = 15,
-                    Width = 160,
-                    Value = DateTime.Now,
-                    CustomFormat = "dd/MM/yyyy",
-                    BorderRadius = UIConstants.Borders.RadiusMedium
-                };
-                dtpAnchorDate.ValueChanged += (s, e) => LoadReport();
-                buttonPanel.Controls.Add(dtpAnchorDate);
-
-                btnExportReport = new CustomButton
-                {
-                    Text = $"{UIConstants.Icons.Export} Xuất Báo Cáo",
-                    Left = 290,
-                    Top = 15,
-                    Width = 150,
-                    ButtonStyleType = ButtonStyle.FilledNoOutline
-                };
-                btnExportReport.Click += BtnExportReport_Click;
-                buttonPanel.Controls.Add(btnExportReport);
-
-                // PictureBox cho biểu đồ
-                pictureBox = new PictureBox
-                {
-                    Dock = DockStyle.Top,
-                    Height = 350,
-                    BackColor = ThemeManager.Instance.BackgroundDefault,
-                    BorderStyle = BorderStyle.FixedSingle
-                };
-                pictureBox.Resize += PictureBox_Resize;
-
-                // DataGridView cho bảng
-                dgvReport = new DataGridView
-                {
-                    Dock = DockStyle.Fill,
-                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                    ReadOnly = true,
-                    AllowUserToAddRows = false,
-                    AllowUserToDeleteRows = false,
-                    BackgroundColor = ThemeManager.Instance.BackgroundDefault,
-                    BorderStyle = BorderStyle.FixedSingle,
-                    RowHeadersVisible = false,
-                    Font = ThemeManager.Instance.FontRegular
-                };
-
-                dgvReport.Columns.Add("Day", "Ngày");
-                dgvReport.Columns.Add("Import", "Tổng Nhập Kho");
-                dgvReport.Columns.Add("Export", "Tổng Xuất Kho");
-
-                Controls.Add(dgvReport);
-                Controls.Add(pictureBox);
-                Controls.Add(buttonPanel);
-
-                Load += TransactionReportForm_Load;
-
-                Console.WriteLine("[INFO] InitializeComponent: Hoàn thành");
-            }
-            catch (Exception ex)
+            Label lblAnchorDate = new Label
             {
-                Console.WriteLine($"[ERROR] InitializeComponent: {ex.Message}");
-                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi khởi tạo form: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Text = $"{UIConstants.Icons.Calendar} Chọn ngày:",
+                Location = new Point(15, 18),
+                Size = new Size(95, 25),
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            buttonPanel.Controls.Add(lblAnchorDate);
+
+            dtpAnchorDate = new CustomDateTimePicker
+            {
+                Location = new Point(115, 15),
+                Size = new Size(160, UIConstants.Sizes.InputHeight),
+                Value = DateTime.Now,
+                CustomFormat = "dd/MM/yyyy",
+                BorderRadius = UIConstants.Borders.RadiusMedium
+            };
+            dtpAnchorDate.ValueChanged += (s, e) => LoadReport();
+            buttonPanel.Controls.Add(dtpAnchorDate);
+
+            btnExportReport = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Export} Export",
+                Location = new Point(290, 15),
+                Size = new Size(150, UIConstants.Sizes.ButtonHeight),
+                ButtonStyleType = ButtonStyle.FilledNoOutline
+            };
+            btnExportReport.Click += BtnExportReport_Click;
+            buttonPanel.Controls.Add(btnExportReport);
+
+            // Content starts after button panel + gap
+            int contentTop = (MARGIN / 2) + BUTTON_HEIGHT + 20;
+
+            // Data table panel (left side)
+            CustomPanel dataPanel = new CustomPanel
+            {
+                Location = new Point(MARGIN, contentTop),
+                Size = new Size(TABLE_WIDTH, CONTENT_HEIGHT),
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = true,
+                Padding = new Padding(UIConstants.Spacing.Padding.Medium)
+            };
+
+            dgvReport = new DataGridView
+            {
+                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium),
+                Size = new Size(TABLE_WIDTH - (UIConstants.Spacing.Padding.Medium * 2), 
+                               CONTENT_HEIGHT - (UIConstants.Spacing.Padding.Medium * 2)),
+                AutoGenerateColumns = false,
+                AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                AllowUserToAddRows = false,
+                ReadOnly = false,
+                BackgroundColor = ThemeManager.Instance.BackgroundDefault,
+                BorderStyle = BorderStyle.None,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    BackColor = UIConstants.PrimaryColor.Default,
+                    ForeColor = Color.White,
+                    Font = ThemeManager.Instance.FontBold
+                },
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AllowUserToResizeRows = false,
+                Font = ThemeManager.Instance.FontSmall,
+                RowTemplate = { Height = 32 },
+                ColumnHeadersHeight = 35
+            };
+
+            dgvReport.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Ngày", 
+                DataPropertyName = "Day",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(8, 4, 20, 4) }
+            });
+            
+            dgvReport.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Tổng Nhập Kho", 
+                DataPropertyName = "Import",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(8, 4, 20, 4)
+                }
+            });
+            
+            dgvReport.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Tổng Xuất Kho", 
+                DataPropertyName = "Export",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(8, 4, 20, 4)
+                }
+            });
+
+            // Sync header padding and alignment
+            foreach (DataGridViewColumn col in dgvReport.Columns)
+            {
+                if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
+                {
+                    col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
+                }
+                col.HeaderCell.Style.Padding = new Padding(8, 4, 20, 4);
             }
+            
+            // Apply theme
+            dgvReport.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
+            dgvReport.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            dgvReport.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
+            dgvReport.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvReport.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
+            dgvReport.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            
+            dataPanel.Controls.Add(dgvReport);
+
+            // Import chart panel (top right)
+            int chartLeft = MARGIN + TABLE_WIDTH + GAP;
+            CustomPanel importChartPanel = new CustomPanel
+            {
+                Location = new Point(chartLeft, contentTop),
+                Size = new Size(CHART_AREA_WIDTH, CHART_HEIGHT),
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = true,
+                Padding = new Padding(UIConstants.Spacing.Padding.Medium)
+            };
+
+            Label lblImportTitle = new Label
+            {
+                Text = $"{UIConstants.Icons.Import} Biểu Đồ Nhập Kho",
+                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium),
+                Size = new Size(200, 30),
+                Font = ThemeManager.Instance.FontBold,
+                ForeColor = Color.Green
+            };
+            importChartPanel.Controls.Add(lblImportTitle);
+
+            pictureBoxImport = new PictureBox
+            {
+                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium + 30),
+                Size = new Size(CHART_AREA_WIDTH - (UIConstants.Spacing.Padding.Medium * 2), 
+                               CHART_HEIGHT - (UIConstants.Spacing.Padding.Medium * 2) - 30),
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.None
+            };
+            importChartPanel.Controls.Add(pictureBoxImport);
+
+            // Export chart panel (bottom right)
+            CustomPanel exportChartPanel = new CustomPanel
+            {
+                Location = new Point(chartLeft, contentTop + CHART_HEIGHT + GAP),
+                Size = new Size(CHART_AREA_WIDTH, CHART_HEIGHT),
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = true,
+                Padding = new Padding(UIConstants.Spacing.Padding.Medium)
+            };
+
+            Label lblExportTitle = new Label
+            {
+                Text = $"{UIConstants.Icons.Export} Biểu Đồ Xuất Kho",
+                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium),
+                Size = new Size(200, 30),
+                Font = ThemeManager.Instance.FontBold,
+                ForeColor = Color.Red
+            };
+            exportChartPanel.Controls.Add(lblExportTitle);
+
+            pictureBoxExport = new PictureBox
+            {
+                Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium + 30),
+                Size = new Size(CHART_AREA_WIDTH - (UIConstants.Spacing.Padding.Medium * 2), 
+                               CHART_HEIGHT - (UIConstants.Spacing.Padding.Medium * 2) - 30),
+                BackColor = Color.White,
+                BorderStyle = BorderStyle.None
+            };
+            exportChartPanel.Controls.Add(pictureBoxExport);
+
+            // Add all to form
+            Controls.Add(buttonPanel);
+            Controls.Add(dataPanel);
+            Controls.Add(importChartPanel);
+            Controls.Add(exportChartPanel);
+
+            Load += TransactionReportForm_Load;
+            ResumeLayout(false);
         }
 
         private void TransactionReportForm_Load(object sender, EventArgs e)
@@ -183,10 +311,7 @@ namespace WarehouseManagement.Views.Forms
         {
             using (var writer = new System.IO.StreamWriter(filePath, false, System.Text.Encoding.UTF8))
             {
-                // Header
                 writer.WriteLine("Ngày,Tổng Nhập Kho,Tổng Xuất Kho");
-
-                // Data
                 for (int i = 0; i < days.Count; i++)
                 {
                     writer.WriteLine($"{days[i]},{imports[i]:N0},{exports[i]:N0}");
@@ -198,25 +323,21 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                // Sử dụng Open XML để tạo file Excel
                 using (var spreadsheet = new System.IO.FileStream(filePath, System.IO.FileMode.Create))
                 {
                     using (var writer = new System.IO.StreamWriter(spreadsheet))
                     {
-                        // Viết header XML của Excel
                         writer.WriteLine("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
                         writer.WriteLine("<Workbook xmlns=\"urn:schemas-microsoft-com:office:spreadsheet\">");
                         writer.WriteLine("<Worksheet ss:Name=\"BaoCao\">");
                         writer.WriteLine("<Table>");
 
-                        // Header row
                         writer.WriteLine("<Row>");
                         writer.WriteLine("<Cell><Data ss:Type=\"String\">Ngày</Data></Cell>");
                         writer.WriteLine("<Cell><Data ss:Type=\"String\">Tổng Nhập Kho</Data></Cell>");
                         writer.WriteLine("<Cell><Data ss:Type=\"String\">Tổng Xuất Kho</Data></Cell>");
                         writer.WriteLine("</Row>");
 
-                        // Data rows
                         for (int i = 0; i < days.Count; i++)
                         {
                             writer.WriteLine("<Row>");
@@ -234,17 +355,7 @@ namespace WarehouseManagement.Views.Forms
             }
             catch
             {
-                // Fallback to CSV if Excel export fails
                 ExportToCSV(filePath.Replace(".xlsx", ".csv"));
-            }
-        }
-
-        private void PictureBox_Resize(object sender, EventArgs e)
-        {
-            if (pictureBox.Width > 0 && pictureBox.Height > 0 && days.Count > 0)
-            {
-                Console.WriteLine($"[INFO] PictureBox_Resize: {pictureBox.Width}x{pictureBox.Height}");
-                DrawChart();
             }
         }
 
@@ -252,165 +363,232 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                Console.WriteLine("[TransactionReportForm] LoadReport: Started");
-
-                // Use the selected anchor date or default to today
                 DateTime anchorDate = dtpAnchorDate != null ? dtpAnchorDate.Value : DateTime.Now;
                 var dailyData = chartService.GetImportExportByDay(anchorDate);
-                Console.WriteLine($"[TransactionReportForm] LoadReport: Got {dailyData.Count} days");
 
-                // Xóa dữ liệu cũ
                 dgvReport.Rows.Clear();
                 days.Clear();
                 imports.Clear();
                 exports.Clear();
-                maxValue = 0;
+                maxImport = 0;
+                maxExport = 0;
 
-                // Tính toán
+                var displayList = new List<dynamic>();
                 foreach (var dayEntry in dailyData)
                 {
                     string day = dayEntry.Key;
                     decimal importValue = dayEntry.Value["Import"];
                     decimal exportValue = dayEntry.Value["Export"];
 
-                    Console.WriteLine($"[TransactionReportForm] {day} -> Import={importValue}, Export={exportValue}");
-
                     days.Add(day);
                     imports.Add(importValue);
                     exports.Add(exportValue);
 
-                    if (importValue > maxValue) maxValue = importValue;
-                    if (exportValue > maxValue) maxValue = exportValue;
+                    if (importValue > maxImport) maxImport = importValue;
+                    if (exportValue > maxExport) maxExport = exportValue;
 
-                    dgvReport.Rows.Add(day, importValue.ToString("N0"), exportValue.ToString("N0"));
+                    displayList.Add(new { Day = day, Import = importValue.ToString("N0"), Export = exportValue.ToString("N0") });
                 }
 
-                Console.WriteLine($"[TransactionReportForm] LoadReport: Max value = {maxValue}, days.Count = {days.Count}");
+                dgvReport.DataSource = displayList;
 
-                // Vẽ biểu đồ nếu PictureBox đã có kích thước
-                if (pictureBox.Width > 0 && pictureBox.Height > 0)
+                if (pictureBoxImport.Width > 0 && pictureBoxImport.Height > 0)
                 {
-                    Console.WriteLine($"[TransactionReportForm] PictureBox ready ({pictureBox.Width}x{pictureBox.Height}), calling DrawChart");
-                    DrawChart();
+                    DrawCharts();
                 }
-                else
-                {
-                    Console.WriteLine($"[ReportForm] PictureBox NOT ready ({pictureBox.Width}x{pictureBox.Height})");
-                }
-
-                Console.WriteLine("[ReportForm] LoadReport: Completed");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ReportForm] LoadReport ERROR: {ex.Message}");
-                Console.WriteLine($"[ReportForm] {ex.StackTrace}");
                 MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải báo cáo: {ex.Message}", "Lỗi", 
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void DrawChart()
+        private void DrawCharts()
+        {
+            DrawImportChart();
+            DrawExportChart();
+        }
+
+        private void DrawImportChart()
         {
             try
             {
-                Console.WriteLine("[ReportForm] DrawChart: Started");
-                Console.WriteLine($"[ReportForm] DrawChart: Size = {pictureBox.Width}x{pictureBox.Height}");
-                Console.WriteLine($"[ReportForm] DrawChart: Days = {days.Count}, MaxValue = {maxValue}");
-
-                if (pictureBox.Width <= 0 || pictureBox.Height <= 0)
-                {
-                    Console.WriteLine($"[ReportForm] DrawChart: PictureBox size invalid ({pictureBox.Width}x{pictureBox.Height})");
+                if (pictureBoxImport.Width <= 0 || pictureBoxImport.Height <= 0 || days.Count == 0 || maxImport <= 0)
                     return;
-                }
 
-                if (maxValue <= 0 || days.Count == 0)
-                {
-                    Console.WriteLine($"[ReportForm] DrawChart: No data (maxValue={maxValue}, days={days.Count})");
-                    return;
-                }
-
-                Console.WriteLine("[ReportForm] DrawChart: Creating bitmap");
-
-                Bitmap bitmap = new Bitmap(pictureBox.Width, pictureBox.Height);
+                Bitmap bitmap = new Bitmap(pictureBoxImport.Width, pictureBoxImport.Height);
                 Graphics g = Graphics.FromImage(bitmap);
                 g.Clear(Color.White);
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
-                int margin = 50;
-                int chartWidth = pictureBox.Width - (margin * 2);
-                int chartHeight = pictureBox.Height - (margin * 2) - 30;
-                // Tính toán để fit 30 ngày: mỗi ngày có 2 cột (nhập + xuất) + khoảng cách nhỏ
-                int barWidth = Math.Max(2, chartWidth / (days.Count * 2 + 10)); // Giảm từ *3 xuống *2
-                int spacing = 2; // Khoảng cách giữa 2 cột
-                int daySpacing = 3; // Khoảng cách giữa các ngày
+                int leftMargin = 50;
+                int rightMargin = 10;
+                int topMargin = 45;
+                int bottomMargin = 35;
+                
+                int chartWidth = pictureBoxImport.Width - leftMargin - rightMargin;
+                int chartHeight = pictureBoxImport.Height - topMargin - bottomMargin;
+                
+                double scaleFactor = 0.85;
+                
+                int totalBars = days.Count;
+                int spacing = 3;
+                int barWidth = Math.Max(8, (chartWidth - (spacing * (totalBars - 1))) / totalBars);
 
-                Console.WriteLine($"[ReportForm] DrawChart: chartWidth={chartWidth}, chartHeight={chartHeight}, barWidth={barWidth}");
+                Pen gridPen = new Pen(Color.FromArgb(230, 230, 230), 1);
+                Font labelFont = new Font("Segoe UI", 8);
+                int gridLines = 5;
+                for (int i = 0; i <= gridLines; i++)
+                {
+                    int y = pictureBoxImport.Height - bottomMargin - (chartHeight * i / gridLines);
+                    g.DrawLine(gridPen, leftMargin, y, pictureBoxImport.Width - rightMargin, y);
+                    
+                    decimal value = maxImport * i / gridLines;
+                    string label = value >= 1000000 ? $"{value / 1000000:F1}M" : value >= 1000 ? $"{value / 1000:F0}K" : $"{value:F0}";
+                    SizeF labelSize = g.MeasureString(label, labelFont);
+                    g.DrawString(label, labelFont, Brushes.Gray, leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
+                }
 
-                // Tiêu đề
-                Font titleFont = new Font("Arial", 12, FontStyle.Bold);
-                g.DrawString("Báo Cáo Nhập/Xuất Theo Ngày (30 ngày gần nhất)", titleFont, Brushes.Black, margin, 5);
-
-                // Trục
-                Pen axisPen = new Pen(Color.Black, 2);
-                g.DrawLine(axisPen, margin, pictureBox.Height - margin, pictureBox.Width - margin, pictureBox.Height - margin);
-                g.DrawLine(axisPen, margin, 30, margin, pictureBox.Height - margin);
-
-                // Vẽ cột
-                int xPos = margin + 5;
-                Brush greenBrush = new SolidBrush(Color.Green);
-                Brush redBrush = new SolidBrush(Color.Red);
-                Font monthFont = new Font("Arial", 5); // Giảm font size để fit 30 ngày
+                int xPos = leftMargin;
+                Color startColor = Color.FromArgb(76, 175, 80);
+                Color endColor = Color.FromArgb(129, 199, 132);
 
                 for (int i = 0; i < days.Count; i++)
                 {
-                    int importHeight = maxValue > 0 ? (int)((imports[i] / maxValue) * chartHeight) : 0;
-                    int exportHeight = maxValue > 0 ? (int)((exports[i] / maxValue) * chartHeight) : 0;
-
-                    // Nhập (xanh)
-                    int y1 = pictureBox.Height - margin - importHeight;
-                    g.FillRectangle(greenBrush, xPos, y1, barWidth, Math.Max(1, importHeight));
-                    if (barWidth > 1)
-                        g.DrawRectangle(new Pen(Color.DarkGreen, 1), xPos, y1, barWidth, Math.Max(1, importHeight));
-
-                    // Xuất (đỏ) - vẽ bên cạnh cột nhập
-                    int xPos2 = xPos + barWidth + spacing;
-                    int y2 = pictureBox.Height - margin - exportHeight;
-                    g.FillRectangle(redBrush, xPos2, y2, barWidth, Math.Max(1, exportHeight));
-                    if (barWidth > 1)
-                        g.DrawRectangle(new Pen(Color.DarkRed, 1), xPos2, y2, barWidth, Math.Max(1, exportHeight));
-
-                    // Ngày - hiển thị mỗi 5 ngày để không bị chồng chéo
-                    if (i % 5 == 0)
+                    int barHeight = maxImport > 0 ? (int)(((double)imports[i] / (double)maxImport) * chartHeight * scaleFactor) : 0;
+                    int y = pictureBoxImport.Height - bottomMargin - barHeight;
+                    
+                    if (barHeight > 0)
                     {
-                        string dayLabel = days[i].Substring(8); // Lấy phần ngày từ yyyy-MM-dd
-                        g.DrawString(dayLabel, monthFont, Brushes.Black, xPos - 3, pictureBox.Height - margin + 3);
+                        System.Drawing.Drawing2D.LinearGradientBrush gradientBrush = 
+                            new System.Drawing.Drawing2D.LinearGradientBrush(
+                                new Rectangle(xPos, y, barWidth, barHeight),
+                                startColor,
+                                endColor,
+                                System.Drawing.Drawing2D.LinearGradientMode.Vertical);
+                        
+                        int radius = Math.Min(4, barWidth / 2);
+                        System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+                        path.AddLine(xPos, y + barHeight, xPos, y + radius);
+                        path.AddArc(xPos, y, radius * 2, radius * 2, 180, 90);
+                        path.AddLine(xPos + radius, y, xPos + barWidth - radius, y);
+                        path.AddArc(xPos + barWidth - radius * 2, y, radius * 2, radius * 2, 270, 90);
+                        path.AddLine(xPos + barWidth, y + radius, xPos + barWidth, y + barHeight);
+                        path.CloseFigure();
+                        
+                        g.FillPath(gradientBrush, path);
+                        gradientBrush.Dispose();
                     }
 
-                    xPos += (barWidth * 2) + spacing + daySpacing;
+                    if (i % Math.Max(1, days.Count / 10) == 0 || i == days.Count - 1)
+                    {
+                        string dayLabel = days[i].Substring(5);
+                        SizeF daySize = g.MeasureString(dayLabel, labelFont);
+                        g.DrawString(dayLabel, labelFont, Brushes.Gray, xPos + (barWidth - daySize.Width) / 2, pictureBoxImport.Height - bottomMargin + 5);
+                    }
+
+                    xPos += barWidth + spacing;
                 }
 
-                Console.WriteLine("[ReportForm] DrawChart: Drawing bars completed");
-
-                // Legend
-                int legendX = pictureBox.Width - 150;
-                int legendY = 35;
-                g.FillRectangle(greenBrush, legendX, legendY, 15, 15);
-                g.DrawString("Nhập", new Font("Arial", 9), Brushes.Black, legendX + 20, legendY);
-
-                g.FillRectangle(redBrush, legendX, legendY + 20, 15, 15);
-                g.DrawString("Xuất", new Font("Arial", 9), Brushes.Black, legendX + 20, legendY + 20);
-
-                pictureBox.Image = bitmap;
+                pictureBoxImport.Image = bitmap;
                 g.Dispose();
-
-                Console.WriteLine("[ReportForm] DrawChart: Chart set to PictureBox");
-
-                Console.WriteLine("[ReportForm] DrawChart: Completed");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[ReportForm] DrawChart ERROR: {ex.Message}");
-                Console.WriteLine($"[ReportForm] {ex.StackTrace}");
+                Console.WriteLine($"[TransactionReportForm] DrawImportChart ERROR: {ex.Message}");
+            }
+        }
+
+        private void DrawExportChart()
+        {
+            try
+            {
+                if (pictureBoxExport.Width <= 0 || pictureBoxExport.Height <= 0 || days.Count == 0 || maxExport <= 0)
+                    return;
+
+                Bitmap bitmap = new Bitmap(pictureBoxExport.Width, pictureBoxExport.Height);
+                Graphics g = Graphics.FromImage(bitmap);
+                g.Clear(Color.White);
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
+
+                int leftMargin = 50;
+                int rightMargin = 10;
+                int topMargin = 45;
+                int bottomMargin = 35;
+                
+                int chartWidth = pictureBoxExport.Width - leftMargin - rightMargin;
+                int chartHeight = pictureBoxExport.Height - topMargin - bottomMargin;
+                
+                double scaleFactor = 0.85;
+                
+                int totalBars = days.Count;
+                int spacing = 3;
+                int barWidth = Math.Max(8, (chartWidth - (spacing * (totalBars - 1))) / totalBars);
+
+                Pen gridPen = new Pen(Color.FromArgb(230, 230, 230), 1);
+                Font labelFont = new Font("Segoe UI", 8);
+                int gridLines = 5;
+                for (int i = 0; i <= gridLines; i++)
+                {
+                    int y = pictureBoxExport.Height - bottomMargin - (chartHeight * i / gridLines);
+                    g.DrawLine(gridPen, leftMargin, y, pictureBoxExport.Width - rightMargin, y);
+                    
+                    decimal value = maxExport * i / gridLines;
+                    string label = value >= 1000000 ? $"{value / 1000000:F1}M" : value >= 1000 ? $"{value / 1000:F0}K" : $"{value:F0}";
+                    SizeF labelSize = g.MeasureString(label, labelFont);
+                    g.DrawString(label, labelFont, Brushes.Gray, leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
+                }
+
+                int xPos = leftMargin;
+                Color startColor = Color.FromArgb(244, 67, 54);
+                Color endColor = Color.FromArgb(239, 154, 154);
+
+                for (int i = 0; i < days.Count; i++)
+                {
+                    int barHeight = maxExport > 0 ? (int)(((double)exports[i] / (double)maxExport) * chartHeight * scaleFactor) : 0;
+                    int y = pictureBoxExport.Height - bottomMargin - barHeight;
+                    
+                    if (barHeight > 0)
+                    {
+                        System.Drawing.Drawing2D.LinearGradientBrush gradientBrush = 
+                            new System.Drawing.Drawing2D.LinearGradientBrush(
+                                new Rectangle(xPos, y, barWidth, barHeight),
+                                startColor,
+                                endColor,
+                                System.Drawing.Drawing2D.LinearGradientMode.Vertical);
+                        
+                        int radius = Math.Min(4, barWidth / 2);
+                        System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+                        path.AddLine(xPos, y + barHeight, xPos, y + radius);
+                        path.AddArc(xPos, y, radius * 2, radius * 2, 180, 90);
+                        path.AddLine(xPos + radius, y, xPos + barWidth - radius, y);
+                        path.AddArc(xPos + barWidth - radius * 2, y, radius * 2, radius * 2, 270, 90);
+                        path.AddLine(xPos + barWidth, y + radius, xPos + barWidth, y + barHeight);
+                        path.CloseFigure();
+                        
+                        g.FillPath(gradientBrush, path);
+                        gradientBrush.Dispose();
+                    }
+
+                    if (i % Math.Max(1, days.Count / 10) == 0 || i == days.Count - 1)
+                    {
+                        string dayLabel = days[i].Substring(5);
+                        SizeF daySize = g.MeasureString(dayLabel, labelFont);
+                        g.DrawString(dayLabel, labelFont, Brushes.Gray, xPos + (barWidth - daySize.Width) / 2, pictureBoxExport.Height - bottomMargin + 5);
+                    }
+
+                    xPos += barWidth + spacing;
+                }
+
+                pictureBoxExport.Image = bitmap;
+                g.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[TransactionReportForm] DrawExportChart ERROR: {ex.Message}");
             }
         }
     }
