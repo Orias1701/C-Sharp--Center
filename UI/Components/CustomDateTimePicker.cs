@@ -19,7 +19,7 @@ namespace WarehouseManagement.UI.Components
         public CustomDateTimePicker()
         {
             // Tạo DateTimePicker bên trong - FLAT STYLE để không có border
-            _dateTimePicker = new DateTimePicker
+            _dateTimePicker = new FlatDateTimePicker
             {
                 Format = DateTimePickerFormat.Custom,
                 CustomFormat = "dd/MM/yyyy",
@@ -245,6 +245,60 @@ namespace WarehouseManagement.UI.Components
                 _dateTimePicker?.Dispose();
             }
             base.Dispose(disposing);
+        }
+    }
+
+    /// <summary>
+    /// DateTimePicker helper để bỏ border native
+    /// </summary>
+    internal class FlatDateTimePicker : DateTimePicker
+    {
+        protected override void OnDropDown(EventArgs eventargs)
+        {
+            base.OnDropDown(eventargs);
+            Invalidate(); // Refresh on dropdown
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            const int WM_NC_PAINT = 0x85;
+            const int WM_PAINT = 0x0F;
+            
+            // Block WM_NC_PAINT (0x85)
+            if (m.Msg == WM_NC_PAINT)
+                return;
+                
+            base.WndProc(ref m);
+            
+            // Re-paint borders after paint if needed, or ensuring region is correct
+            if (m.Msg == WM_PAINT)
+            {
+                // Ensure region clips the border
+                // Standard border is usually 1-2px.
+                // We use a region to clip the outer 1px edge
+                using (Graphics g = Graphics.FromHwnd(Handle))
+                {
+                    // No extra painting needed if region cuts it off
+                }
+            }
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            this.Region = new Region(new Rectangle(2, 2, Width - 4, Height - 4));
+        }
+
+
+        protected override CreateParams CreateParams
+        {
+            get
+            {
+                CreateParams cp = base.CreateParams;
+                cp.Style &= ~0x800000; // WS_BORDER
+                cp.ExStyle &= ~0x200;  // WS_EX_CLIENTEDGE
+                return cp;
+            }
         }
     }
 }
