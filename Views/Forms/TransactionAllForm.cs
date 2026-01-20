@@ -234,12 +234,67 @@ namespace WarehouseManagement.Views.Forms
                 AllowUserToAddRows = false,
                 ReadOnly = true,
                 BackgroundColor = ThemeManager.Instance.BackgroundDefault,
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.None,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    BackColor = UIConstants.PrimaryColor.Default,
+                    ForeColor = Color.White,
+                    Font = ThemeManager.Instance.FontBold
+                },
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AllowUserToResizeRows = false,
+                Font = ThemeManager.Instance.FontRegular,
+                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
+                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight
             };
 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Sản phẩm", DataPropertyName = "ProductName", Width = 250 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 80 });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 140, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Sản phẩm", 
+                DataPropertyName = "ProductName", 
+                Width = 250,
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+            });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Số lượng", 
+                DataPropertyName = "Quantity", 
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
+            });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Đơn giá", 
+                DataPropertyName = "UnitPrice", 
+                Width = 140, 
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0",
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5) 
+                } 
+            });
+
+            // Sync Header Alignment
+            foreach (DataGridViewColumn col in dgvDetails.Columns)
+            {
+                if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
+                    col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
+                col.HeaderCell.Style.Padding = new Padding(10, 5, 10, 5);
+            }
+
+            // Apply Hover Effect
+            Helpers.DataGridViewHelper.ApplyHoverEffect(dgvDetails);
+            // Apply Selection Effect
+            Helpers.DataGridViewHelper.ApplySelectionEffect(dgvDetails);
             currentY += 180 + spacing;
 
             // Bottom buttons

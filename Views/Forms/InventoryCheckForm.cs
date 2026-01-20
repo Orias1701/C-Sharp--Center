@@ -186,24 +186,104 @@ namespace WarehouseManagement.Views.Forms
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 BackgroundColor = ThemeManager.Instance.BackgroundDefault,
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.None,
+                CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal,
+                ColumnHeadersBorderStyle = DataGridViewHeaderBorderStyle.None,
+                EnableHeadersVisualStyles = false,
+                ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    BackColor = UIConstants.PrimaryColor.Default,
+                    ForeColor = Color.White,
+                    Font = ThemeManager.Instance.FontBold
+                },
+                RowHeadersVisible = false,
+                SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                AllowUserToResizeRows = false,
+                Font = ThemeManager.Instance.FontRegular,
+                RowTemplate = { Height = UIConstants.Sizes.TableRowHeight },
+                ColumnHeadersHeight = UIConstants.Sizes.TableHeaderHeight
             };
 
             // Setup Columns (Same as before)
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ProductID", Width = 60, ReadOnly = true });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên sản phẩm", Name = "ProductName", Width = 200, ReadOnly = true }); 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Máy", DataPropertyName = "SystemQuantity", Width = 90, ReadOnly = true });
+            // Add Headers Alignment Sync later
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "ID", 
+                DataPropertyName = "ProductID", 
+                Width = 60, 
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter, 
+                    Padding = new Padding(10, 5, 10, 5) 
+                }
+            });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Tên sản phẩm", 
+                Name = "ProductName", 
+                Width = 200, 
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+            }); 
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Tồn Máy", 
+                DataPropertyName = "SystemQuantity", 
+                Width = 90, 
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
+            });
             
-            var colActual = new DataGridViewTextBoxColumn { HeaderText = "Tồn Thực", DataPropertyName = "ActualQuantity", Width = 90 };
+            var colActual = new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Tồn Thực", 
+                DataPropertyName = "ActualQuantity", 
+                Width = 90,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
+            };
             colActual.DefaultCellStyle.BackColor = _isNew ? Color.White : Color.WhiteSmoke;
             colActual.ReadOnly = !_isNew; 
             dgvDetails.Columns.Add(colActual);
 
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Chênh lệch", DataPropertyName = "Difference", Width = 90, ReadOnly = true });
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Chênh lệch", 
+                DataPropertyName = "Difference", 
+                Width = 90, 
+                ReadOnly = true,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(10, 5, 30, 5) 
+                }
+            });
             
-            var colReason = new DataGridViewTextBoxColumn { HeaderText = "Lý do", DataPropertyName = "Reason", Width = 150 };
+            var colReason = new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Lý do", 
+                DataPropertyName = "Reason", 
+                Width = 150,
+                DefaultCellStyle = new DataGridViewCellStyle { Padding = new Padding(10, 5, 10, 5) }
+            };
             colReason.ReadOnly = !_isNew;
             dgvDetails.Columns.Add(colReason);
+
+            // Sync Header Alignment
+            foreach (DataGridViewColumn col in dgvDetails.Columns)
+            {
+                if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
+                    col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
+                col.HeaderCell.Style.Padding = new Padding(10, 5, 10, 5);
+            }
 
             dgvDetails.CellEndEdit += DgvDetails_CellEndEdit;
             dgvDetails.CellFormatting += DgvDetails_CellFormatting;
