@@ -43,181 +43,147 @@ namespace WarehouseManagement.Views.Forms
             };
 
             const int LEFT_MARGIN = 40;
-            int currentY = 20;
-            int spacing = UIConstants.Spacing.Margin.Medium;
+            const int COLUMN_GAP = 20;
+            const int INPUT_WIDTH_HALF = 250; // Total width approx 40 + 250 + 20 + 250 + 40 = 600
+            const int INPUT_WIDTH_FULL = 520; // 250 + 20 + 250
+            int currentY = 30;
+            int inputSpacing = 20;
 
-            Label lblTransactionIDLabel = new Label 
-            { 
-                Text = "Mã Giao Dịch:",
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
+            // Helper to create styled labels
+            Label CreateStyledLabel(string text, int x, int y)
+            {
+                return new Label
+                {
+                    Text = text,
+                    Left = x,
+                    Top = y,
+                    AutoSize = true,
+                    Font = ThemeManager.Instance.FontSmall,
+                    ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                              UIConstants.PrimaryColor.Default.G, 
+                                              UIConstants.PrimaryColor.Default.B),
+                    TabStop = false
+                };
+            }
 
-            Label lblTypeLabel = new Label 
-            { 
-                Text = "Loại Giao Dịch:",
-                Left = LEFT_MARGIN + 250, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
+            // Row 1: ID | Type
+            mainPanel.Controls.Add(CreateStyledLabel("Mã Giao Dịch", LEFT_MARGIN, currentY));
+            mainPanel.Controls.Add(CreateStyledLabel("Loại Giao Dịch", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
             currentY += 20;
 
             txtTransactionID = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 220,
+                Width = INPUT_WIDTH_HALF,
                 ReadOnly = true,
                 TabStop = false
             };
+            mainPanel.Controls.Add(txtTransactionID);
 
             txtType = new CustomTextBox 
             { 
-                Left = LEFT_MARGIN + 250, 
+                Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
                 Top = currentY, 
-                Width = 270,
+                Width = INPUT_WIDTH_HALF,
                 ReadOnly = true,
                 TabStop = false
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            mainPanel.Controls.Add(txtType);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            Label lblPartnerLabel = new Label 
-            { 
-                Text = "Đối tác:",
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
-            
+
+            // Row 2: Partner (Full width)
+            mainPanel.Controls.Add(CreateStyledLabel("Đối tác", LEFT_MARGIN, currentY));
+            currentY += 20;
+
             txtPartner = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 520,
+                Width = INPUT_WIDTH_FULL,
                 ReadOnly = true,
                 TabStop = false
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            mainPanel.Controls.Add(txtPartner);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            Label lblDateLabel = new Label 
-            { 
-                Text = "Ngày Tạo:",
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
-
-            Label lblCreatedByLabel = new Label 
-            { 
-                Text = "Người Tạo:",
-                Left = LEFT_MARGIN + 250, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
+            // Row 3: Date | User
+            mainPanel.Controls.Add(CreateStyledLabel("Ngày Tạo", LEFT_MARGIN, currentY));
+            mainPanel.Controls.Add(CreateStyledLabel("Người Tạo", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
             currentY += 20;
 
             txtDate = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 220,
+                Width = INPUT_WIDTH_HALF,
                 ReadOnly = true,
                 TabStop = false
             };
+            mainPanel.Controls.Add(txtDate);
 
             txtCreatedBy = new CustomTextBox 
             { 
-                Left = LEFT_MARGIN + 250, 
+                Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
                 Top = currentY, 
-                Width = 270,
+                Width = INPUT_WIDTH_HALF,
                 ReadOnly = true,
                 TabStop = false
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            mainPanel.Controls.Add(txtCreatedBy);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            Label lblTotalValueLabel = new Label 
-            { 
-                Text = "Tổng Giá Trị:",
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
+            // Row 4: Total Value (Full width for emphasis)
+            mainPanel.Controls.Add(CreateStyledLabel("Tổng Giá Trị", LEFT_MARGIN, currentY));
             currentY += 20;
 
             txtTotalValue = new CustomTextBox 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 520,
+                Width = INPUT_WIDTH_FULL,
                 ReadOnly = true,
                 TabStop = false
             };
-            currentY += UIConstants.Sizes.InputHeight + spacing;
+            mainPanel.Controls.Add(txtTotalValue);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
-            Label lblNoteLabel = new Label 
-            { 
-                Text = "Ghi chú:",
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = 100,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
+            // Row 5: Note
+            mainPanel.Controls.Add(CreateStyledLabel("Ghi chú", LEFT_MARGIN, currentY));
             currentY += 20;
 
             txtNote = new CustomTextArea 
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = 520, 
+                Width = INPUT_WIDTH_FULL, 
                 Height = 60,
                 ReadOnly = true,
                 TabStop = false
             };
-            currentY += 60 + spacing + 10;
+            mainPanel.Controls.Add(txtNote);
+            currentY += 60 + inputSpacing; // Extra spacing before grid
 
+            // Grid Title
             Label lblDetailsTitle = new Label
             {
-                Text = $"{UIConstants.Icons.List} Chi Tiết Sản Phẩm:",
+                Text = $"{UIConstants.Icons.List} Chi Tiết Sản Phẩm",
                 Left = LEFT_MARGIN,
                 Top = currentY,
                 Width = 200,
-                Font = ThemeManager.Instance.FontBold
+                Font = ThemeManager.Instance.FontBold,
+                ForeColor = ThemeManager.Instance.TextPrimary
             };
+            mainPanel.Controls.Add(lblDetailsTitle);
             currentY += 25;
 
+            // Grid
             dgvDetails = new DataGridView
             {
                 Left = LEFT_MARGIN,
                 Top = currentY,
-                Width = 520,
+                Width = INPUT_WIDTH_FULL,
                 Height = 180,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
@@ -230,17 +196,16 @@ namespace WarehouseManagement.Views.Forms
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Số lượng", DataPropertyName = "Quantity", Width = 90 });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "SubTotal", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
-            // Note: DataPropertyName "SubTotal" matches TransactionDetail model. 
-            // Was "TotalPrice" in UI but old model didn't have SubTotal, maybe it was calculated or property name? 
-            // Checked TransactionDetail.cs, it has SubTotal. 
-            // Old UI used TotalPrice. I need to make sure SubTotal is correct.
             
-            currentY += 180 + spacing;
+            mainPanel.Controls.Add(dgvDetails);
+            currentY += 180 + 30;
 
+            // Button Close
             btnClose = new CustomButton 
             { 
                 Text = $"{UIConstants.Icons.Close} Đóng", 
-                Left = LEFT_MARGIN, 
+                // Center button
+                Left = LEFT_MARGIN + (INPUT_WIDTH_FULL - 120) / 2, 
                 Top = currentY, 
                 Width = 120,
                 ButtonStyleType = ButtonStyle.FilledNoOutline
@@ -249,28 +214,15 @@ namespace WarehouseManagement.Views.Forms
                 DialogResult = DialogResult.OK;
                 Close();
             };
-
-            mainPanel.Controls.Add(lblTransactionIDLabel);
-            mainPanel.Controls.Add(txtTransactionID);
-            mainPanel.Controls.Add(lblTypeLabel);
-            mainPanel.Controls.Add(txtType);
-            mainPanel.Controls.Add(lblPartnerLabel);
-            mainPanel.Controls.Add(txtPartner);
-            mainPanel.Controls.Add(lblDateLabel);
-            mainPanel.Controls.Add(txtDate);
-            mainPanel.Controls.Add(lblTotalValueLabel);
-            mainPanel.Controls.Add(txtTotalValue);
-            mainPanel.Controls.Add(lblCreatedByLabel);
-            mainPanel.Controls.Add(txtCreatedBy);
-            mainPanel.Controls.Add(lblNoteLabel);
-            mainPanel.Controls.Add(txtNote);
-            mainPanel.Controls.Add(lblDetailsTitle);
-            mainPanel.Controls.Add(dgvDetails);
             mainPanel.Controls.Add(btnClose);
+            currentY += 35 + 30; // Button height + padding
 
             Controls.Add(mainPanel);
 
-            ClientSize = new Size(620, 635);
+            // Size
+            int calculatedWidth = LEFT_MARGIN + INPUT_WIDTH_FULL + LEFT_MARGIN; // 40 + 520 + 40 = 600
+            ClientSize = new Size(calculatedWidth, currentY);
+            
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;

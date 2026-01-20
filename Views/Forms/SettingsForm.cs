@@ -35,74 +35,106 @@ namespace WarehouseManagement.Views.Forms
         private void InitializeComponent()
         {
             SuspendLayout();
+            
+            // Main container
+            CustomPanel mainPanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(0)
+            };
+
+            const int LEFT_MARGIN = 40;
+            const int INPUT_WIDTH = 320;
+            int currentY = 30;
 
             // === DISPLAY SETTINGS ===
             Label lblDisplaySettings = new Label
             {
                 Text = "HIỂN THỊ",
-                Left = 20,
-                Top = 20,
-                Width = 300,
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = INPUT_WIDTH,
                 Height = 25,
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 AutoSize = false,
-                TextAlign = ContentAlignment.MiddleLeft
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = ThemeManager.Instance.TextPrimary
             };
+            mainPanel.Controls.Add(lblDisplaySettings);
+            currentY += 30;
 
             // CheckBox Show Hidden
             chkShowHidden = new CheckBox
             {
                 Text = "Hiển thị tất cả các bản ghi đã ẩn",
-                Left = 40,
-                Top = 55,
-                Width = 300,
+                Left = LEFT_MARGIN + 10,
+                Top = currentY,
+                Width = INPUT_WIDTH,
                 Height = 25,
-                Checked = ShowHiddenItems
+                Checked = ShowHiddenItems,
+                Font = ThemeManager.Instance.FontRegular,
+                ForeColor = ThemeManager.Instance.TextPrimary
             };
+            mainPanel.Controls.Add(chkShowHidden);
+            currentY += 40;
 
             // === THEME SETTINGS ===
             Label lblThemeSettings = new Label
             {
                 Text = "GIAO DIỆN",
-                Left = 20,
-                Top = 100,
-                Width = 300,
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = INPUT_WIDTH,
                 Height = 25,
                 Font = new Font("Segoe UI", 12, FontStyle.Bold),
                 AutoSize = false,
-                TextAlign = ContentAlignment.MiddleLeft
+                TextAlign = ContentAlignment.MiddleLeft,
+                ForeColor = ThemeManager.Instance.TextPrimary
             };
+            mainPanel.Controls.Add(lblThemeSettings);
+            currentY += 30;
 
             // CheckBox Dark Mode
             chkDarkMode = new CheckBox
             {
                 Text = $"{UIConstants.Icons.Moon} Chế độ tối (Dark Mode)",
-                Left = 40,
-                Top = 135,
-                Width = 300,
+                Left = LEFT_MARGIN + 10,
+                Top = currentY,
+                Width = INPUT_WIDTH,
                 Height = 25,
-                Checked = ThemeManager.Instance.IsDarkMode
+                Checked = ThemeManager.Instance.IsDarkMode,
+                Font = ThemeManager.Instance.FontRegular,
+                ForeColor = ThemeManager.Instance.TextPrimary
             };
             chkDarkMode.CheckedChanged += ChkDarkMode_CheckedChanged;
+            mainPanel.Controls.Add(chkDarkMode);
+            currentY += 40;
 
             // Button View Components
             btnViewComponents = new Button
             {
                 Text = $"{UIConstants.Icons.Eye} Xem Components",
-                Left = 40,
-                Top = 170,
+                Left = LEFT_MARGIN,
+                Top = currentY,
                 Width = 200,
                 Height = 35,
                 Font = new Font("Segoe UI", 10, FontStyle.Regular)
             };
             btnViewComponents.Click += BtnViewComponents_Click;
+            mainPanel.Controls.Add(btnViewComponents);
+            currentY += 60;
 
-            // === ACTION BUTTONS ===
+            // === ACTION BUTTONS - Centered ===
+            int totalBtnW = 100 + 10 + 100;
+            int startX = LEFT_MARGIN + (INPUT_WIDTH - totalBtnW) / 2;
+
             btnSave = new Button
             {
                 Text = "💾 Lưu",
-                Left = 100,
-                Top = 230,
+                Left = startX,
+                Top = currentY,
                 Width = 100,
                 Height = 35
             };
@@ -111,24 +143,21 @@ namespace WarehouseManagement.Views.Forms
             btnCancel = new Button
             {
                 Text = "❌ Hủy",
-                Left = 210,
-                Top = 230,
+                Left = startX + 110,
+                Top = currentY,
                 Width = 100,
                 Height = 35,
                 CausesValidation = false
             };
             btnCancel.Click += BtnCancel_Click;
 
-            Controls.Add(lblDisplaySettings);
-            Controls.Add(chkShowHidden);
-            Controls.Add(lblThemeSettings);
-            Controls.Add(chkDarkMode);
-            Controls.Add(btnViewComponents);
-            Controls.Add(btnSave);
-            Controls.Add(btnCancel);
+            mainPanel.Controls.Add(btnSave);
+            mainPanel.Controls.Add(btnCancel);
 
-            Width = 400;
-            Height = 320;
+            Controls.Add(mainPanel);
+
+            Width = 420;
+            Height = currentY + 80;
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;

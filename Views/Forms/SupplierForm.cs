@@ -34,70 +34,143 @@ namespace WarehouseManagement.Views.Forms
         private void InitializeComponent()
         {
             Text = _isEditMode ? "Sửa Nhà Cung Cấp" : "Thêm Nhà Cung Cấp";
-            Size = new Size(500, 480);
-            StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
+            
+            // Main container like ProductForm
+            CustomPanel mainPanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(0)
+            };
 
-            int y = 20;
-            int labelWidth = 100;
-            int inputWidth = 340;
-            int margin = 20;
+            // Layout constants matching ProductForm
+            const int INPUT_WIDTH = 400;
+            const int LEFT_MARGIN = 40;
+            int currentY = 30;
+            int inputSpacing = 20;
+
+            // Helper to create styled labels
+            Label CreateStyledLabel(string text, int y)
+            {
+                return new Label
+                {
+                    Text = text,
+                    Left = LEFT_MARGIN,
+                    Top = y,
+                    AutoSize = true,
+                    Font = ThemeManager.Instance.FontSmall,
+                    ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                              UIConstants.PrimaryColor.Default.G, 
+                                              UIConstants.PrimaryColor.Default.B),
+                    TabStop = false
+                };
+            }
 
             // Name
-            var lblName = CreateLabel("Tên NCC (*):", margin, y);
-            txtName = new CustomTextBox { Left = margin + labelWidth, Top = y, Width = inputWidth };
-            Controls.Add(lblName);
-            Controls.Add(txtName);
-            y += 50;
+            mainPanel.Controls.Add(CreateStyledLabel("Tên NCC (*)", currentY));
+            currentY += 20;
+            
+            txtName = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = INPUT_WIDTH,
+                Placeholder = "Nhập tên nhà cung cấp..."
+            };
+            mainPanel.Controls.Add(txtName);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
             // Phone
-            var lblPhone = CreateLabel("Số điện thoại:", margin, y);
-            txtPhone = new CustomTextBox { Left = margin + labelWidth, Top = y, Width = inputWidth };
-            Controls.Add(lblPhone);
-            Controls.Add(txtPhone);
-            y += 50;
+            mainPanel.Controls.Add(CreateStyledLabel("Số điện thoại", currentY));
+            currentY += 20;
+
+            txtPhone = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = INPUT_WIDTH,
+                Placeholder = "Nhập số điện thoại..."
+            };
+            mainPanel.Controls.Add(txtPhone);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
             // Email
-            var lblEmail = CreateLabel("Email:", margin, y);
-            txtEmail = new CustomTextBox { Left = margin + labelWidth, Top = y, Width = inputWidth };
-            Controls.Add(lblEmail);
-            Controls.Add(txtEmail);
-            y += 50;
+            mainPanel.Controls.Add(CreateStyledLabel("Email", currentY));
+            currentY += 20;
+
+            txtEmail = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = INPUT_WIDTH,
+                Placeholder = "Nhập email..."
+            };
+            mainPanel.Controls.Add(txtEmail);
+            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
 
             // Address
-            var lblAddress = CreateLabel("Địa chỉ:", margin, y);
-            txtAddress = new CustomTextArea { Left = margin + labelWidth, Top = y, Width = inputWidth, Height = 100 };
-            Controls.Add(lblAddress);
-            Controls.Add(txtAddress);
-            y += 120;
+            mainPanel.Controls.Add(CreateStyledLabel("Địa chỉ", currentY));
+            currentY += 20;
 
-            // Buttons
+            txtAddress = new CustomTextArea 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = INPUT_WIDTH, 
+                Height = 100,
+                Placeholder = "Nhập địa chỉ..."
+            };
+            mainPanel.Controls.Add(txtAddress);
+            currentY += 100 + 30; // TextArea height + spacing
+
+            // Buttons - Centered
+            int totalButtonWidth = 120 + 10 + 120; // Save + spacing + Cancel
+            int buttonStartX = LEFT_MARGIN + (INPUT_WIDTH - totalButtonWidth) / 2;
+
             btnSave = new CustomButton
             {
                 Text = "Lưu",
-                Left = 250,
-                Top = y,
-                Width = 100,
+                Left = buttonStartX,
+                Top = currentY,
+                Width = 120,
                 Height = 35,
-                ButtonStyleType = ButtonStyle.Filled
+                ButtonStyleType = ButtonStyle.FilledNoOutline
             };
             btnSave.Click += BtnSave_Click;
 
             btnCancel = new CustomButton
             {
                 Text = "Hủy",
-                Left = 360,
-                Top = y,
-                Width = 100,
+                Left = buttonStartX + 120 + 10,
+                Top = currentY,
+                Width = 120,
                 Height = 35,
-                ButtonStyleType = ButtonStyle.Outlined
+                ButtonStyleType = ButtonStyle.Outlined,
+                CausesValidation = false
             };
             btnCancel.Click += (s, e) => Close();
 
-            Controls.Add(btnSave);
-            Controls.Add(btnCancel);
+            mainPanel.Controls.Add(btnSave);
+            mainPanel.Controls.Add(btnCancel);
+
+            Controls.Add(mainPanel);
+
+            // Calculate height: currentY + ButtonHeight (35) + Padding (30)
+            int contentHeight = currentY + 35; // Bottom of buttons
+            int paddingBottom = 40; 
+            int calculatedHeight = contentHeight + paddingBottom;
+            
+            // Use ClientSize to ensure inner content area size
+            ClientSize = new Size(480, calculatedHeight); 
+            
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            BackColor = ThemeManager.Instance.BackgroundLight;
+            AcceptButton = btnSave;
+            CancelButton = btnCancel;
 
             if (_isEditMode)
             {
@@ -106,19 +179,6 @@ namespace WarehouseManagement.Views.Forms
                 txtEmail.Text = _supplier.Email;
                 txtAddress.Text = _supplier.Address;
             }
-        }
-
-        private Label CreateLabel(string text, int x, int y)
-        {
-            return new Label
-            {
-                Text = text,
-                Left = x,
-                Top = y + 5,
-                Width = 100,
-                AutoSize = false,
-                Font = ThemeManager.Instance.FontRegular
-            };
         }
 
         private void BtnSave_Click(object sender, EventArgs e)

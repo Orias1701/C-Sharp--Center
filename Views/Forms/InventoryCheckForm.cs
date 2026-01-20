@@ -44,87 +44,144 @@ namespace WarehouseManagement.Views.Forms
         private void InitializeComponent()
         {
             Text = _isNew ? $"{UIConstants.Icons.Check} Tạo Phiếu Kiểm Kê Mới" : $"{UIConstants.Icons.Check} Chi Tiết Phiếu Kiểm Kê #{_check.CheckID}";
-            Size = new Size(800, 700);
-            StartPosition = FormStartPosition.CenterParent;
-            FormBorderStyle = FormBorderStyle.FixedDialog;
-            MaximizeBox = false;
-            MinimizeBox = false;
-            BackColor = ThemeManager.Instance.BackgroundLight;
-
-            int margin = 20;
-            int y = 20;
-
-            // Info Header
-            Label lblUser = CreateLabel($"Người tạo: {(_isNew ? GlobalUser.CurrentUser?.Username : _check.CreatedByUserID.ToString())}", margin, y, 300);
-            Label lblDate = CreateLabel($"Ngày tạo: {(_isNew ? DateTime.Now.ToString("dd/MM/yyyy HH:mm") : _check.CheckDate.ToString("dd/MM/yyyy HH:mm"))}", margin + 350, y, 300);
             
-            Controls.Add(lblUser);
-            Controls.Add(lblDate);
-            y += 30;
+            // Main container
+            CustomPanel mainPanel = new CustomPanel
+            {
+                Dock = DockStyle.Fill,
+                BorderRadius = UIConstants.Borders.RadiusLarge,
+                ShowBorder = false,
+                Padding = new Padding(0)
+            };
+
+            // Layout constants
+            const int LEFT_MARGIN = 40;
+            const int INPUT_WIDTH = 720; // 800 - 40 - 40
+            int currentY = 30;
+            int inputSpacing = 20;
+
+            // Info Header (User, Date, Status)
+            string userText = $"Người tạo: {(_isNew ? GlobalUser.CurrentUser?.Username : _check.CreatedByUserID.ToString())}";
+            string dateText = $"Ngày tạo: {(_isNew ? DateTime.Now.ToString("dd/MM/yyyy HH:mm") : _check.CheckDate.ToString("dd/MM/yyyy HH:mm"))}";
+            
+            Label lblInfo = new Label
+            {
+                Text = $"{userText}    |    {dateText}",
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = INPUT_WIDTH,
+                AutoSize = false,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = ThemeManager.Instance.TextPrimary
+            };
+            mainPanel.Controls.Add(lblInfo);
+            currentY += 25;
 
             if (!_isNew)
             {
-                Label lblStatus = CreateLabel($"Trạng thái: {_check.Status}", margin, y, 300);
-                if (_check.Status == "Completed") lblStatus.ForeColor = UIConstants.SemanticColors.Success;
-                else lblStatus.ForeColor = UIConstants.SemanticColors.Warning;
-                Controls.Add(lblStatus);
-                y += 30;
+                Label lblStatus = new Label
+                {
+                    Text = $"Trạng thái: {_check.Status}",
+                    Left = LEFT_MARGIN,
+                    Top = currentY,
+                    Width = INPUT_WIDTH,
+                    AutoSize = false,
+                    Font = ThemeManager.Instance.FontSmall,
+                    ForeColor = _check.Status == "Completed" ? UIConstants.SemanticColors.Success : UIConstants.SemanticColors.Warning
+                };
+                mainPanel.Controls.Add(lblStatus);
+                currentY += 25;
             }
+            currentY += 10;
 
-            // Note
-            Controls.Add(CreateLabel("Ghi chú:", margin, y, 100));
-            y += 25;
+            // Note (Vertical)
+            Label lblNote = new Label
+            {
+                Text = "Ghi chú",
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
+            };
+            mainPanel.Controls.Add(lblNote);
+            currentY += 20;
+
             txtNote = new CustomTextArea
             {
-                Left = margin,
-                Top = y,
-                Width = 740,
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = INPUT_WIDTH,
                 Height = 60,
                 Placeholder = "Ghi chú kiểm kê...",
                 ReadOnly = (!_isNew)
             };
             if (!_isNew) txtNote.Text = _check.Note;
-            Controls.Add(txtNote);
-            y += 70;
+            mainPanel.Controls.Add(txtNote);
+            currentY += 60 + inputSpacing;
 
             // Product Selection (Only for New)
             if (_isNew)
             {
-                Controls.Add(CreateLabel("Thêm sản phẩm:", margin, y, 150));
-                y += 25;
+                Label lblAddProduct = new Label
+                {
+                    Text = "Thêm sản phẩm",
+                    Left = LEFT_MARGIN,
+                    Top = currentY,
+                    AutoSize = true,
+                    Font = ThemeManager.Instance.FontSmall,
+                    ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                              UIConstants.PrimaryColor.Default.G, 
+                                              UIConstants.PrimaryColor.Default.B)
+                };
+                mainPanel.Controls.Add(lblAddProduct);
+                currentY += 20;
 
                 cmbProduct = new CustomComboBox
                 {
-                    Left = margin,
-                    Top = y,
-                    Width = 600
+                    Left = LEFT_MARGIN,
+                    Top = currentY,
+                    Width = INPUT_WIDTH - 140
                 };
                 LoadProducts();
 
                 btnAddProduct = new CustomButton
                 {
                     Text = "Thêm",
-                    Left = margin + 610,
-                    Top = y,
+                    Left = LEFT_MARGIN + INPUT_WIDTH - 130,
+                    Top = currentY,
                     Width = 130,
                     ButtonStyleType = ButtonStyle.Filled
                 };
                 btnAddProduct.Click += BtnAddProduct_Click;
 
-                Controls.Add(cmbProduct);
-                Controls.Add(btnAddProduct);
-                y += 45;
+                mainPanel.Controls.Add(cmbProduct);
+                mainPanel.Controls.Add(btnAddProduct);
+                currentY += UIConstants.Sizes.InputHeight + inputSpacing;
             }
 
             // Grid
-            Controls.Add(CreateLabel("Chi tiết kiểm kê:", margin, y, 200));
-            y += 25;
+            Label lblDetail = new Label
+            {
+                Text = "Chi tiết kiểm kê",
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                AutoSize = true,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                          UIConstants.PrimaryColor.Default.G, 
+                                          UIConstants.PrimaryColor.Default.B)
+            };
+            mainPanel.Controls.Add(lblDetail);
+            currentY += 20;
 
             dgvDetails = new DataGridView
             {
-                Left = margin,
-                Top = y,
-                Width = 740,
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = INPUT_WIDTH,
                 Height = 350,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
@@ -132,9 +189,9 @@ namespace WarehouseManagement.Views.Forms
                 BorderStyle = BorderStyle.FixedSingle
             };
 
-            // Setup Columns
+            // Setup Columns (Same as before)
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "ID", DataPropertyName = "ProductID", Width = 60, ReadOnly = true });
-            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên sản phẩm", Name = "ProductName", Width = 200, ReadOnly = true }); // Need to map name manually or via property
+            dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tên sản phẩm", Name = "ProductName", Width = 200, ReadOnly = true }); 
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Tồn Máy", DataPropertyName = "SystemQuantity", Width = 90, ReadOnly = true });
             
             var colActual = new DataGridViewTextBoxColumn { HeaderText = "Tồn Thực", DataPropertyName = "ActualQuantity", Width = 90 };
@@ -151,58 +208,98 @@ namespace WarehouseManagement.Views.Forms
             dgvDetails.CellEndEdit += DgvDetails_CellEndEdit;
             dgvDetails.CellFormatting += DgvDetails_CellFormatting;
 
-            Controls.Add(dgvDetails);
-            y += 360;
+            mainPanel.Controls.Add(dgvDetails);
+            currentY += 350 + 30;
 
-            // Buttons
+            // Buttons - Centered
+            // Calculate total width based on visible buttons
+             
             btnClose = new CustomButton
             {
                 Text = "Đóng",
-                Left = margin + 640,
-                Top = y,
                 Width = 100,
-                ButtonStyleType = ButtonStyle.Text
+                ButtonStyleType = ButtonStyle.Outlined
             };
             btnClose.Click += (s, e) => Close();
-            Controls.Add(btnClose);
 
             if (_isNew)
             {
                 btnSave = new CustomButton
                 {
-                    Text = "Lưu Nháp (Pending)",
-                    Left = margin,
-                    Top = y,
-                    Width = 180,
+                    Text = "Lưu Nháp",
+                    Width = 120,
                     ButtonStyleType = ButtonStyle.Outlined
                 };
                 btnSave.Click += BtnSave_Click;
-                Controls.Add(btnSave);
 
                 btnComplete = new CustomButton
                 {
-                    Text = "Hoàn Tất & Cân Bằng",
-                    Left = margin + 190,
-                    Top = y,
-                    Width = 200,
+                    Text = "Hoàn Tất",
+                    Width = 120,
                     ButtonStyleType = ButtonStyle.Filled
                 };
                 btnComplete.Click += BtnComplete_Click;
-                Controls.Add(btnComplete);
+
+                // Layout: Close | Save | Complete (Centered)
+                int totalW = 100 + 10 + 120 + 10 + 120;
+                int startX = LEFT_MARGIN + (INPUT_WIDTH - totalW) / 2;
+
+                btnClose.Left = startX;
+                btnClose.Top = currentY;
+
+                btnSave.Left = startX + 110;
+                btnSave.Top = currentY;
+
+                btnComplete.Left = startX + 110 + 130;
+                btnComplete.Top = currentY;
+
+                mainPanel.Controls.Add(btnSave);
+                mainPanel.Controls.Add(btnComplete);
             }
             else if (_check.Status == "Pending")
             {
                 btnComplete = new CustomButton
                 {
-                    Text = "Hoàn Tất & Cân Bằng",
-                    Left = margin,
-                    Top = y,
-                    Width = 200,
+                    Text = "Hoàn Tất",
+                    Width = 120,
                     ButtonStyleType = ButtonStyle.Filled
                 };
                 btnComplete.Click += BtnComplete_Click;
-                Controls.Add(btnComplete);
+
+                int totalW = 100 + 10 + 120;
+                int startX = LEFT_MARGIN + (INPUT_WIDTH - totalW) / 2;
+                
+                btnClose.Left = startX;
+                btnClose.Top = currentY;
+
+                btnComplete.Left = startX + 110;
+                btnComplete.Top = currentY;
+
+                mainPanel.Controls.Add(btnComplete);
             }
+            else
+            {
+                // Only Close
+                btnClose.Left = LEFT_MARGIN + (INPUT_WIDTH - 100) / 2;
+                btnClose.Top = currentY;
+            }
+
+            mainPanel.Controls.Add(btnClose);
+            Controls.Add(mainPanel);
+
+            // Form Size
+            int contentHeight = currentY + 35; // Bottom of buttons
+            int paddingBottom = 40;
+            int calculatedHeight = contentHeight + paddingBottom;
+
+            // Use ClientSize to keep inner size correct
+            ClientSize = new Size(800, calculatedHeight);
+            
+            StartPosition = FormStartPosition.CenterParent;
+            FormBorderStyle = FormBorderStyle.FixedDialog;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            BackColor = ThemeManager.Instance.BackgroundLight;
 
             RefreshGrid();
         }
