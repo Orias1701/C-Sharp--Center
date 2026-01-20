@@ -163,6 +163,9 @@ namespace WarehouseManagement.Views.Panels
             tablePanel.Controls.Add(dgvChecks);
             Controls.Add(tablePanel);
             
+            // Apply Hover Effect
+            Helpers.DataGridViewHelper.ApplyHoverEffect(dgvChecks);
+            
             LoadData();
         }
 
@@ -174,12 +177,13 @@ namespace WarehouseManagement.Views.Panels
             dgvChecks.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
             dgvChecks.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             dgvChecks.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-            dgvChecks.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
-            dgvChecks.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvChecks.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            
+            // Apply Selection Effect through Helper
+            Helpers.DataGridViewHelper.ApplySelectionEffect(dgvChecks);
+
             dgvChecks.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
             dgvChecks.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvChecks.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
-            dgvChecks.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()
@@ -225,11 +229,9 @@ namespace WarehouseManagement.Views.Panels
         {
             if (e.RowIndex < 0) return;
             
-            // View Detail Column (Index 5)
-            if (e.ColumnIndex == 5)
-            {
-                OpenCheckDetail(e.RowIndex);
-            }
+            // Allow single click on ANY column to open the detail, similar to SuppliersPanel
+            // The Action Column (Index 5) is also just "View Details", so it performs the same action.
+            OpenCheckDetail(e.RowIndex);
         }
 
         private void OpenCheckDetail(int rowIndex)

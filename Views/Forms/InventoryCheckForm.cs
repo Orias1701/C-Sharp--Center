@@ -207,6 +207,11 @@ namespace WarehouseManagement.Views.Forms
 
             dgvDetails.CellEndEdit += DgvDetails_CellEndEdit;
             dgvDetails.CellFormatting += DgvDetails_CellFormatting;
+            
+            // Apply Hover Effect
+            Helpers.DataGridViewHelper.ApplyHoverEffect(dgvDetails);
+            // Apply Selection Effect
+            Helpers.DataGridViewHelper.ApplySelectionEffect(dgvDetails);
 
             mainPanel.Controls.Add(dgvDetails);
             currentY += 350 + 30;

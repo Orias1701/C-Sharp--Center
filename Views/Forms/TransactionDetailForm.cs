@@ -197,6 +197,11 @@ namespace WarehouseManagement.Views.Forms
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Đơn giá", DataPropertyName = "UnitPrice", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn { HeaderText = "Thành tiền", DataPropertyName = "SubTotal", Width = 110, DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
             
+            // Apply Hover Effect
+            Helpers.DataGridViewHelper.ApplyHoverEffect(dgvDetails);
+            // Apply Selection Effect
+            Helpers.DataGridViewHelper.ApplySelectionEffect(dgvDetails);
+
             mainPanel.Controls.Add(dgvDetails);
             currentY += 180 + 30;
 

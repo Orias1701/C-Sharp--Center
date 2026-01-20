@@ -17,6 +17,7 @@ namespace WarehouseManagement.UI
             public static readonly Color Hover = ColorTranslator.FromHtml("#FF9D97");    // Sáng hơn khi hover
             public static readonly Color Pressed = ColorTranslator.FromHtml("#E6776F");  // Tối hơn khi pressed
             public static readonly Color Light = ColorTranslator.FromHtml("#FFE5E3");    // Màu nhẹ cho selection
+            public static readonly Color HoverLight = ColorTranslator.FromHtml("#FFF5F5"); // Rất nhạt cho hover hàng
             public static readonly Color Disabled = ColorTranslator.FromHtml("#FFBFBA"); // Mờ đi khi disabled
             public static readonly Color Dark = ColorTranslator.FromHtml("#CC6964");     // Rất tối
         }

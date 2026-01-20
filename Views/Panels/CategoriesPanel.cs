@@ -161,6 +161,9 @@ namespace WarehouseManagement.Views.Panels
             };
             tablePanel.Controls.Add(dgvCategories);
             Controls.Add(tablePanel);
+            
+            // Apply Hover Effect
+            Helpers.DataGridViewHelper.ApplyHoverEffect(dgvCategories);
         }
 
         private void OnThemeChanged(object sender, EventArgs e)
@@ -174,12 +177,13 @@ namespace WarehouseManagement.Views.Panels
             dgvCategories.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
             dgvCategories.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             dgvCategories.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-            dgvCategories.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
-            dgvCategories.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvCategories.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            
+            // Apply Selection Effect through Helper
+            Helpers.DataGridViewHelper.ApplySelectionEffect(dgvCategories);
+
             dgvCategories.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
             dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
-            dgvCategories.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()

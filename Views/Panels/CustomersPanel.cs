@@ -179,6 +179,9 @@ namespace WarehouseManagement.Views.Panels
             tablePanel.Controls.Add(dgvCustomers);
             Controls.Add(tablePanel);
             
+            // Apply Hover Effect
+            Helpers.DataGridViewHelper.ApplyHoverEffect(dgvCustomers);
+
             LoadData();
         }
 
@@ -190,12 +193,13 @@ namespace WarehouseManagement.Views.Panels
             dgvCustomers.BackgroundColor = ThemeManager.Instance.BackgroundDefault;
             dgvCustomers.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             dgvCustomers.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-            dgvCustomers.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
-            dgvCustomers.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
+            dgvCustomers.DefaultCellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
+            
+            // Apply Selection Effect through Helper
+            Helpers.DataGridViewHelper.ApplySelectionEffect(dgvCustomers);
+            
             dgvCustomers.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
             dgvCustomers.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-            dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
-            dgvCustomers.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
         }
 
         public void LoadData()
