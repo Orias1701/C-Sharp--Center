@@ -41,6 +41,9 @@ namespace WarehouseManagement.Views
         private ProductsPanel productsPanel;
         private CategoriesPanel categoriesPanel;
         private TransactionsPanel transactionsPanel;
+        private SuppliersPanel suppliersPanel;
+        private CustomersPanel customersPanel;
+        private InventoryChecksPanel inventoryChecksPanel;
 
         private System.Windows.Forms.Timer statusUpdateTimer, timeUpdateTimer;
 
@@ -113,6 +116,9 @@ namespace WarehouseManagement.Views
 
             // 5. CREATE CONTENT PANELS
             CreatePanels();
+            content.Controls.Add(inventoryChecksPanel);
+            content.Controls.Add(customersPanel);
+            content.Controls.Add(suppliersPanel);
             content.Controls.Add(transactionsPanel);
             content.Controls.Add(productsPanel);
             content.Controls.Add(categoriesPanel);
@@ -153,6 +159,27 @@ namespace WarehouseManagement.Views
 
             // Panel 2: Transactions
             transactionsPanel = new TransactionsPanel
+            {
+                Dock = DockStyle.Fill,
+                Visible = false
+            };
+
+            // Panel 3: Suppliers
+            suppliersPanel = new SuppliersPanel
+            {
+                Dock = DockStyle.Fill,
+                Visible = false
+            };
+
+            // Panel 4: Customers
+            customersPanel = new CustomersPanel
+            {
+                Dock = DockStyle.Fill,
+                Visible = false
+            };
+
+            // Panel 5: InventoryChecks
+            inventoryChecksPanel = new InventoryChecksPanel
             {
                 Dock = DockStyle.Fill,
                 Visible = false
@@ -211,6 +238,9 @@ namespace WarehouseManagement.Views
             categoriesPanel.Visible = false;
             productsPanel.Visible = false;
             transactionsPanel.Visible = false;
+            suppliersPanel.Visible = false;
+            customersPanel.Visible = false;
+            inventoryChecksPanel.Visible = false;
 
             // Update menu button states
             menuBar.SetSelectedPanel(panelIndex);
@@ -229,6 +259,18 @@ namespace WarehouseManagement.Views
                 case 2: // Transactions
                     transactionsPanel.Visible = true;
                     transactionsPanel.BringToFront();
+                    break;
+                case 3: // Suppliers
+                    suppliersPanel.Visible = true;
+                    suppliersPanel.BringToFront();
+                    break;
+                case 4: // Customers
+                    customersPanel.Visible = true;
+                    customersPanel.BringToFront();
+                    break;
+                case 5: // Inventory Checks
+                    inventoryChecksPanel.Visible = true;
+                    inventoryChecksPanel.BringToFront();
                     break;
             }
             
@@ -254,6 +296,18 @@ namespace WarehouseManagement.Views
                 case 2: // Transactions
                     toolsBar.BtnAdd.Enabled = false;
                     toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm";
+                    break;
+                case 3: // Suppliers
+                    toolsBar.BtnAdd.Enabled = true;
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm NCC";
+                    break;
+                case 4: // Customers
+                    toolsBar.BtnAdd.Enabled = true;
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm KH";
+                    break;
+                case 5: // Inventory Checks
+                    toolsBar.BtnAdd.Enabled = false; // Disable for now as requested
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm Phiếu";
                     break;
             }
         }
@@ -295,6 +349,9 @@ namespace WarehouseManagement.Views
             if (categoriesPanel.Visible) panel = categoriesPanel;
             else if (productsPanel.Visible) panel = productsPanel;
             else if (transactionsPanel.Visible) panel = transactionsPanel;
+            else if (suppliersPanel.Visible) panel = suppliersPanel;
+            else if (customersPanel.Visible) panel = customersPanel;
+            else if (inventoryChecksPanel.Visible) panel = inventoryChecksPanel;
 
             if (panel is ISearchable searchable)
             {
@@ -308,7 +365,6 @@ namespace WarehouseManagement.Views
             // Xác định panel hiện tại và mở form tương ứng
             if (categoriesPanel.Visible)
             {
-                // Đang ở trang Categories → Thêm Danh mục
                 CategoryForm form = new CategoryForm();
                 if (form.ShowDialog() == DialogResult.OK)
                 {
@@ -318,7 +374,6 @@ namespace WarehouseManagement.Views
             }
             else if (productsPanel.Visible)
             {
-                // Đang ở trang Products → Thêm Sản phẩm
                 ProductForm form = new ProductForm();
                 if (form.ShowDialog() == DialogResult.OK)
                 {
@@ -326,7 +381,25 @@ namespace WarehouseManagement.Views
                     _actions?.UpdateChangeStatus();
                 }
             }
-            // Nếu ở trang Transactions, nút đã bị disable nên không thể vào đây
+            else if (suppliersPanel.Visible)
+            {
+                SupplierForm form = new SupplierForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    RefreshAllData();
+                    _actions?.UpdateChangeStatus();
+                }
+            }
+            else if (customersPanel.Visible)
+            {
+                CustomerForm form = new CustomerForm();
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    RefreshAllData();
+                    _actions?.UpdateChangeStatus();
+                }
+            }
+            // Transactions & InventoryChecks add buttons might function differently or be disabled
         }
 
         private void OnTransactionRequested(object sender, EventArgs e)
@@ -360,6 +433,12 @@ namespace WarehouseManagement.Views
             productsPanel.LoadData();
             categoriesPanel.LoadData();
             transactionsPanel.LoadData();
+            suppliersPanel.LoadData();
+            customersPanel.LoadData();
+            inventoryChecksPanel.LoadData();
+            
+            // Re-apply search if needed
+            // OnSearchRequested(this, EventArgs.Empty);
         }
 
         private void Main_Load(object sender, EventArgs e)
@@ -371,22 +450,17 @@ namespace WarehouseManagement.Views
 
             // Set initial panel state (Categories is default)
             int initialPanel = 0; // Categories
-            if (categoriesPanel.Visible) initialPanel = 0;
-            else if (productsPanel.Visible) initialPanel = 1;
-            else if (transactionsPanel.Visible) initialPanel = 2;
+            // Logic checked against visible state
             
-            // Set menu button state và toolbar button state
+            // Set menu button state và toolbar state
             menuBar.SetSelectedPanel(initialPanel);
             SetToolbarStateForPanel(initialPanel);
 
             statusUpdateTimer?.Start();
             timeUpdateTimer?.Start();
 
-            productsPanel.LoadData();
-            categoriesPanel.LoadData();
-            transactionsPanel.LoadData();
-
-            footer.LblFooterTime.Text = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+            // Load all data
+            RefreshAllData();
         }
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)

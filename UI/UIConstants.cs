@@ -463,6 +463,9 @@ namespace WarehouseManagement.UI
             public const string Store = "🏪";
 
             public const string Factory = "🏭";
+            public const string Supplier = "🚚";
+            public const string Customer = "👥";
+            public const string Check = "📋";
             
             // ===== ARROWS =====
             public const string ArrowUp = "↑";

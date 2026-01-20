@@ -15,6 +15,7 @@ namespace WarehouseManagement.Models
         public string Role { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool Visible { get; set; } = true;
 
         /// <summary>
         /// Kiểm tra xem user có phải Admin hay không

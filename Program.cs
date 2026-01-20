@@ -19,7 +19,8 @@ namespace WarehouseManagement
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 
-                // Tự động chạy schema.sql để tạo database và bảng (nếu chưa tồn tại)
+                // Tự động chạy schema.sql được tắt theo yêu cầu để tránh reset dữ liệu
+                /*
                 try
                 {
                     DatabaseHelper.ExecuteSchema();
@@ -28,6 +29,7 @@ namespace WarehouseManagement
                 {
                     // Schema có thể đã tồn tại, không cần báo lỗi
                 }
+                */
 
                 // Kiểm tra kết nối database trước khi chạy ứng dụng
                 if (!DatabaseHelper.TestDatabaseConnection())

@@ -18,8 +18,11 @@ namespace WarehouseManagement.Views.Forms
         private string _transactionType; // "Import" hoặc "Export"
         private InventoryController _inventoryController;
         private ProductController _productController;
+        private SupplierController _supplierController;
+        private CustomerController _customerController;
         private TabControl tabControl;
         private CustomComboBox cmbProduct;
+        private CustomComboBox cmbSubject; // For Supplier or Customer
         private CustomTextBox txtQuantity, txtUnitPrice;
         private CustomTextArea txtNote;
         private DataGridView dgvDetails;
@@ -34,6 +37,8 @@ namespace WarehouseManagement.Views.Forms
             _details = new List<(int, int, decimal)>();
             _inventoryController = new InventoryController();
             _productController = new ProductController();
+            _supplierController = new SupplierController();
+            _customerController = new CustomerController();
             
             Text = $"{UIConstants.Icons.Transaction} Giao dịch";
             
@@ -92,6 +97,27 @@ namespace WarehouseManagement.Views.Forms
             const int LEFT_MARGIN = 40;
             int currentY = 20;
             int spacing = UIConstants.Spacing.Margin.Medium;
+
+            // Subject (Supplier/Customer) - Added Block
+            Label lblSubject = new Label 
+            { 
+                Name = "lblSubject",
+                Text = $"{UIConstants.Icons.User} Nhà cung cấp:", 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 150,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+            currentY += 25;
+
+            cmbSubject = new CustomComboBox 
+            { 
+                Left = LEFT_MARGIN, 
+                Top = currentY, 
+                Width = 520
+            };
+            currentY += UIConstants.Sizes.InputHeight + spacing;
 
             // Product
             Label lblProduct = new Label 
@@ -249,6 +275,8 @@ namespace WarehouseManagement.Views.Forms
             btnCancel.Click += BtnCancel_Click;
             btnExportVoucher.Click += BtnExportVoucher_Click;
 
+            contentPanel.Controls.Add(lblSubject);
+            contentPanel.Controls.Add(cmbSubject);
             contentPanel.Controls.Add(lblProduct);
             contentPanel.Controls.Add(cmbProduct);
             contentPanel.Controls.Add(lblQuantity);
@@ -270,6 +298,17 @@ namespace WarehouseManagement.Views.Forms
             // Đổi transaction type khi chuyển tab
             _transactionType = tabControl.SelectedIndex == 0 ? "Import" : "Export";
             
+            // Update Label
+            var lblSubject = contentPanel.Controls.Find("lblSubject", true).FirstOrDefault() as Label;
+            if (lblSubject != null)
+            {
+                lblSubject.Text = _transactionType == "Import" 
+                    ? $"{UIConstants.Icons.User} Nhà cung cấp:" 
+                    : $"{UIConstants.Icons.User} Khách hàng:";
+            }
+
+            LoadSubjects();
+
             // Clear current details when switching tabs
             _details.Clear();
             RefreshDetails();
@@ -278,6 +317,32 @@ namespace WarehouseManagement.Views.Forms
             txtQuantity.Text = "";
             txtUnitPrice.Text = "";
             txtNote.Text = "";
+        }
+
+        private void LoadSubjects()
+        {
+            try 
+            {
+                if (_transactionType == "Import")
+                {
+                    var suppliers = _supplierController.GetAllSuppliers().Where(s => s.Visible).ToList();
+                    cmbSubject.DataSource = suppliers;
+                    cmbSubject.DisplayMember = "SupplierName";
+                    cmbSubject.ValueMember = "SupplierID";
+                }
+                else
+                {
+                    var customers = _customerController.GetAllCustomers().Where(c => c.Visible).ToList();
+                    cmbSubject.DataSource = customers;
+                    cmbSubject.DisplayMember = "CustomerName";
+                    cmbSubject.ValueMember = "CustomerID";
+                }
+                cmbSubject.SelectedIndex = -1; // Default to no selection
+            }
+            catch (Exception ex)
+            {
+                 MessageBox.Show("Lỗi tải danh sách đối tác: " + ex.Message);
+            }
         }
 
         private void BtnExportVoucher_Click(object sender, EventArgs e)
@@ -368,6 +433,8 @@ namespace WarehouseManagement.Views.Forms
                 cmbProduct.ValueMember = "ProductID";
 
                 if (cmbProduct.Items.Count > 0) cmbProduct.SelectedIndex = 0;
+                
+                LoadSubjects();
             }
             catch (Exception ex)
             {
@@ -511,11 +578,13 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (_transactionType == "Import")
                 {
-                    _inventoryController.ImportBatch(_details, txtNote.Text);
+                    int supplierId = cmbSubject.SelectedValue != null ? (int)cmbSubject.SelectedValue : 0;
+                    _inventoryController.ImportBatch(_details, txtNote.Text, supplierId);
                 }
                 else
                 {
-                    _inventoryController.ExportBatch(_details, txtNote.Text);
+                    int customerId = cmbSubject.SelectedValue != null ? (int)cmbSubject.SelectedValue : 0;
+                    _inventoryController.ExportBatch(_details, txtNote.Text, customerId);
                 }
                 MessageBox.Show($"{UIConstants.Icons.Success} Lưu phiếu thành công!", "Thành công", 
                     MessageBoxButtons.OK, MessageBoxIcon.Information);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using MySql.Data.MySqlClient;
 using WarehouseManagement.Models;
 
@@ -23,7 +22,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "SELECT * FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                        "SELECT * FROM TransactionDetails WHERE TransactionID=@transId AND Visible=TRUE", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", transactionId);
                         using (var reader = cmd.ExecuteReader())
@@ -37,7 +36,9 @@ namespace WarehouseManagement.Repositories
                                     ProductID = reader.GetInt32("ProductID"),
                                     ProductName = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString("ProductName"),
                                     Quantity = reader.GetInt32("Quantity"),
-                                    UnitPrice = reader.GetDecimal("UnitPrice")
+                                    UnitPrice = reader.GetDecimal("UnitPrice"),
+                                    SubTotal = reader.GetDecimal("SubTotal"),
+                                    Visible = reader.GetBoolean("Visible")
                                 });
                             }
                         }
@@ -76,7 +77,9 @@ namespace WarehouseManagement.Repositories
                                     ProductID = reader.GetInt32("ProductID"),
                                     ProductName = reader.IsDBNull(reader.GetOrdinal("ProductName")) ? "" : reader.GetString("ProductName"),
                                     Quantity = reader.GetInt32("Quantity"),
-                                    UnitPrice = reader.GetDecimal("UnitPrice")
+                                    UnitPrice = reader.GetDecimal("UnitPrice"),
+                                    SubTotal = reader.GetDecimal("SubTotal"),
+                                    Visible = reader.GetBoolean("Visible")
                                 };
                             }
                         }
@@ -101,14 +104,15 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice) " +
-                        "VALUES (@transId, @prodId, @prodName, @qty, @price); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice, Visible) " +
+                        "VALUES (@transId, @prodId, @prodName, @qty, @price, @visible); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", detail.TransactionID);
                         cmd.Parameters.AddWithValue("@prodId", detail.ProductID);
                         cmd.Parameters.AddWithValue("@prodName", detail.ProductName ?? "");
                         cmd.Parameters.AddWithValue("@qty", detail.Quantity);
                         cmd.Parameters.AddWithValue("@price", detail.UnitPrice);
+                        cmd.Parameters.AddWithValue("@visible", detail.Visible);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
@@ -130,13 +134,14 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "UPDATE TransactionDetails SET ProductID=@prodId, ProductName=@prodName, Quantity=@qty, UnitPrice=@price " +
+                        "UPDATE TransactionDetails SET ProductID=@prodId, ProductName=@prodName, Quantity=@qty, UnitPrice=@price, Visible=@visible " +
                         "WHERE DetailID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@prodId", detail.ProductID);
                         cmd.Parameters.AddWithValue("@prodName", detail.ProductName ?? "");
                         cmd.Parameters.AddWithValue("@qty", detail.Quantity);
                         cmd.Parameters.AddWithValue("@price", detail.UnitPrice);
+                        cmd.Parameters.AddWithValue("@visible", detail.Visible);
                         cmd.Parameters.AddWithValue("@id", detail.DetailID);
                         return cmd.ExecuteNonQuery() > 0;
                     }
@@ -149,7 +154,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa chi tiết phiếu
+        /// Xóa chi tiết phiếu (Soft delete)
         /// </summary>
         public bool DeleteTransactionDetail(int detailId)
         {
@@ -159,7 +164,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "DELETE FROM TransactionDetails WHERE DetailID=@id", conn))
+                        "UPDATE TransactionDetails SET Visible=FALSE WHERE DetailID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", detailId);
                         return cmd.ExecuteNonQuery() > 0;
@@ -173,7 +178,7 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa tất cả chi tiết của một phiếu
+        /// Xóa tất cả chi tiết của một phiếu (Soft delete)
         /// </summary>
         public bool DeleteAllDetails(int transactionId)
         {
@@ -183,7 +188,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "DELETE FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                        "UPDATE TransactionDetails SET Visible=FALSE WHERE TransactionID=@transId", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", transactionId);
                         return cmd.ExecuteNonQuery() > 0;
@@ -207,7 +212,7 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "SELECT SUM(Quantity) FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                        "SELECT SUM(Quantity) FROM TransactionDetails WHERE TransactionID=@transId AND Visible=TRUE", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", transactionId);
                         var result = cmd.ExecuteScalar();

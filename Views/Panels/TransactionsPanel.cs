@@ -7,6 +7,7 @@ using WarehouseManagement.Models;
 using WarehouseManagement.Views.Forms;
 using WarehouseManagement.UI;
 using WarehouseManagement.UI.Components;
+using System.Linq;
 
 namespace WarehouseManagement.Views.Panels
 {
@@ -14,15 +15,20 @@ namespace WarehouseManagement.Views.Panels
     {
         private DataGridView dgvTransactions;
         private InventoryController _inventoryController;
-        private List<StockTransaction> allTransactions;
+        private SupplierController _supplierController;
+        private CustomerController _customerController;
+        private List<Transaction> allTransactions;
+        private Dictionary<int, string> _supplierNames = new Dictionary<int, string>();
+        private Dictionary<int, string> _customerNames = new Dictionary<int, string>();
 
         public TransactionsPanel()
         {
             _inventoryController = new InventoryController();
+            _supplierController = new SupplierController();
+            _customerController = new CustomerController();
             InitializeComponent();
             SettingsForm.SettingsChanged += (s, e) => LoadData();
             
-            // Subscribe to theme changes
             ThemeManager.Instance.ThemeChanged += OnThemeChanged;
             ApplyTheme();
         }
@@ -74,10 +80,22 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "Loại", 
                 DataPropertyName = "Type", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(10, 5, 30, 5)
+                } 
+            });
+
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Đối tác", 
+                Name = "colPartner", // Used in CellFormatting
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleLeft,
                     Padding = new Padding(10, 5, 30, 5)
                 } 
             });
@@ -98,7 +116,7 @@ namespace WarehouseManagement.Views.Panels
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Tổng Giá Trị", 
-                DataPropertyName = "TotalValue", 
+                DataPropertyName = "TotalAmount", 
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
@@ -138,15 +156,12 @@ namespace WarehouseManagement.Views.Panels
                 }
             });
 
-            // Sync alignment và padding từ content lên header
             foreach (DataGridViewColumn col in dgvTransactions.Columns)
             {
-                // Copy alignment
                 if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
                 {
                     col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
                 }
-                // Copy padding (vì khi set alignment, padding có thể bị mất)
                 col.HeaderCell.Style.Padding = new Padding(10, 5, 10, 5);
             }
 
@@ -195,6 +210,13 @@ namespace WarehouseManagement.Views.Panels
         {
             try
             {
+                // Pre-load lookup data
+                var suppliers = _supplierController.GetAllSuppliers();
+                _supplierNames = suppliers.ToDictionary(s => s.SupplierID, s => s.SupplierName);
+
+                var customers = _customerController.GetAllCustomers();
+                _customerNames = customers.ToDictionary(c => c.CustomerID, c => c.CustomerName);
+
                 allTransactions = _inventoryController.GetAllTransactions(SettingsForm.ShowHiddenItems);
                 dgvTransactions.DataSource = allTransactions;
             }
@@ -210,7 +232,7 @@ namespace WarehouseManagement.Views.Panels
             try
             {
                 string search = searchText.ToLower();
-                List<StockTransaction> filtered = allTransactions.FindAll(t => 
+                List<Transaction> filtered = allTransactions.FindAll(t => 
                     t.TransactionID.ToString().Contains(search) || 
                     t.Type.ToLower().Contains(search) || 
                     (t.Note != null && t.Note.ToLower().Contains(search)));
@@ -226,7 +248,7 @@ namespace WarehouseManagement.Views.Panels
 
             try
             {
-                StockTransaction transaction = _inventoryController.GetTransactionById(transactionId);
+                Transaction transaction = _inventoryController.GetTransactionById(transactionId);
 
                 if (transaction != null)
                 {
@@ -250,7 +272,6 @@ namespace WarehouseManagement.Views.Panels
         {
             if (e.RowIndex < 0) return;
 
-            // Column 5 is the hide button
             if (e.ColumnIndex == 5)
             {
                 int transactionId = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
@@ -279,12 +300,11 @@ namespace WarehouseManagement.Views.Panels
                 return;
             }
 
-            // Other columns show details
             int id = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
 
             try
             {
-                StockTransaction transaction = _inventoryController.GetTransactionById(id);
+                Transaction transaction = _inventoryController.GetTransactionById(id);
                 if (transaction != null)
                 {
                     TransactionDetailForm form = new TransactionDetailForm(transaction);
@@ -305,8 +325,13 @@ namespace WarehouseManagement.Views.Panels
 
         private void DgvTransactions_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            // Format Type column to show Vietnamese names with icons
-            if (e.ColumnIndex == 1 && dgvTransactions.Rows[e.RowIndex].DataBoundItem is StockTransaction transaction)
+            if (e.RowIndex < 0 || e.RowIndex >= dgvTransactions.Rows.Count) return;
+
+            var transaction = dgvTransactions.Rows[e.RowIndex].DataBoundItem as Transaction;
+            if (transaction == null) return;
+
+            // Type Column
+            if (dgvTransactions.Columns[e.ColumnIndex].DataPropertyName == "Type")
             {
                 if (e.Value != null)
                 {
@@ -314,7 +339,6 @@ namespace WarehouseManagement.Views.Panels
                     e.Value = text;
                     e.FormattingApplied = true;
                     
-                    // Set color based on type
                     if (transaction.Type == "Import")
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Success;
@@ -323,6 +347,26 @@ namespace WarehouseManagement.Views.Panels
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Info;
                     }
+                }
+            }
+            // Partner Column
+            else if (dgvTransactions.Columns[e.ColumnIndex].Name == "colPartner")
+            {
+                if (transaction.Type == "Import" && transaction.SupplierID.HasValue)
+                {
+                     if (_supplierNames.TryGetValue(transaction.SupplierID.Value, out string name))
+                     {
+                         e.Value = name;
+                         e.FormattingApplied = true;
+                     }
+                }
+                else if (transaction.Type == "Export" && transaction.CustomerID.HasValue)
+                {
+                     if (_customerNames.TryGetValue(transaction.CustomerID.Value, out string name))
+                     {
+                         e.Value = name;
+                         e.FormattingApplied = true;
+                     }
                 }
             }
         }

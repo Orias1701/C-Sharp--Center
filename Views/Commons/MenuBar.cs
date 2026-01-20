@@ -16,6 +16,9 @@ namespace WarehouseManagement.Views.Commons
         public CustomButton BtnCategories { get; private set; }
         public CustomButton BtnProducts { get; private set; }
         public CustomButton BtnTransactions { get; private set; }
+        public CustomButton BtnSuppliers { get; private set; }
+        public CustomButton BtnCustomers { get; private set; }
+        public CustomButton BtnInventoryChecks { get; private set; }
         public CustomButton BtnSettings { get; private set; }
         public CustomButton BtnAccount { get; private set; }
 
@@ -83,6 +86,46 @@ namespace WarehouseManagement.Views.Commons
                 Padding = new Padding(15, 0, 0, 0)
             };
 
+            // New Buttons
+            BtnSuppliers = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Supplier} Nhà Cung Cấp", // Assuming Icon exists, or fallback
+                Dock = DockStyle.Top,
+                Height = btnHeight,
+                Margin = new Padding(btnMargin),
+                ButtonStyleType = ButtonStyle.Menu,
+                Font = ThemeManager.Instance.FontBold,
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
+            };
+
+            BtnCustomers = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Customer} Khách Hàng",
+                Dock = DockStyle.Top,
+                Height = btnHeight,
+                Margin = new Padding(btnMargin),
+                ButtonStyleType = ButtonStyle.Menu,
+                Font = ThemeManager.Instance.FontBold,
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
+            };
+
+            BtnInventoryChecks = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Check} Kiểm Kê",
+                Dock = DockStyle.Top,
+                Height = btnHeight,
+                Margin = new Padding(btnMargin),
+                ButtonStyleType = ButtonStyle.Menu,
+                Font = ThemeManager.Instance.FontBold,
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
+            };
+
             // Settings & Account buttons (Bottom)
             BtnSettings = new CustomButton
             {
@@ -112,6 +155,10 @@ namespace WarehouseManagement.Views.Commons
 
             Controls.Add(BtnAccount);
             Controls.Add(BtnSettings);
+            // Add in reverse order of Dock.Top
+            Controls.Add(BtnInventoryChecks);
+            Controls.Add(BtnCustomers);
+            Controls.Add(BtnSuppliers);
             Controls.Add(BtnTransactions);
             Controls.Add(BtnProducts);
             Controls.Add(BtnCategories);
@@ -122,6 +169,10 @@ namespace WarehouseManagement.Views.Commons
             BtnCategories.Click += (s, e) => RequestPanelChange(0);
             BtnProducts.Click += (s, e) => RequestPanelChange(1);
             BtnTransactions.Click += (s, e) => RequestPanelChange(2);
+            BtnSuppliers.Click += (s, e) => RequestPanelChange(3);
+            BtnCustomers.Click += (s, e) => RequestPanelChange(4);
+            BtnInventoryChecks.Click += (s, e) => RequestPanelChange(5);
+            
             BtnSettings.Click += (s, e) => SettingsRequested?.Invoke(this, EventArgs.Empty);
             BtnAccount.Click += (s, e) => AccountMenuRequested?.Invoke(this, EventArgs.Empty);
         }
@@ -144,6 +195,9 @@ namespace WarehouseManagement.Views.Commons
             BtnCategories.IsSelected = (panelIndex == 0);
             BtnProducts.IsSelected = (panelIndex == 1);
             BtnTransactions.IsSelected = (panelIndex == 2);
+            BtnSuppliers.IsSelected = (panelIndex == 3);
+            BtnCustomers.IsSelected = (panelIndex == 4);
+            BtnInventoryChecks.IsSelected = (panelIndex == 5);
         }
     }
 }

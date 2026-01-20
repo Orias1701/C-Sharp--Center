@@ -1,30 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using MySql.Data.MySqlClient;
 using WarehouseManagement.Models;
 
 namespace WarehouseManagement.Repositories
 {
     /// <summary>
-    /// Repository để quản lý phiếu Nhập/Xuất kho
+    /// Repository để quản lý phiếu Nhập/Xuất kho (Bảng Transactions)
     /// </summary>
     public class TransactionRepository : BaseRepository
     {
         /// <summary>
         /// Lấy danh sách tất cả phiếu (bao gồm chi tiết, chỉ visible records trừ khi includeHidden=true)
         /// </summary>
-        public List<StockTransaction> GetAllTransactions(bool includeHidden = false)
+        public List<Transaction> GetAllTransactions(bool includeHidden = false)
         {
-            var transactions = new List<StockTransaction>();
+            var transactions = new List<Transaction>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
                     string query = includeHidden
-                        ? "SELECT * FROM StockTransactions ORDER BY DateCreated DESC"
-                        : "SELECT * FROM StockTransactions WHERE Visible=TRUE ORDER BY DateCreated DESC";
+                        ? "SELECT * FROM Transactions ORDER BY DateCreated DESC"
+                        : "SELECT * FROM Transactions WHERE Visible=TRUE ORDER BY DateCreated DESC";
                     
                     using (var cmd = new MySqlCommand(query, conn))
                     {
@@ -32,14 +31,19 @@ namespace WarehouseManagement.Repositories
                         {
                             while (reader.Read())
                             {
-                                transactions.Add(new StockTransaction
+                                transactions.Add(new Transaction
                                 {
                                     TransactionID = reader.GetInt32("TransactionID"),
                                     Type = reader.GetString("Type"),
                                     DateCreated = reader.GetDateTime("DateCreated"),
                                     CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
+                                    SupplierID = reader.IsDBNull(reader.GetOrdinal("SupplierID")) ? (int?)null : reader.GetInt32("SupplierID"),
+                                    CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32("CustomerID"),
+                                    TotalAmount = reader.GetDecimal("TotalAmount"),
+                                    Discount = reader.GetDecimal("Discount"),
+                                    FinalAmount = reader.GetDecimal("FinalAmount"),
                                     Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note"),
-                                    TotalValue = reader.IsDBNull(reader.GetOrdinal("TotalValue")) ? 0 : reader.GetDecimal("TotalValue")
+                                    Visible = reader.GetBoolean("Visible")
                                 });
                             }
                         }
@@ -49,7 +53,9 @@ namespace WarehouseManagement.Repositories
                     foreach (var trans in transactions)
                     {
                         using (var detailCmd = new MySqlCommand(
-                            "SELECT * FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                            includeHidden 
+                                ? "SELECT * FROM TransactionDetails WHERE TransactionID=@transId"
+                                : "SELECT * FROM TransactionDetails WHERE TransactionID=@transId AND Visible=TRUE", conn))
                         {
                             detailCmd.Parameters.AddWithValue("@transId", trans.TransactionID);
                             using (var detailReader = detailCmd.ExecuteReader())
@@ -63,7 +69,9 @@ namespace WarehouseManagement.Repositories
                                         ProductID = detailReader.GetInt32("ProductID"),
                                         ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
                                         Quantity = detailReader.GetInt32("Quantity"),
-                                        UnitPrice = detailReader.GetDecimal("UnitPrice")
+                                        UnitPrice = detailReader.GetDecimal("UnitPrice"),
+                                        SubTotal = detailReader.GetDecimal("SubTotal"),
+                                        Visible = detailReader.GetBoolean("Visible")
                                     });
                                 }
                             }
@@ -81,7 +89,7 @@ namespace WarehouseManagement.Repositories
         /// <summary>
         /// Lấy phiếu theo ID (bao gồm chi tiết)
         /// </summary>
-        public StockTransaction GetTransactionById(int transactionId)
+        public Transaction GetTransactionById(int transactionId)
         {
             try
             {
@@ -89,10 +97,10 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     
-                    var transaction = new StockTransaction { TransactionID = transactionId };
+                    var transaction = new Transaction { TransactionID = transactionId };
                     
                     // Lấy thông tin giao dịch
-                    using (var cmd = new MySqlCommand("SELECT * FROM StockTransactions WHERE TransactionID=@id", conn))
+                    using (var cmd = new MySqlCommand("SELECT * FROM Transactions WHERE TransactionID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", transactionId);
                         using (var reader = cmd.ExecuteReader())
@@ -103,20 +111,25 @@ namespace WarehouseManagement.Repositories
                                 transaction.Type = reader.GetString("Type");
                                 transaction.DateCreated = reader.GetDateTime("DateCreated");
                                 transaction.CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID");
+                                transaction.SupplierID = reader.IsDBNull(reader.GetOrdinal("SupplierID")) ? (int?)null : reader.GetInt32("SupplierID");
+                                transaction.CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32("CustomerID");
+                                transaction.TotalAmount = reader.GetDecimal("TotalAmount");
+                                transaction.Discount = reader.GetDecimal("Discount");
+                                transaction.FinalAmount = reader.GetDecimal("FinalAmount");
                                 transaction.Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note");
-                                transaction.TotalValue = reader.IsDBNull(reader.GetOrdinal("TotalValue")) ? 0 : reader.GetDecimal("TotalValue");
+                                transaction.Visible = reader.GetBoolean("Visible");
                             }
+                            else return null;
                         }
                     }
 
-                    // Lấy chi tiết giao dịch - reader cũ đã đóng
+                    // Lấy chi tiết giao dịch
                     using (var detailCmd = new MySqlCommand(
-                        "SELECT * FROM TransactionDetails WHERE TransactionID=@transId", conn))
+                        "SELECT * FROM TransactionDetails WHERE TransactionID=@transId AND Visible=TRUE", conn))
                     {
                         detailCmd.Parameters.AddWithValue("@transId", transactionId);
                         using (var detailReader = detailCmd.ExecuteReader())
                         {
-                            int detailCount = 0;
                             while (detailReader.Read())
                             {
                                 transaction.Details.Add(new TransactionDetail
@@ -126,9 +139,10 @@ namespace WarehouseManagement.Repositories
                                     ProductID = detailReader.GetInt32("ProductID"),
                                     ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
                                     Quantity = detailReader.GetInt32("Quantity"),
-                                    UnitPrice = detailReader.GetDecimal("UnitPrice")
+                                    UnitPrice = detailReader.GetDecimal("UnitPrice"),
+                                    SubTotal = detailReader.GetDecimal("SubTotal"),
+                                    Visible = detailReader.GetBoolean("Visible")
                                 });
-                                detailCount++;
                             }
                         }
                     }
@@ -144,7 +158,7 @@ namespace WarehouseManagement.Repositories
         /// <summary>
         /// Tạo phiếu nhập/xuất mới
         /// </summary>
-        public int CreateTransaction(StockTransaction transaction)
+        public int CreateTransaction(Transaction transaction)
         {
             try
             {
@@ -152,14 +166,19 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO StockTransactions (Type, DateCreated, CreatedByUserID, Note, TotalValue) " +
-                        "VALUES (@type, @date, @userId, @note, @totalValue); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO Transactions (Type, DateCreated, CreatedByUserID, SupplierID, CustomerID, TotalAmount, Discount, FinalAmount, Note, Visible) " +
+                        "VALUES (@type, @date, @userId, @supId, @custId, @total, @discount, @final, @note, @visible); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", transaction.Type);
                         cmd.Parameters.AddWithValue("@date", transaction.DateCreated);
                         cmd.Parameters.AddWithValue("@userId", transaction.CreatedByUserID);
+                        cmd.Parameters.AddWithValue("@supId", (object)transaction.SupplierID ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@custId", (object)transaction.CustomerID ?? DBNull.Value);
+                        cmd.Parameters.AddWithValue("@total", transaction.TotalAmount);
+                        cmd.Parameters.AddWithValue("@discount", transaction.Discount);
+                        cmd.Parameters.AddWithValue("@final", transaction.FinalAmount);
                         cmd.Parameters.AddWithValue("@note", transaction.Note ?? "");
-                        cmd.Parameters.AddWithValue("@totalValue", transaction.TotalValue);
+                        cmd.Parameters.AddWithValue("@visible", transaction.Visible);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
                 }
@@ -181,14 +200,15 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice) " +
-                        "VALUES (@transId, @prodId, @prodName, @qty, @price)", conn))
+                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice, Visible) " +
+                        "VALUES (@transId, @prodId, @prodName, @qty, @price, @visible)", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", detail.TransactionID);
                         cmd.Parameters.AddWithValue("@prodId", detail.ProductID);
                         cmd.Parameters.AddWithValue("@prodName", detail.ProductName ?? "");
                         cmd.Parameters.AddWithValue("@qty", detail.Quantity);
                         cmd.Parameters.AddWithValue("@price", detail.UnitPrice);
+                        cmd.Parameters.AddWithValue("@visible", detail.Visible);
                         return cmd.ExecuteNonQuery() > 0;
                     }
                 }
@@ -200,17 +220,23 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Cập nhật tổng giá trị của phiếu (sau khi thêm tất cả chi tiết)
+        /// Cập nhật tổng giá trị của phiếu
         /// </summary>
-        public bool UpdateTransactionTotalValue(int transactionId)
+        public bool UpdateTransactionTotal(int transactionId)
         {
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand(
-                        "UPDATE StockTransactions SET TotalValue = (SELECT COALESCE(SUM(Quantity * UnitPrice), 0) FROM TransactionDetails WHERE TransactionID = @transId) WHERE TransactionID = @transId", conn))
+                    // Tính lại TotalAmount từ Details
+                    string query = @"
+                        UPDATE Transactions 
+                        SET TotalAmount = (SELECT COALESCE(SUM(Quantity * UnitPrice), 0) FROM TransactionDetails WHERE TransactionID = @transId AND Visible=TRUE),
+                            FinalAmount = TotalAmount - Discount
+                        WHERE TransactionID = @transId";
+                        
+                    using (var cmd = new MySqlCommand(query, conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", transactionId);
                         return cmd.ExecuteNonQuery() > 0;
@@ -224,16 +250,16 @@ namespace WarehouseManagement.Repositories
         }
 
         /// <summary>
-        /// Xóa phiếu (CASCADE xóa chi tiết tự động)
+        /// Xóa phiếu (Soft delete)
         /// </summary>
-        public bool DeleteTransaction(int transactionId)
+        public bool SoftDeleteTransaction(int transactionId)
         {
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("DELETE FROM StockTransactions WHERE TransactionID=@id", conn))
+                    using (var cmd = new MySqlCommand("UPDATE Transactions SET Visible=FALSE WHERE TransactionID=@id", conn))
                     {
                         cmd.Parameters.AddWithValue("@id", transactionId);
                         return cmd.ExecuteNonQuery() > 0;
@@ -242,31 +268,106 @@ namespace WarehouseManagement.Repositories
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi xóa phiếu: " + ex.Message);
+                throw new Exception("Lỗi khi xóa mềm phiếu: " + ex.Message);
             }
+        }
+        /// <summary>
+        /// Lấy danh sách phiếu theo loại (Import/Export)
+        /// </summary>
+        public List<Transaction> GetTransactionsByType(string type)
+        {
+            var transactions = new List<Transaction>();
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("SELECT * FROM Transactions WHERE Type=@type AND Visible=TRUE ORDER BY DateCreated DESC", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@type", type);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                transactions.Add(new Transaction
+                                {
+                                    TransactionID = reader.GetInt32("TransactionID"),
+                                    Type = reader.GetString("Type"),
+                                    DateCreated = reader.GetDateTime("DateCreated"),
+                                    CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
+                                    SupplierID = reader.IsDBNull(reader.GetOrdinal("SupplierID")) ? (int?)null : reader.GetInt32("SupplierID"),
+                                    CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32("CustomerID"),
+                                    TotalAmount = reader.GetDecimal("TotalAmount"),
+                                    Discount = reader.GetDecimal("Discount"),
+                                    FinalAmount = reader.GetDecimal("FinalAmount"),
+                                    Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note"),
+                                    Visible = reader.GetBoolean("Visible")
+                                });
+                            }
+                        }
+                    }
+                    
+                    // Note: Could load details here if needed, but for listing maybe not critical. 
+                    // To follow pattern:
+                    foreach(var t in transactions) {
+                        t.Details = new TransactionDetailRepository().GetDetailsByTransactionId(t.TransactionID);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi lấy phiếu theo loại: " + ex.Message);
+            }
+            return transactions;
         }
 
         /// <summary>
-        /// Đảo ngược trạng thái ẩn hiện của giao dịch (Visible: 1 -> 0, 0 -> 1)
+        /// Lấy danh sách phiếu trong khoảng thời gian
         /// </summary>
-        public bool HideTransaction(int transactionId)
+        public List<Transaction> GetTransactionsByDateRange(DateTime startDate, DateTime endDate)
         {
+            var transactions = new List<Transaction>();
             try
             {
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    using (var cmd = new MySqlCommand("UPDATE StockTransactions SET Visible = NOT Visible WHERE TransactionID = @id", conn))
+                    using (var cmd = new MySqlCommand(
+                        "SELECT * FROM Transactions WHERE DateCreated BETWEEN @start AND @end AND Visible=TRUE ORDER BY DateCreated DESC", conn))
                     {
-                        cmd.Parameters.AddWithValue("@id", transactionId);
-                        return cmd.ExecuteNonQuery() > 0;
+                        cmd.Parameters.AddWithValue("@start", startDate);
+                        cmd.Parameters.AddWithValue("@end", endDate);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                transactions.Add(new Transaction
+                                {
+                                    TransactionID = reader.GetInt32("TransactionID"),
+                                    Type = reader.GetString("Type"),
+                                    DateCreated = reader.GetDateTime("DateCreated"),
+                                    CreatedByUserID = reader.IsDBNull(reader.GetOrdinal("CreatedByUserID")) ? 0 : reader.GetInt32("CreatedByUserID"),
+                                    SupplierID = reader.IsDBNull(reader.GetOrdinal("SupplierID")) ? (int?)null : reader.GetInt32("SupplierID"),
+                                    CustomerID = reader.IsDBNull(reader.GetOrdinal("CustomerID")) ? (int?)null : reader.GetInt32("CustomerID"),
+                                    TotalAmount = reader.GetDecimal("TotalAmount"),
+                                    Discount = reader.GetDecimal("Discount"),
+                                    FinalAmount = reader.GetDecimal("FinalAmount"),
+                                    Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note"),
+                                    Visible = reader.GetBoolean("Visible")
+                                });
+                            }
+                        }
+                    }
+                    foreach(var t in transactions) {
+                        t.Details = new TransactionDetailRepository().GetDetailsByTransactionId(t.TransactionID);
                     }
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi đảo trạng thái giao dịch: " + ex.Message);
+                throw new Exception("Lỗi khi lấy phiếu theo ngày: " + ex.Message);
             }
+            return transactions;
         }
     }
 }

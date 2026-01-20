@@ -16,5 +16,8 @@
         /// Tính tổng giá trị của dòng chi tiết
         /// </summary>
         public decimal TotalPrice => Quantity * UnitPrice;
+        public decimal SubTotal { get; set; } // Thành tiền (đã có trong database computed column, nhưng có thể map để đọc)
+        
+        public bool Visible { get; set; } = true;
     }
 }

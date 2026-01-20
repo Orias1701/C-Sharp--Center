@@ -12,6 +12,7 @@
         public int Quantity { get; set; }
         public int MinThreshold { get; set; }
         public decimal InventoryValue { get; set; } // Tổng giá trị tồn kho (Quantity * Price)
+        public bool Visible { get; set; } = true;
 
         /// <summary>
         /// Kiểm tra xem sản phẩm có cảnh báo tồn kho hay không

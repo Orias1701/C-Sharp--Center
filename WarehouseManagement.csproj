@@ -19,4 +19,10 @@
     <PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Assets\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

@@ -1,19 +1,29 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace WarehouseManagement.Models
 {
     /// <summary>
-    /// Lớp thực thể Phiếu Nhập/Xuất kho
+    /// Lớp thực thể Phiếu Nhập/Xuất kho (Cập nhật cho bảng Transactions)
     /// </summary>
-    public class StockTransaction
+    public class Transaction
     {
         public int TransactionID { get; set; }
         public string Type { get; set; } // 'Import' hoặc 'Export'
         public DateTime DateCreated { get; set; }
-        public int CreatedByUserID { get; set; } // ID người tạo phiếu
+        public int CreatedByUserID { get; set; } // Người lập phiếu
+        
+        // CẬP NHẬT MỚI: Đối tượng giao dịch
+        public int? SupplierID { get; set; }
+        public int? CustomerID { get; set; }
+
+        // CẬP NHẬT MỚI: Tài chính
+        public decimal TotalAmount { get; set; } // Tổng tiền hàng
+        public decimal Discount { get; set; } // Chiết khấu
+        public decimal FinalAmount { get; set; } // Thành tiền sau CK
+
         public string Note { get; set; }
-        public decimal TotalValue { get; set; } // Tổng giá trị của đơn hàng
+        public bool Visible { get; set; } = true;
 
         /// <summary>
         /// Danh sách chi tiết sản phẩm trong phiếu
