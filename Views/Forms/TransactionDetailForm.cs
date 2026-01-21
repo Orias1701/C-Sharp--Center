@@ -11,20 +11,18 @@ namespace WarehouseManagement.Views.Forms
     public partial class TransactionDetailForm : Form
     {
         private Transaction _transaction;
-        private CustomTextBox txtTransactionID, txtType, txtDate, txtTotalValue, txtCreatedBy;
-        private CustomTextArea txtNote;
         private DataGridView dgvDetails;
         private CustomButton btnClose;
         private SupplierController _supplierController;
         private CustomerController _customerController;
-        private CustomTextBox txtPartner;
-
+        
         public TransactionDetailForm(Transaction transaction)
         {
-            InitializeComponent();
             _transaction = transaction;
             _supplierController = new SupplierController();
             _customerController = new CustomerController();
+            InitializeComponent();
+            
             Text = $"{UIConstants.Icons.FileText} Chi Tiết Giao Dịch #{transaction.TransactionID}";
             
             ThemeManager.Instance.ApplyThemeToForm(this);
@@ -44,122 +42,84 @@ namespace WarehouseManagement.Views.Forms
 
             const int LEFT_MARGIN = 40;
             const int COLUMN_GAP = 20;
-            const int INPUT_WIDTH_HALF = 350; // (800 - 40 - 40 - 20) / 2
-            const int INPUT_WIDTH_FULL = 720; // 800 - 40 - 40
+            const int INPUT_WIDTH_HALF = 462; // (944 - 20) / 2
+            const int INPUT_WIDTH_FULL = 944; // 1024 - 40 - 40
             int currentY = 30;
             int inputSpacing = 20;
 
-            // Helper to create styled labels
-            Label CreateStyledLabel(string text, int x, int y)
+            // Fetch Data for Labels
+            string typeIcon = _transaction.Type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
+            string typeName = _transaction.Type == "Import" ? "Nhập" : "Xuất";
+            string typeText = $"{typeIcon} {typeName}";
+            string dateText = _transaction.DateCreated.ToString("dd/MM/yyyy HH:mm");
+            string totalText = $"{_transaction.FinalAmount:N0} ₫";
+            
+            // Creator
+            string creatorName = $"User #{_transaction.CreatedByUserID}";
+            try 
+            {
+                UserController userCnt = new UserController();
+                var user = userCnt.GetUserById(_transaction.CreatedByUserID);
+                if (user != null) creatorName = $"{user.FullName} ({user.Username})";
+            } catch {}
+
+            // Partner
+            string partnerName = "N/A";
+            if (_transaction.Type == "Import" && _transaction.SupplierID.HasValue)
+            {
+                var supplier = _supplierController.GetSupplierById(_transaction.SupplierID.Value);
+                partnerName = supplier != null ? $"Nhà cung cấp: {supplier.SupplierName}" : "N/A";
+            }
+            else if (_transaction.Type == "Export" && _transaction.CustomerID.HasValue)
+            {
+                var customer = _customerController.GetCustomerById(_transaction.CustomerID.Value);
+                partnerName = customer != null ? $"Khách hàng: {customer.CustomerName}" : "N/A";
+            }
+
+            // Define Label Helper
+            Label CreateValueLabel(string text, int x, int y, int width)
             {
                 return new Label
                 {
                     Text = text,
                     Left = x,
                     Top = y,
-                    AutoSize = true,
-                    Font = ThemeManager.Instance.FontSmall,
-                    ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                              UIConstants.PrimaryColor.Default.G, 
-                                              UIConstants.PrimaryColor.Default.B),
-                    TabStop = false
+                    Width = width,
+                    AutoSize = false,
+                    Font = ThemeManager.Instance.FontRegular,
+                    ForeColor = ThemeManager.Instance.TextPrimary
                 };
             }
 
             // Row 1: ID | Type
-            mainPanel.Controls.Add(CreateStyledLabel("Mã Giao Dịch", LEFT_MARGIN, currentY));
-            mainPanel.Controls.Add(CreateStyledLabel("Loại Giao Dịch", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
-            currentY += 20;
+            mainPanel.Controls.Add(CreateValueLabel($"Mã Giao Dịch: #{_transaction.TransactionID}", LEFT_MARGIN, currentY, INPUT_WIDTH_HALF));
+            mainPanel.Controls.Add(CreateValueLabel($"Loại Giao Dịch: {typeText}", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY, INPUT_WIDTH_HALF));
+            currentY += 25;
 
-            txtTransactionID = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_HALF,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtTransactionID);
+            // Row 2: Partner | Date
+            mainPanel.Controls.Add(CreateValueLabel($"Đối tác: {partnerName}", LEFT_MARGIN, currentY, INPUT_WIDTH_HALF));
+            mainPanel.Controls.Add(CreateValueLabel($"Ngày Tạo: {dateText}", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY, INPUT_WIDTH_HALF));
+            currentY += 25;
 
-            txtType = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_HALF,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtType);
-            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
-
-
-            // Row 2: Partner (Left) | Date (Right)
-            mainPanel.Controls.Add(CreateStyledLabel("Đối tác", LEFT_MARGIN, currentY));
-            mainPanel.Controls.Add(CreateStyledLabel("Ngày Tạo", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
-            currentY += 20;
-
-            txtPartner = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_HALF,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtPartner);
-
-            txtDate = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_HALF,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtDate);
-            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
-
-            // Row 3: Created By (Left) | Total Value (Right)
-            mainPanel.Controls.Add(CreateStyledLabel("Người Tạo", LEFT_MARGIN, currentY));
-            mainPanel.Controls.Add(CreateStyledLabel("Tổng Giá Trị", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY));
-            currentY += 20;
-
-            txtCreatedBy = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_HALF,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtCreatedBy);
-
-            txtTotalValue = new CustomTextBox 
-            { 
-                Left = LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_HALF,
-                ReadOnly = true,
-                TabStop = false
-            };
-            mainPanel.Controls.Add(txtTotalValue);
-            currentY += UIConstants.Sizes.InputHeight + inputSpacing;
+            // Row 3: Creator | Value
+            mainPanel.Controls.Add(CreateValueLabel($"Người Tạo: {creatorName}", LEFT_MARGIN, currentY, INPUT_WIDTH_HALF));
+            mainPanel.Controls.Add(CreateValueLabel($"Tổng Giá Trị: {totalText}", LEFT_MARGIN + INPUT_WIDTH_HALF + COLUMN_GAP, currentY, INPUT_WIDTH_HALF));
+            currentY += 25 + 10; // Extra spacing
 
             // Row 5: Note
-            mainPanel.Controls.Add(CreateStyledLabel("Ghi chú", LEFT_MARGIN, currentY));
-            currentY += 20;
-
-            txtNote = new CustomTextArea 
-            { 
-                Left = LEFT_MARGIN, 
-                Top = currentY, 
-                Width = INPUT_WIDTH_FULL, 
-                Height = 60,
-                ReadOnly = true,
-                TabStop = false
+            string noteContent = string.IsNullOrEmpty(_transaction.Note) ? "(Không có)" : _transaction.Note;
+            Label lblNoteDisplay = new Label
+            {
+                Text = $"Ghi chú: {noteContent}",
+                Left = LEFT_MARGIN,
+                Top = currentY,
+                Width = INPUT_WIDTH_FULL,
+                AutoSize = false,
+                Font = ThemeManager.Instance.FontSmall,
+                ForeColor = ThemeManager.Instance.TextPrimary
             };
-            mainPanel.Controls.Add(txtNote);
-            currentY += 60 + inputSpacing; // Extra spacing before grid
+            mainPanel.Controls.Add(lblNoteDisplay);
+            currentY += 25 + 10; // Extra spacing before grid
 
             // Grid Title
             Label lblDetailsTitle = new Label
@@ -174,13 +134,17 @@ namespace WarehouseManagement.Views.Forms
             mainPanel.Controls.Add(lblDetailsTitle);
             currentY += 25;
 
+            // Calculate Grid Height
+            int gridHeight = 650 - currentY - 80;
+            if (gridHeight < 200) gridHeight = 200;
+
             // Grid
             dgvDetails = new DataGridView
             {
                 Left = LEFT_MARGIN,
                 Top = currentY,
                 Width = INPUT_WIDTH_FULL,
-                Height = 180,
+                Height = gridHeight,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 ReadOnly = true,
@@ -259,7 +223,7 @@ namespace WarehouseManagement.Views.Forms
             Helpers.DataGridViewHelper.ApplySelectionEffect(dgvDetails);
 
             mainPanel.Controls.Add(dgvDetails);
-            currentY += 180 + 30;
+            currentY += dgvDetails.Height + 30;
 
             // Button Close
             btnClose = new CustomButton 
@@ -281,8 +245,9 @@ namespace WarehouseManagement.Views.Forms
             Controls.Add(mainPanel);
 
             // Size
-            int calculatedWidth = 800;
-            ClientSize = new Size(calculatedWidth, currentY);
+            // int calculatedWidth = 800;
+            // ClientSize = new Size(calculatedWidth, currentY);
+            ClientSize = new Size(1024, 650);
             
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
@@ -301,54 +266,10 @@ namespace WarehouseManagement.Views.Forms
         {
             try
             {
-                txtTransactionID.Text = $"#{_transaction.TransactionID}";
-                
-                string typeIcon = _transaction.Type == "Import" ? UIConstants.Icons.Import : UIConstants.Icons.Export;
-                string typeName = _transaction.Type == "Import" ? "Nhập" : "Xuất";
-                txtType.Text = $"{typeIcon} {typeName}";
-                
-                txtDate.Text = _transaction.DateCreated.ToString("dd/MM/yyyy HH:mm");
-                
-                // Using TotalAmount or FinalAmount. Let's use FinalAmount (after discount) if available, 
-                // or TotalAmount. The user requirement said FinalAmount is in Transaction.
-                txtTotalValue.Text = $"{_transaction.FinalAmount:N0} ₫"; 
-                
-                // Load Creator Name
-                string creatorName = $"User ID: {_transaction.CreatedByUserID}";
-                try 
-                {
-                    UserController userController = new UserController();
-                    var user = userController.GetUserById(_transaction.CreatedByUserID);
-                    if (user != null)
-                    {
-                        creatorName = $"{user.FullName} ({user.Username})";
-                    }
-                }
-                catch { /* Ignore error, keep ID */ }
-                
-                txtCreatedBy.Text = creatorName;
-                
-                // Load Partner Name
-                string partnerName = "N/A";
-                if (_transaction.Type == "Import" && _transaction.SupplierID.HasValue)
-                {
-                    var supplier = _supplierController.GetSupplierById(_transaction.SupplierID.Value);
-                    partnerName = supplier != null ? $"Nhà cung cấp: {supplier.SupplierName}" : "N/A";
-                }
-                else if (_transaction.Type == "Export" && _transaction.CustomerID.HasValue)
-                {
-                    var customer = _customerController.GetCustomerById(_transaction.CustomerID.Value);
-                    partnerName = customer != null ? $"Khách hàng: {customer.CustomerName}" : "N/A";
-                }
-                txtPartner.Text = partnerName;
-
-                txtNote.Text = _transaction.Note ?? "(Không có ghi chú)";
-                
                 if (_transaction.Details != null && _transaction.Details.Count > 0)
                 {
                     dgvDetails.DataSource = _transaction.Details;
                 }
-                
                 ActiveControl = btnClose;
             }
             catch (Exception ex)
