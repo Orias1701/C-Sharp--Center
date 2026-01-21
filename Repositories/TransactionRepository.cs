@@ -43,6 +43,7 @@ namespace WarehouseManagement.Repositories
                                     Discount = reader.GetDecimal("Discount"),
                                     FinalAmount = reader.GetDecimal("FinalAmount"),
                                     Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note"),
+                                    Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? "Pending" : reader.GetString("Status"),
                                     Visible = reader.GetBoolean("Visible")
                                 });
                             }
@@ -117,6 +118,7 @@ namespace WarehouseManagement.Repositories
                                 transaction.Discount = reader.GetDecimal("Discount");
                                 transaction.FinalAmount = reader.GetDecimal("FinalAmount");
                                 transaction.Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note");
+                                transaction.Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? "Pending" : reader.GetString("Status");
                                 transaction.Visible = reader.GetBoolean("Visible");
                             }
                             else return null;
@@ -166,8 +168,8 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO Transactions (Type, DateCreated, CreatedByUserID, SupplierID, CustomerID, TotalAmount, Discount, FinalAmount, Note, Visible) " +
-                        "VALUES (@type, @date, @userId, @supId, @custId, @total, @discount, @final, @note, @visible); SELECT LAST_INSERT_ID();", conn))
+                        "INSERT INTO Transactions (Type, DateCreated, CreatedByUserID, SupplierID, CustomerID, TotalAmount, Discount, FinalAmount, Note, Status, Visible) " +
+                        "VALUES (@type, @date, @userId, @supId, @custId, @total, @discount, @final, @note, @status, @visible); SELECT LAST_INSERT_ID();", conn))
                     {
                         cmd.Parameters.AddWithValue("@type", transaction.Type);
                         cmd.Parameters.AddWithValue("@date", transaction.DateCreated);
@@ -178,6 +180,7 @@ namespace WarehouseManagement.Repositories
                         cmd.Parameters.AddWithValue("@discount", transaction.Discount);
                         cmd.Parameters.AddWithValue("@final", transaction.FinalAmount);
                         cmd.Parameters.AddWithValue("@note", transaction.Note ?? "");
+                        cmd.Parameters.AddWithValue("@status", transaction.Status ?? "Pending");
                         cmd.Parameters.AddWithValue("@visible", transaction.Visible);
                         return Convert.ToInt32(cmd.ExecuteScalar());
                     }
@@ -300,7 +303,9 @@ namespace WarehouseManagement.Repositories
                                     TotalAmount = reader.GetDecimal("TotalAmount"),
                                     Discount = reader.GetDecimal("Discount"),
                                     FinalAmount = reader.GetDecimal("FinalAmount"),
+
                                     Note = reader.IsDBNull(reader.GetOrdinal("Note")) ? "" : reader.GetString("Note"),
+                                    Status = reader.IsDBNull(reader.GetOrdinal("Status")) ? "Pending" : reader.GetString("Status"),
                                     Visible = reader.GetBoolean("Visible")
                                 });
                             }
@@ -368,6 +373,27 @@ namespace WarehouseManagement.Repositories
                 throw new Exception("Lỗi khi lấy phiếu theo ngày: " + ex.Message);
             }
             return transactions;
+        }
+
+        public bool UpdateTransactionStatus(int transactionId, string status)
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    using (var cmd = new MySqlCommand("UPDATE Transactions SET Status=@status WHERE TransactionID=@id", conn))
+                    {
+                        cmd.Parameters.AddWithValue("@status", status);
+                        cmd.Parameters.AddWithValue("@id", transactionId);
+                        return cmd.ExecuteNonQuery() > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi cập nhật trạng thái phiếu: " + ex.Message);
+            }
         }
     }
 }

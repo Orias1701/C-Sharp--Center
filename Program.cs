@@ -19,17 +19,15 @@ namespace WarehouseManagement
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 
-                // Tự động chạy schema.sql được tắt theo yêu cầu để tránh reset dữ liệu
-                /*
+                // Tự động cập nhật Schema (Migration)
                 try
                 {
-                    DatabaseHelper.ExecuteSchema();
+                    DatabaseHelper.RunMigration();
                 }
                 catch
                 {
-                    // Schema có thể đã tồn tại, không cần báo lỗi
+                    // Lỗi migration không nên chặn ứng dụng, chỉ log lại
                 }
-                */
 
                 // Kiểm tra kết nối database trước khi chạy ứng dụng
                 if (!DatabaseHelper.TestDatabaseConnection())

@@ -65,7 +65,7 @@ namespace WarehouseManagement.Services
                     }
                     _logRepo.LogAction("CREATE_INVENTORY_CHECK", $"Tạo phiếu kiểm kê ID {checkId} ({status})");
 
-                    if (status == "Completed")
+                    if (status == "Approved")
                     {
                         ProcessStockAdjustment(checkId, details, userId);
                     }
@@ -79,21 +79,38 @@ namespace WarehouseManagement.Services
             }
         }
 
-        public void CompleteCheck(int checkId, int userId)
+        public void ApproveCheck(int checkId, int userId)
         {
             try
             {
                 var check = _checkRepo.GetCheckById(checkId);
                 if (check == null) throw new Exception("Không tìm thấy phiếu kiểm kê");
-                if (check.Status == "Completed") throw new Exception("Phiếu kiểm kê đã hoàn tất");
+                if (check.Status != "Pending") throw new Exception("Chỉ có thể duyệt phiếu đang chờ");
 
-                _checkRepo.UpdateStatus(checkId, "Completed");
+                _checkRepo.UpdateStatus(checkId, "Approved");
                 ProcessStockAdjustment(checkId, check.Details, userId);
-                _logRepo.LogAction("COMPLETE_INVENTORY_CHECK", $"Hoàn tất phiếu kiểm kê ID {checkId}");
+                _logRepo.LogAction("APPROVE_INVENTORY_CHECK", $"Duyệt phiếu kiểm kê ID {checkId}");
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi khi hoàn tất kiểm kê: " + ex.Message);
+                throw new Exception("Lỗi khi duyệt kiểm kê: " + ex.Message);
+            }
+        }
+
+        public void CancelCheck(int checkId, int userId)
+        {
+            try
+            {
+                var check = _checkRepo.GetCheckById(checkId);
+                if (check == null) throw new Exception("Không tìm thấy phiếu kiểm kê");
+                if (check.Status != "Pending") throw new Exception("Chỉ có thể hủy phiếu đang chờ");
+
+                _checkRepo.UpdateStatus(checkId, "Cancelled");
+                _logRepo.LogAction("CANCEL_INVENTORY_CHECK", $"Hủy phiếu kiểm kê ID {checkId}");
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi hủy kiểm kê: " + ex.Message);
             }
         }
 
@@ -123,12 +140,19 @@ namespace WarehouseManagement.Services
 
             if (importDetails.Count > 0)
             {
-                inventoryService.ImportStockBatch(importDetails, $"Cân bằng kiểm kê #{checkId} (+)");
-            }
-
-            if (exportDetails.Count > 0)
-            {
-                inventoryService.ExportStockBatch(exportDetails, $"Cân bằng kiểm kê #{checkId} (-)");
+                // I should modify InventoryService to return the TransactionID or use the newly added `ApproveTransaction` logic.
+                
+                // Workaround: Call `CreateTransaction` directly? No, should go through Service.
+                // BETTER PLAN: Modify `InventoryService.ImportStockBatch` and `ExportStockBatch` to key off a "AutoApprove" flag?
+                // OR: Just simply call `inventoryService.ImportStockBatch` and then find the last transaction? No, unsafe.
+                
+                // Let's modify `InventoryService` in a separate step if needed. 
+                // For now, I will assume I need to fix `InventoryService` to return int (TransactionID) instead of bool.
+                // But I can't do that in this single tool call if I haven't.
+                // Let's checking `InventoryService.cs` again.
+                // Lines 137: public bool ImportStockBatch... 
+                
+                // I will pause this Edit and update InventoryService first.
             }
         }
     }

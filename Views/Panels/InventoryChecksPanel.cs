@@ -118,25 +118,7 @@ namespace WarehouseManagement.Views.Panels
                 }
             });
 
-            // Action Column (View Details)
-            dgvChecks.Columns.Add(new DataGridViewLinkColumn 
-            { 
-                HeaderText = "", 
-                Width = 60,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Transaction, // Using Transaction icon to match TransactionsPanel
-                LinkColor = ThemeManager.Instance.TextPrimary,
-                ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
-                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
-                LinkBehavior = LinkBehavior.NeverUnderline,
-                TrackVisitedState = false,
-                DefaultCellStyle = new DataGridViewCellStyle 
-                { 
-                    Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    Padding = new Padding(10, 5, 10, 5)
-                }
-            });
+            // ACTION COLUMNS REMOVED
 
             // Header Styling Sync
             foreach (DataGridViewColumn col in dgvChecks.Columns)
@@ -149,6 +131,19 @@ namespace WarehouseManagement.Views.Panels
             dgvChecks.CellDoubleClick += DgvChecks_CellDoubleClick;
             dgvChecks.CellClick += DgvChecks_CellClick;
             dgvChecks.CellFormatting += DgvChecks_CellFormatting;
+
+            // Hand cursor for Status column to indicate clickability
+            dgvChecks.CellMouseEnter += (s, e) => {
+                if (e.RowIndex >= 0 && dgvChecks.Columns[e.ColumnIndex].DataPropertyName == "Status")
+                {
+                    var check = dgvChecks.Rows[e.RowIndex].DataBoundItem as InventoryCheck;
+                    if (check != null && check.Status == "Pending")
+                        dgvChecks.Cursor = Cursors.Hand;
+                }
+            };
+            dgvChecks.CellMouseLeave += (s, e) => {
+                dgvChecks.Cursor = Cursors.Default;
+            };
 
             // Container Panel
             CustomPanel tablePanel = new CustomPanel
@@ -225,15 +220,6 @@ namespace WarehouseManagement.Views.Panels
             OpenCheckDetail(e.RowIndex);
         }
 
-        private void DgvChecks_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex < 0) return;
-            
-            // Allow single click on ANY column to open the detail, similar to SuppliersPanel
-            // The Action Column (Index 5) is also just "View Details", so it performs the same action.
-            OpenCheckDetail(e.RowIndex);
-        }
-
         private void OpenCheckDetail(int rowIndex)
         {
             var check = dgvChecks.Rows[rowIndex].DataBoundItem as InventoryCheck;
@@ -251,24 +237,84 @@ namespace WarehouseManagement.Views.Panels
         {
             if (e.RowIndex < 0 || e.RowIndex >= dgvChecks.Rows.Count) return;
 
+            var check = dgvChecks.Rows[e.RowIndex].DataBoundItem as InventoryCheck;
+            if (check == null) return;
+
             // Status Column color
             if (dgvChecks.Columns[e.ColumnIndex].DataPropertyName == "Status")
             {
                 if (e.Value != null)
                 {
                     string status = e.Value.ToString();
-                    if (status == "Completed")
+                    if (status == "Approved" || status == "Completed") // Handle legacy "Completed" as Approved
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Success;
-                        e.Value = "Hoàn thành";
+                        e.Value = "Đã duyệt";
                     }
                     else if (status == "Pending")
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Warning;
-                        e.Value = "Chờ xử lý";
+                        e.Value = "Đang chờ";
+                    }
+                    else if (status == "Cancelled")
+                    {
+                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Error;
+                        e.Value = "Đã hủy";
                     }
                 }
             }
+        }
+
+        private void DgvChecks_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            var check = dgvChecks.Rows[e.RowIndex].DataBoundItem as InventoryCheck;
+            if (check == null) return;
+
+            // Handle Status Click
+            if (dgvChecks.Columns[e.ColumnIndex].DataPropertyName == "Status")
+            {
+                if (check.Status == "Pending")
+                {
+                    using (var dialog = new StatusActionDialog(
+                        "Xử lý Kiểm kê", 
+                        $"Bạn muốn xử lý phiếu kiểm kê #{check.CheckID} như thế nào?\n(DB sẽ tự cân bằng khi duyệt)"))
+                    {
+                        var result = dialog.ShowDialog();
+                        if (result == DialogResult.Yes) // Approve
+                        {
+                            try
+                            {
+                                var controller = new InventoryCheckController();
+                                controller.ApproveCheck(check.CheckID, GlobalUser.CurrentUser?.UserID ?? 0);
+                                LoadData();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        else if (result == DialogResult.No) // Cancel
+                        {
+                            try
+                            {
+                                var controller = new InventoryCheckController();
+                                controller.CancelCheck(check.CheckID, GlobalUser.CurrentUser?.UserID ?? 0);
+                                LoadData();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Click elsewhere open detail
+            OpenCheckDetail(e.RowIndex);
         }
     }
 }

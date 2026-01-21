@@ -28,9 +28,14 @@ namespace WarehouseManagement.Controllers
             return _checkService.CreateCheck(userId, note, details, status);
         }
 
-        public void CompleteCheck(int checkId, int userId)
+        public void ApproveCheck(int checkId, int userId)
         {
-            _checkService.CompleteCheck(checkId, userId);
+            _checkService.ApproveCheck(checkId, userId);
+        }
+
+        public void CancelCheck(int checkId, int userId)
+        {
+            _checkService.CancelCheck(checkId, userId);
         }
     }
 }

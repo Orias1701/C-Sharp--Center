@@ -93,6 +93,11 @@ CREATE TABLE IF NOT EXISTS Transactions (
     Discount DECIMAL(18, 2) DEFAULT 0 COMMENT 'Chiết khấu (VNĐ)',
     FinalAmount DECIMAL(18, 2) DEFAULT 0 COMMENT 'Thành tiền sau CK',
     Note TEXT COMMENT 'Ghi chú',
+    Status ENUM(
+        'Pending',
+        'Approved',
+        'Cancelled'
+    ) DEFAULT 'Pending' COMMENT 'Trạng thái',
     Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị',
     FOREIGN KEY (CreatedByUserID) REFERENCES Users (UserID),
     FOREIGN KEY (SupplierID) REFERENCES Suppliers (SupplierID),

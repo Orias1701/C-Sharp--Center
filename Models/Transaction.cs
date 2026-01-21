@@ -23,6 +23,7 @@ namespace WarehouseManagement.Models
         public decimal FinalAmount { get; set; } // Thành tiền sau CK
 
         public string Note { get; set; }
+        public string Status { get; set; } = "Pending";
         public bool Visible { get; set; } = true;
 
         /// <summary>

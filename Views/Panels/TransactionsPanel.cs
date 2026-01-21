@@ -80,11 +80,12 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "Loại", 
                 DataPropertyName = "Type", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells,
+                Width = 80,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    Padding = new Padding(10, 5, 30, 5)
+                    Padding = new Padding(5)
                 } 
             });
 
@@ -104,28 +105,59 @@ namespace WarehouseManagement.Views.Panels
             { 
                 HeaderText = "Ngày", 
                 DataPropertyName = "DateCreated", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Width = 140,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "dd/MM/yyyy HH:mm",
                     Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    Padding = new Padding(10, 5, 30, 5)
+                    Padding = new Padding(5)
                 } 
             });
             
+            // Total/Discount/Final Columns
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = "Tổng Giá Trị", 
+                HeaderText = "Tổng Tiền", 
                 DataPropertyName = "TotalAmount", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Width = 120,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0", 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 5, 30, 5)
+                    Padding = new Padding(5)
                 } 
             });
-            
+
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Chiết Khấu", 
+                DataPropertyName = "Discount", 
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(5)
+                } 
+            });
+
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Thành Tiền", 
+                DataPropertyName = "FinalAmount", 
+                Width = 120,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0", 
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(5)
+                } 
+            });
+             
             dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Ghi chú", 
@@ -133,29 +165,26 @@ namespace WarehouseManagement.Views.Panels
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
-                    Padding = new Padding(10, 5, 30, 5)
-                }
-            });
-            
-            dgvTransactions.Columns.Add(new DataGridViewLinkColumn 
-            { 
-                HeaderText = "", 
-                Width = 60,
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
-                UseColumnTextForLinkValue = true, 
-                Text = UIConstants.Icons.Transaction,
-                LinkBehavior = LinkBehavior.NeverUnderline,
-                LinkColor = ThemeManager.Instance.TextPrimary,
-                ActiveLinkColor = ThemeManager.Instance.PrimaryDefault,
-                VisitedLinkColor = ThemeManager.Instance.TextPrimary,
-                TrackVisitedState = false,
-                DefaultCellStyle = new DataGridViewCellStyle 
-                { 
-                    Alignment = DataGridViewContentAlignment.MiddleCenter,
-                    Padding = new Padding(10, 5, 10, 5)
+                    Padding = new Padding(5)
                 }
             });
 
+            // Status Column (Moved here)
+            dgvTransactions.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Trạng Thái", 
+                DataPropertyName = "Status", 
+                Width = 100,
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.None,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Padding = new Padding(5)
+                } 
+            });
+            
+            // ACTIONS COLUMN REMOVED
+            
             foreach (DataGridViewColumn col in dgvTransactions.Columns)
             {
                 if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
@@ -172,6 +201,19 @@ namespace WarehouseManagement.Views.Panels
             {
                 if (this.Visible)
                     LoadData();
+            };
+            
+            // Hand cursor for Status column to indicate clickability
+            dgvTransactions.CellMouseEnter += (s, e) => {
+                if (e.RowIndex >= 0 && dgvTransactions.Columns[e.ColumnIndex].DataPropertyName == "Status")
+                {
+                    var trans = dgvTransactions.Rows[e.RowIndex].DataBoundItem as Transaction;
+                    if (trans != null && trans.Status == "Pending")
+                        dgvTransactions.Cursor = Cursors.Hand;
+                }
+            };
+            dgvTransactions.CellMouseLeave += (s, e) => {
+                dgvTransactions.Cursor = Cursors.Default;
             };
 
             CustomPanel tablePanel = new CustomPanel
@@ -248,67 +290,79 @@ namespace WarehouseManagement.Views.Panels
         private void DgvTransactions_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
+            // Always allow opening detail
             int transactionId = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
-
-            try
-            {
-                Transaction transaction = _inventoryController.GetTransactionById(transactionId);
-
-                if (transaction != null)
-                {
-                    TransactionDetailForm form = new TransactionDetailForm(transaction);
-                    form.ShowDialog();
-                }
-                else
-                {
-                    MessageBox.Show($"{UIConstants.Icons.Error} Không tìm thấy giao dịch", "Lỗi", 
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"{UIConstants.Icons.Error} Lỗi tải giao dịch: {ex.Message}", "Lỗi", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            OpenTransactionDetail(transactionId);
         }
 
         private void DgvTransactions_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
 
-            if (e.ColumnIndex == 5)
-            {
-                int transactionId = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
-                
-                DialogResult result = MessageBox.Show(
-                    $"{UIConstants.Icons.Question} Bạn chắc chắn muốn đảo trạng thái giao dịch này?",
-                    "Xác nhận",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question);
+            var transaction = dgvTransactions.Rows[e.RowIndex].DataBoundItem as Transaction;
+            if (transaction == null) return;
 
-                if (result == DialogResult.Yes)
+            // Handle Status Click
+            if (dgvTransactions.Columns[e.ColumnIndex].DataPropertyName == "Status")
+            {
+                if (transaction.Status == "Pending")
                 {
-                    try
+                    using (var dialog = new StatusActionDialog(
+                        "Xử lý Giao dịch", 
+                        $"Bạn muốn xử lý giao dịch #{transaction.TransactionID} như thế nào?"))
                     {
-                        _inventoryController.HideTransaction(transactionId);
-                        MessageBox.Show($"{UIConstants.Icons.Success} Trạng thái giao dịch đã được thay đổi.", "Thành công", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"{UIConstants.Icons.Error} Lỗi ẩn giao dịch: {ex.Message}", "Lỗi", 
-                            MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        var result = dialog.ShowDialog();
+                        if (result == DialogResult.Yes) // Approve
+                        {
+                            try
+                            {
+                                _inventoryController.ApproveTransaction(transaction.TransactionID);
+                                LoadData();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        else if (result == DialogResult.No) // Cancel
+                        {
+                            try
+                            {
+                                _inventoryController.CancelTransaction(transaction.TransactionID);
+                                LoadData();
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show(ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            }
+                        }
+                        // Cancel/Exit does nothing
                     }
                 }
-                return;
+                return; // Stop further processing
             }
 
-            int id = (int)dgvTransactions.Rows[e.RowIndex].Cells[0].Value;
+            // Click elsewhere (except specific action columns if any) opens detail (except if click on check box etc is handled)
+            // Currently simplified: any other click opens detail? 
+            // It's safer to rely on DoubleClick for Details, but commonly user wants single click selection, double click detail.
+            // But previous code opened detail on 'else'. Let's maintain that behavior for now unless it conflicts.
+            // Just be careful not to trigger it when selecting rows.
+            // e.ColumnIndex handles specific columns.
+            // Let's rely on DoubleClick for Details to follow standard Windows app behavior, 
+            // UNLESS user specifically wanted single click drilldown.
+            // Given "DgvTransactions_CellDoubleClick" exists, maybe single click was just for Actions?
+            // "else { OpenTransactionDetail }" was in previous code. Let's keep it but maybe restricted?
+            // Actually, usually detail opening is on ID or distinct button. 
+            // I will comment out single-click-open-detail to prevent annoyance, relying on DoubleClick.
+            // OpenTransactionDetail(transaction.TransactionID); 
+        }
 
-            try
+        private void OpenTransactionDetail(int transactionId)
+        {
+             try
             {
-                Transaction transaction = _inventoryController.GetTransactionById(id);
+                Transaction transaction = _inventoryController.GetTransactionById(transactionId);
+
                 if (transaction != null)
                 {
                     TransactionDetailForm form = new TransactionDetailForm(transaction);
@@ -334,6 +388,8 @@ namespace WarehouseManagement.Views.Panels
             var transaction = dgvTransactions.Rows[e.RowIndex].DataBoundItem as Transaction;
             if (transaction == null) return;
 
+            string colName = dgvTransactions.Columns[e.ColumnIndex].Name;
+
             // Type Column
             if (dgvTransactions.Columns[e.ColumnIndex].DataPropertyName == "Type")
             {
@@ -344,17 +400,37 @@ namespace WarehouseManagement.Views.Panels
                     e.FormattingApplied = true;
                     
                     if (transaction.Type == "Import")
+                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Success;
+                    else if (transaction.Type == "Export")
+                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Info;
+                }
+            }
+            // Status Column
+            else if (dgvTransactions.Columns[e.ColumnIndex].DataPropertyName == "Status")
+            {
+                if (e.Value != null)
+                {
+                    string status = e.Value.ToString();
+                    if (status == "Approved")
                     {
+                        e.Value = "Đã duyệt";
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Success;
                     }
-                    else if (transaction.Type == "Export")
+                    else if (status == "Cancelled")
                     {
-                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Info;
+                         e.Value = "Đã hủy";
+                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Error;
                     }
+                    else
+                    {
+                        e.Value = "Đang chờ";
+                        e.CellStyle.ForeColor = UIConstants.SemanticColors.Warning;
+                    }
+                    e.FormattingApplied = true;
                 }
             }
             // Partner Column
-            else if (dgvTransactions.Columns[e.ColumnIndex].Name == "colPartner")
+            else if (colName == "colPartner")
             {
                 if (transaction.Type == "Import" && transaction.SupplierID.HasValue)
                 {

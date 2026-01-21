@@ -52,6 +52,54 @@ namespace WarehouseManagement.Helpers
         /// <summary>
         /// Tự động chạy schema.sql để tạo/reset database
         /// </summary>
+        public static void RunMigration()
+        {
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    // Helper to ignore "Duplicate column" error
+                    void Exec(string sql) 
+                    {
+                        try 
+                        { 
+                            using(var cmd = new MySqlCommand(sql, conn)) cmd.ExecuteNonQuery(); 
+                        } 
+                        catch (MySqlException ex) 
+                        {
+                            // Ignore error 1060: Duplicate column name
+                            if (ex.Number != 1060) Console.WriteLine($"Migration Error: {ex.Message}");
+                        }
+                    }
+
+                    Exec("ALTER TABLE Transactions ADD COLUMN Status ENUM('Pending','Approved','Cancelled') DEFAULT 'Pending';");
+                    Exec("ALTER TABLE Transactions ADD COLUMN TotalAmount DECIMAL(18, 2) DEFAULT 0;");
+                    Exec("ALTER TABLE Transactions ADD COLUMN Discount DECIMAL(18, 2) DEFAULT 0;");
+                    Exec("ALTER TABLE Transactions ADD COLUMN FinalAmount DECIMAL(18, 2) DEFAULT 0;");
+                    Exec("ALTER TABLE Transactions ADD COLUMN SupplierID INT NULL;");
+                    Exec("ALTER TABLE Transactions ADD COLUMN CustomerID INT NULL;");
+                    
+                    // Inventory Checks Migration
+                    Exec("ALTER TABLE InventoryChecks ADD COLUMN Status ENUM('Pending','Completed','Cancelled') DEFAULT 'Pending';");
+                }
+            }
+            catch (Exception ex)
+            {
+                // Silent fail or log
+                Console.WriteLine("Migration failed: " + ex.Message);
+            }
+        }
+
+        private static MySqlConnection GetConnection()
+        {
+            string connectionString = System.Configuration.ConfigurationManager.ConnectionStrings["WarehouseDB"].ConnectionString;
+            return new MySqlConnection(connectionString);
+        }
+
+        /// <summary>
+        /// Tự động chạy schema.sql để tạo/reset database
+        /// </summary>
         public static bool ExecuteSchema()
         {
             try

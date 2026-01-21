@@ -24,12 +24,12 @@ namespace WarehouseManagement.Controllers
             return _inventoryService.ExportStock(productId, quantity, unitPrice, note);
         }
 
-        public bool ImportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int supplierId = 0)
+        public int ImportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int supplierId = 0)
         {
             return _inventoryService.ImportStockBatch(details, note, supplierId);
         }
 
-        public bool ExportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int customerId = 0)
+        public int ExportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int customerId = 0)
         {
             return _inventoryService.ExportStockBatch(details, note, customerId);
         }
@@ -67,6 +67,16 @@ namespace WarehouseManagement.Controllers
         public bool HideTransaction(int transactionId)
         {
             return _inventoryService.HideTransaction(transactionId);
+        }
+
+        public bool ApproveTransaction(int transactionId)
+        {
+            return _inventoryService.ApproveTransaction(transactionId);
+        }
+
+        public bool CancelTransaction(int transactionId)
+        {
+            return _inventoryService.CancelTransaction(transactionId);
         }
     }
 }

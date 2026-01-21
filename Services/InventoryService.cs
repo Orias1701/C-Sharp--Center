@@ -43,6 +43,7 @@ namespace WarehouseManagement.Services
                     DateCreated = DateTime.Now,
                     CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
                     Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim(),
+                    Status = "Pending",
                     Visible = true
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
@@ -60,8 +61,8 @@ namespace WarehouseManagement.Services
 
                 int newQuantity = product.Quantity + quantity;
                 if (newQuantity > 999999) throw new Exception("Tồn kho sẽ vượt quá giới hạn cho phép");
-
-                _productRepo.UpdateQuantity(productId, newQuantity);
+                
+                // DEFERRED: _productRepo.UpdateQuantity(productId, newQuantity);
                 _transactionRepo.UpdateTransactionTotal(transId);
 
                 var newData = new { Quantity = newQuantity, ProductID = productId };
@@ -102,6 +103,7 @@ namespace WarehouseManagement.Services
                     DateCreated = DateTime.Now,
                     CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
                     Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim(),
+                    Status = "Pending",
                     Visible = true
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
@@ -118,7 +120,7 @@ namespace WarehouseManagement.Services
                 _transactionRepo.AddTransactionDetail(detail);
 
                 int newQuantity = product.Quantity - quantity;
-                _productRepo.UpdateQuantity(productId, newQuantity);
+                // DEFERRED: _productRepo.UpdateQuantity(productId, newQuantity);
                 _transactionRepo.UpdateTransactionTotal(transId);
 
                 _logRepo.LogAction("EXPORT_STOCK",
@@ -134,7 +136,7 @@ namespace WarehouseManagement.Services
             }
         }
 
-        public bool ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int supplierId = 0)
+        public int ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int supplierId = 0)
         {
             try
             {
@@ -159,6 +161,7 @@ namespace WarehouseManagement.Services
                     DateCreated = DateTime.Now,
                     CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
                     Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim(),
+                    Status = "Pending",
                     Visible = true,
                     SupplierID = supplierId > 0 ? supplierId : (int?)null
                 };
@@ -189,7 +192,7 @@ namespace WarehouseManagement.Services
                     int newQuantity = product.Quantity + quantity;
                     if (newQuantity > 999999) throw new Exception("Tồn kho sẽ vượt quá giới hạn cho phép");
 
-                    _productRepo.UpdateQuantity(productId, newQuantity);
+                    // DEFERRED: _productRepo.UpdateQuantity(productId, newQuantity);
                 }
 
                 _transactionRepo.UpdateTransactionTotal(transId);
@@ -199,7 +202,7 @@ namespace WarehouseManagement.Services
                     "");
 
                 ActionsService.Instance.MarkAsChanged();
-                return true;
+                return transId;
             }
             catch (Exception ex)
             {
@@ -207,7 +210,7 @@ namespace WarehouseManagement.Services
             }
         }
 
-        public bool ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int customerId = 0)
+        public int ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int customerId = 0)
         {
             try
             {
@@ -239,6 +242,7 @@ namespace WarehouseManagement.Services
                     DateCreated = DateTime.Now,
                     CreatedByUserID = GlobalUser.CurrentUser?.UserID ?? 0,
                     Note = string.IsNullOrWhiteSpace(note) ? "" : note.Trim(),
+                    Status = "Pending",
                     Visible = true,
                     CustomerID = customerId > 0 ? customerId : (int?)null
                 };
@@ -266,7 +270,7 @@ namespace WarehouseManagement.Services
                     _transactionRepo.AddTransactionDetail(detail);
 
                     int newQuantity = product.Quantity - quantity;
-                    _productRepo.UpdateQuantity(productId, newQuantity);
+                    // DEFERRED: _productRepo.UpdateQuantity(productId, newQuantity);
                 }
 
                 _transactionRepo.UpdateTransactionTotal(transId);
@@ -275,7 +279,7 @@ namespace WarehouseManagement.Services
                     $"Xuất {details.Count} sản phẩm, Transaction ID {transId}",
                     "");
                 ActionsService.Instance.MarkAsChanged();
-                return true;
+                return transId;
             }
             catch (Exception ex)
             {
@@ -360,6 +364,70 @@ namespace WarehouseManagement.Services
             catch (Exception ex)
             {
                 throw new Exception("Lỗi khi ẩn giao dịch: " + ex.Message);
+            }
+        }
+        public bool ApproveTransaction(int transactionId)
+        {
+            try
+            {
+                var transaction = _transactionRepo.GetTransactionById(transactionId);
+                if (transaction == null) throw new Exception("Giao dịch không tồn tại");
+                if (transaction.Status != "Pending") throw new Exception("Chỉ có thể duyệt giao dịch đang chờ");
+
+                // Execute Stock Updates
+                foreach (var detail in transaction.Details)
+                {
+                    var product = _productRepo.GetProductById(detail.ProductID);
+                    if (product == null) throw new Exception($"Sản phẩm ID {detail.ProductID} không tồn tại");
+
+                    if (transaction.Type == "Import")
+                    {
+                        int newQty = product.Quantity + detail.Quantity;
+                         _productRepo.UpdateQuantity(detail.ProductID, newQty);
+                    }
+                    else if (transaction.Type == "Export")
+                    {
+                        if (product.Quantity < detail.Quantity)
+                            throw new Exception($"Tồn kho không đủ cho sản phẩm {product.ProductName}");
+                        
+                        int newQty = product.Quantity - detail.Quantity;
+                        _productRepo.UpdateQuantity(detail.ProductID, newQty);
+                    }
+                }
+
+                _transactionRepo.UpdateTransactionStatus(transactionId, "Approved");
+                
+                _logRepo.LogAction("APPROVE_TRANSACTION", 
+                    $"Duyệt giao dịch #{transactionId} ({transaction.Type})", "");
+                
+                ActionsService.Instance.MarkAsChanged();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi duyệt giao dịch: " + ex.Message);
+            }
+        }
+
+        public bool CancelTransaction(int transactionId)
+        {
+            try
+            {
+                var transaction = _transactionRepo.GetTransactionById(transactionId);
+                if (transaction == null) throw new Exception("Giao dịch không tồn tại");
+                if (transaction.Status != "Pending") throw new Exception("Chỉ có thể hủy giao dịch đang chờ");
+
+                _transactionRepo.UpdateTransactionStatus(transactionId, "Cancelled");
+                
+                _logRepo.LogAction("CANCEL_TRANSACTION", 
+                    $"Hủy giao dịch #{transactionId}", "");
+
+                ActionsService.Instance.MarkAsChanged();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi hủy giao dịch: " + ex.Message);
             }
         }
     }

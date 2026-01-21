@@ -321,7 +321,7 @@ namespace WarehouseManagement.Views.Forms
 
                 btnComplete = new CustomButton
                 {
-                    Text = "Hoàn Tất",
+                    Text = "Duyệt Phiếu",
                     Width = 120,
                     ButtonStyleType = ButtonStyle.FilledNoOutline
                 };
@@ -347,7 +347,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 btnComplete = new CustomButton
                 {
-                    Text = "Hoàn Tất",
+                    Text = "Duyệt Phiếu",
                     Width = 120,
                     ButtonStyleType = ButtonStyle.FilledNoOutline
                 };
@@ -508,11 +508,11 @@ namespace WarehouseManagement.Views.Forms
                  }
                  else
                  {
-                     // Complete existing Pending check
+                     // Approve existing Pending check
                      try
                      {
-                        _controller.CompleteCheck(_check.CheckID, GlobalUser.CurrentUser?.UserID ?? 0);
-                        MessageBox.Show("Hoàn tất kiểm kê thành công!");
+                        _controller.ApproveCheck(_check.CheckID, GlobalUser.CurrentUser?.UserID ?? 0);
+                        MessageBox.Show("Duyệt phiếu kiểm kê thành công!");
                         DialogResult = DialogResult.OK;
                         Close();
                      }
