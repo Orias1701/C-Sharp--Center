@@ -221,7 +221,7 @@ namespace WarehouseManagement.Views.Forms
 
             Controls.Add(mainPanel);
 
-            ClientSize = new Size(480, 560);
+            ClientSize = new Size(480, 500);
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
@@ -231,6 +231,12 @@ namespace WarehouseManagement.Views.Forms
             CancelButton = btnCancel;
 
             Load += ProductForm_Load;
+            
+            // Focus Save Button
+            this.Load += (s, e) => {
+                if (btnSave != null) ActiveControl = btnSave;
+            };
+            
             ResumeLayout(false);
         }
 
