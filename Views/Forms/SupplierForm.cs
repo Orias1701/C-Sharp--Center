@@ -179,6 +179,11 @@ namespace WarehouseManagement.Views.Forms
                 txtEmail.Text = _supplier.Email;
                 txtAddress.Text = _supplier.Address;
             }
+            
+            // Focus Save Button
+            this.Load += (s, e) => {
+                if (btnSave != null) ActiveControl = btnSave;
+            };
         }
 
         private void BtnSave_Click(object sender, EventArgs e)

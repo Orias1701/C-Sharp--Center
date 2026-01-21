@@ -149,6 +149,12 @@ namespace WarehouseManagement.Views.Forms
             CancelButton = btnCancel;
 
             Load += CategoryForm_Load;
+            
+            // Focus Save Button
+            this.Load += (s, e) => {
+                if (btnSave != null) ActiveControl = btnSave;
+            };
+            
             ResumeLayout(false);
         }
 
