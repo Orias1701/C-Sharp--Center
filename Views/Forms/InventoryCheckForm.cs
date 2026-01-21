@@ -67,10 +67,9 @@ namespace WarehouseManagement.Views.Forms
 
             // Layout constants
             const int LEFT_MARGIN = 40;
-            // const int FULL_WIDTH = 720; // 800 - 40 - 40
-            const int COL_WIDTH = 350; // (720 - 20) / 2
+            const int INPUT_WIDTH = 944; // 1024 - 40 - 40
+            const int COL_WIDTH = 462; // (944 - 20) / 2
             const int COL_GAP = 20;
-            const int INPUT_WIDTH = 720;
             int currentY = 30;
             int inputSpacing = 20;
 
@@ -127,33 +126,51 @@ namespace WarehouseManagement.Views.Forms
             }
             currentY += 10;
 
-            // Note (Vertical)
-            Label lblNote = new Label
+            // Note
+            if (_isNew)
             {
-                Text = "Ghi chú",
-                Left = LEFT_MARGIN,
-                Top = currentY,
-                AutoSize = true,
-                Font = ThemeManager.Instance.FontSmall,
-                ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
-                                          UIConstants.PrimaryColor.Default.G, 
-                                          UIConstants.PrimaryColor.Default.B)
-            };
-            mainPanel.Controls.Add(lblNote);
-            currentY += 20;
+                Label lblNote = new Label
+                {
+                    Text = "Ghi chú",
+                    Left = LEFT_MARGIN,
+                    Top = currentY,
+                    AutoSize = true,
+                    Font = ThemeManager.Instance.FontSmall,
+                    ForeColor = Color.FromArgb(180, UIConstants.PrimaryColor.Default.R, 
+                                              UIConstants.PrimaryColor.Default.G, 
+                                              UIConstants.PrimaryColor.Default.B)
+                };
+                mainPanel.Controls.Add(lblNote);
+                currentY += 20;
 
-            txtNote = new CustomTextArea
+                txtNote = new CustomTextArea
+                {
+                    Left = LEFT_MARGIN,
+                    Top = currentY,
+                    Width = INPUT_WIDTH,
+                    Height = 60,
+                    Placeholder = "Ghi chú kiểm kê...",
+                };
+                mainPanel.Controls.Add(txtNote);
+                currentY += 60 + inputSpacing;
+            }
+            else
             {
-                Left = LEFT_MARGIN,
-                Top = currentY,
-                Width = INPUT_WIDTH,
-                Height = 60,
-                Placeholder = "Ghi chú kiểm kê...",
-                ReadOnly = (!_isNew)
-            };
-            if (!_isNew) txtNote.Text = _check.Note;
-            mainPanel.Controls.Add(txtNote);
-            currentY += 60 + inputSpacing;
+                // In View Mode, showing Note as a Label like "Người tạo"
+                string noteContent = string.IsNullOrEmpty(_check.Note) ? "(Không có)" : _check.Note;
+                Label lblNoteDisplay = new Label
+                {
+                    Text = $"Ghi chú: {noteContent}",
+                    Left = LEFT_MARGIN,
+                    Top = currentY,
+                    Width = INPUT_WIDTH,
+                    AutoSize = false,
+                    Font = ThemeManager.Instance.FontSmall,
+                    ForeColor = ThemeManager.Instance.TextPrimary
+                };
+                mainPanel.Controls.Add(lblNoteDisplay);
+                currentY += 25 + 10; // Similar spacing to status
+            }
 
             // Product Selection (Only for New)
             if (_isNew)
@@ -210,12 +227,19 @@ namespace WarehouseManagement.Views.Forms
             mainPanel.Controls.Add(lblDetail);
             currentY += 20;
 
+            // Calculate Grid Height to fit 650 total height
+            // Top used: currentY
+            // Bottom needed: 80 (Buttons + Padding)
+            // Available: 650 - currentY - 80
+            int gridHeight = 650 - currentY - 80;
+            if (gridHeight < 200) gridHeight = 200; // Minimum safety
+
             dgvDetails = new DataGridView
             {
                 Left = LEFT_MARGIN,
                 Top = currentY,
                 Width = INPUT_WIDTH,
-                Height = 350,
+                Height = gridHeight,
                 AutoGenerateColumns = false,
                 AllowUserToAddRows = false,
                 BackgroundColor = ThemeManager.Instance.BackgroundDefault,
@@ -326,7 +350,7 @@ namespace WarehouseManagement.Views.Forms
             Helpers.DataGridViewHelper.ApplySelectionEffect(dgvDetails);
 
             mainPanel.Controls.Add(dgvDetails);
-            currentY += 350 + 30;
+            currentY += dgvDetails.Height + 30;
 
             // Buttons - Centered
             // Calculate total width based on visible buttons
@@ -405,19 +429,23 @@ namespace WarehouseManagement.Views.Forms
             Controls.Add(mainPanel);
 
             // Form Size
-            int contentHeight = currentY + 35; // Bottom of buttons
-            int paddingBottom = 40;
-            int calculatedHeight = contentHeight + paddingBottom;
+            // int contentHeight = currentY + 35; // Bottom of buttons
+            // int paddingBottom = 40;
+            // int calculatedHeight = contentHeight + paddingBottom;
 
-            // Use ClientSize to keep inner size correct
-            ClientSize = new Size(800, calculatedHeight);
+            // User requested fixed size
+            ClientSize = new Size(1024, 650);
             
             StartPosition = FormStartPosition.CenterParent;
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
             BackColor = ThemeManager.Instance.BackgroundLight;
-
+            
+            // Re-center buttons if needed?
+            // Buttons logic (lines 332, 357) uses INPUT_WIDTH/LEFT_MARGIN.
+            // Since INPUT_WIDTH etc are updated, buttons will center correctly relative to new width.
+            
             RefreshGrid();
         }
 
