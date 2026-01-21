@@ -313,8 +313,20 @@ namespace WarehouseManagement.Views.Forms
                 // or TotalAmount. The user requirement said FinalAmount is in Transaction.
                 txtTotalValue.Text = $"{_transaction.FinalAmount:N0} ₫"; 
                 
-                txtCreatedBy.Text = $"User ID: {_transaction.CreatedByUserID}";
-                txtCreatedBy.Text = $"User ID: {_transaction.CreatedByUserID}";
+                // Load Creator Name
+                string creatorName = $"User ID: {_transaction.CreatedByUserID}";
+                try 
+                {
+                    UserController userController = new UserController();
+                    var user = userController.GetUserById(_transaction.CreatedByUserID);
+                    if (user != null)
+                    {
+                        creatorName = $"{user.FullName} ({user.Username})";
+                    }
+                }
+                catch { /* Ignore error, keep ID */ }
+                
+                txtCreatedBy.Text = creatorName;
                 
                 // Load Partner Name
                 string partnerName = "N/A";

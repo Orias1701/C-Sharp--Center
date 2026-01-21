@@ -14,11 +14,14 @@ namespace WarehouseManagement.Views.Panels
     {
         private DataGridView dgvProducts;
         private ProductController _productController;
+        private CategoryController _categoryController;
         private List<Product> allProducts;
+        private Dictionary<int, string> _categoryNames = new Dictionary<int, string>();
 
         public ProductsPanel()
         {
             _productController = new ProductController();
+            _categoryController = new CategoryController();
             InitializeComponent();
             SettingsForm.SettingsChanged += (s, e) => LoadData();
             
@@ -85,7 +88,7 @@ namespace WarehouseManagement.Views.Panels
             dgvProducts.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Danh Mục", 
-                DataPropertyName = "CategoryID", 
+                DataPropertyName = "CategoryID", // Value overridden in CellFormatting
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
@@ -241,6 +244,15 @@ namespace WarehouseManagement.Views.Panels
         {
             try
             {
+                // Load Categories for lookup
+                var categories = _categoryController.GetAllCategories();
+                _categoryNames = new Dictionary<int, string>();
+                foreach (var cat in categories)
+                {
+                    if (!_categoryNames.ContainsKey(cat.CategoryID))
+                        _categoryNames.Add(cat.CategoryID, cat.CategoryName);
+                }
+
                 allProducts = _productController.GetAllProducts(SettingsForm.ShowHiddenItems);
                 dgvProducts.DataSource = allProducts;
             }
@@ -269,20 +281,36 @@ namespace WarehouseManagement.Views.Panels
 
         private void DgvProducts_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
-            if (dgvProducts.Rows[e.RowIndex].DataBoundItem is Product product)
+            if (e.RowIndex < 0 || e.RowIndex >= dgvProducts.Rows.Count) return;
+
+            var product = dgvProducts.Rows[e.RowIndex].DataBoundItem as Product;
+            if (product == null) return;
+
+            // Resolve Category Name
+            if (dgvProducts.Columns[e.ColumnIndex].DataPropertyName == "CategoryID")
             {
-                if (product.IsLowStock)
+                if (_categoryNames != null && _categoryNames.TryGetValue(product.CategoryID, out string catName))
                 {
-                    e.CellStyle.BackColor = UIConstants.SemanticColors.Error;
-                    e.CellStyle.ForeColor = Color.White;
-                    e.CellStyle.Font = ThemeManager.Instance.FontBold;
+                    e.Value = catName;
+                    e.FormattingApplied = true;
                 }
-                else
-                {
-                    // Allow DefaultCellStyle (which handles Hover) to take effect
-                    // e.CellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
-                    e.CellStyle.ForeColor = ThemeManager.Instance.TextPrimary;
-                }
+            }
+
+            // Low Stock Highlighting
+            if (product.IsLowStock)
+            {
+                e.CellStyle.BackColor = UIConstants.SemanticColors.Error;
+                e.CellStyle.ForeColor = Color.White;
+                e.CellStyle.Font = ThemeManager.Instance.FontBold;
+            }
+            else
+            {
+                 // Reset to default for non-low-stock rows (important for virtualization)
+                 // If not set, it might inherit from recycled rows
+                 // Using default style from column or grid
+                 e.CellStyle.BackColor = dgvProducts.DefaultCellStyle.BackColor;
+                 e.CellStyle.ForeColor = dgvProducts.DefaultCellStyle.ForeColor;
+                 e.CellStyle.Font = dgvProducts.DefaultCellStyle.Font;
             }
         }
 

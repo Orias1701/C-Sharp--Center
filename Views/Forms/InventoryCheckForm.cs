@@ -16,6 +16,7 @@ namespace WarehouseManagement.Views.Forms
         private bool _isNew;
         private InventoryCheckController _controller;
         private ProductController _productController;
+        private UserController _userController;
 
         private CustomComboBox cmbProduct;
         private CustomTextArea txtNote;
@@ -23,6 +24,7 @@ namespace WarehouseManagement.Views.Forms
         private CustomButton btnAddProduct, btnSave, btnComplete, btnClose;
         
         private List<InventoryCheckDetail> _detailsList;
+        private Dictionary<int, string> _productNames = new Dictionary<int, string>();
 
         public InventoryCheckForm(InventoryCheck check = null)
         {
@@ -30,12 +32,21 @@ namespace WarehouseManagement.Views.Forms
             _isNew = (check == null);
             _controller = new InventoryCheckController();
             _productController = new ProductController();
+            _userController = new UserController();
             _detailsList = new List<InventoryCheckDetail>();
 
             if (!_isNew)
             {
                 _detailsList = check.Details ?? new List<InventoryCheckDetail>();
             }
+
+            // Pre-load product names for lookup
+            try 
+            {
+               var products = _productController.GetAllProducts();
+               _productNames = products.ToDictionary(p => p.ProductID, p => p.ProductName);
+            }
+            catch {}
 
             InitializeComponent();
             ThemeManager.Instance.ApplyThemeToForm(this);
@@ -64,7 +75,26 @@ namespace WarehouseManagement.Views.Forms
             int inputSpacing = 20;
 
             // Info Header (User, Date, Status)
-            string userText = $"Người tạo: {(_isNew ? GlobalUser.CurrentUser?.Username : _check.CreatedByUserID.ToString())}";
+            string userName = "Unknown";
+            if (_isNew)
+            {
+                userName = GlobalUser.CurrentUser?.Username;
+            }
+            else
+            {
+                // Fetch creator name
+                try
+                {
+                    var u = _userController.GetUserById(_check.CreatedByUserID);
+                    userName = u != null ? $"{u.FullName} ({u.Username})" : $"User #{_check.CreatedByUserID}";
+                }
+                catch 
+                {
+                    userName = _check.CreatedByUserID.ToString();
+                }
+            }
+
+            string userText = $"Người tạo: {userName}";
             string dateText = $"Ngày tạo: {(_isNew ? DateTime.Now.ToString("dd/MM/yyyy HH:mm") : _check.CheckDate.ToString("dd/MM/yyyy HH:mm"))}";
             
             Label lblInfo = new Label
@@ -459,17 +489,15 @@ namespace WarehouseManagement.Views.Forms
                 var detail = _detailsList[e.RowIndex];
                 if (dgvDetails.Columns[e.ColumnIndex].Name == "ProductName")
                 {
-                    // Look up name? We passed IDs. 
-                    // Better to load names into Dictionary or fetch on fly.
-                    // For now, let's fetch on fly (might be slow) or assume we populated it.
-                    // Actually, let's use a workaround:
-                    // If we are in New Mode, valid products are in ComboBox or we fetched them.
-                    
-                    // Optimization: Pre-fetch all names or use ProductController cache if it had one.
-                    // Simple way: Fetch
-                    var product = _productController.GetProductById(detail.ProductID);
-                    e.Value = product?.ProductName ?? "Unknown";
-                    e.FormattingApplied = true;
+                     if (_productNames.TryGetValue(detail.ProductID, out string pName))
+                     {
+                         e.Value = pName;
+                     }
+                     else
+                     {
+                         e.Value = "Unknown Product";
+                     }
+                     e.FormattingApplied = true;
                 }
                 
                 if (dgvDetails.Columns[e.ColumnIndex].DataPropertyName == "Difference")

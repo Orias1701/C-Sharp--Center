@@ -14,11 +14,14 @@ namespace WarehouseManagement.Views.Panels
     {
         private DataGridView dgvChecks;
         private InventoryCheckController _controller;
+        private UserController _userController;
         private List<InventoryCheck> _allChecks;
+        private Dictionary<int, string> _userNames = new Dictionary<int, string>();
 
         public InventoryChecksPanel()
         {
             _controller = new InventoryCheckController();
+            _userController = new UserController();
             InitializeComponent();
             ThemeManager.Instance.ThemeChanged += OnThemeChanged;
             ApplyTheme();
@@ -185,6 +188,15 @@ namespace WarehouseManagement.Views.Panels
         {
             try
             {
+                // Pre-load user names
+                var users = _userController.GetAllUsers();
+                _userNames = new Dictionary<int, string>();
+                foreach (var u in users)
+                {
+                    if (!_userNames.ContainsKey(u.UserID))
+                        _userNames.Add(u.UserID, u.FullName ?? u.Username);
+                }
+
                 _allChecks = _controller.GetAllChecks();
                 dgvChecks.DataSource = _allChecks;
             }
@@ -240,8 +252,17 @@ namespace WarehouseManagement.Views.Panels
             var check = dgvChecks.Rows[e.RowIndex].DataBoundItem as InventoryCheck;
             if (check == null) return;
 
+            // Creator Name
+            if (dgvChecks.Columns[e.ColumnIndex].DataPropertyName == "CreatedByUserID")
+            {
+                if (_userNames != null && _userNames.TryGetValue(check.CreatedByUserID, out string name))
+                {
+                    e.Value = name;
+                    e.FormattingApplied = true;
+                }
+            }
             // Status Column color
-            if (dgvChecks.Columns[e.ColumnIndex].DataPropertyName == "Status")
+            else if (dgvChecks.Columns[e.ColumnIndex].DataPropertyName == "Status")
             {
                 if (e.Value != null)
                 {
@@ -250,16 +271,19 @@ namespace WarehouseManagement.Views.Panels
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Success;
                         e.Value = "Đã duyệt";
+                        e.FormattingApplied = true;
                     }
                     else if (status == "Pending")
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Warning;
                         e.Value = "Đang chờ";
+                        e.FormattingApplied = true;
                     }
                     else if (status == "Cancelled")
                     {
                         e.CellStyle.ForeColor = UIConstants.SemanticColors.Error;
                         e.Value = "Đã hủy";
+                        e.FormattingApplied = true;
                     }
                 }
             }
