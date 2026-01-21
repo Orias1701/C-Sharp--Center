@@ -71,6 +71,7 @@ namespace WarehouseManagement.Repositories
                                         ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
                                         Quantity = detailReader.GetInt32("Quantity"),
                                         UnitPrice = detailReader.GetDecimal("UnitPrice"),
+                                        DiscountRate = detailReader.IsDBNull(detailReader.GetOrdinal("DiscountRate")) ? 0 : detailReader.GetDouble("DiscountRate"),
                                         SubTotal = detailReader.GetDecimal("SubTotal"),
                                         Visible = detailReader.GetBoolean("Visible")
                                     });
@@ -142,6 +143,7 @@ namespace WarehouseManagement.Repositories
                                     ProductName = detailReader.IsDBNull(detailReader.GetOrdinal("ProductName")) ? "" : detailReader.GetString("ProductName"),
                                     Quantity = detailReader.GetInt32("Quantity"),
                                     UnitPrice = detailReader.GetDecimal("UnitPrice"),
+                                    DiscountRate = detailReader.IsDBNull(detailReader.GetOrdinal("DiscountRate")) ? 0 : detailReader.GetDouble("DiscountRate"),
                                     SubTotal = detailReader.GetDecimal("SubTotal"),
                                     Visible = detailReader.GetBoolean("Visible")
                                 });
@@ -203,14 +205,15 @@ namespace WarehouseManagement.Repositories
                 {
                     conn.Open();
                     using (var cmd = new MySqlCommand(
-                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice, Visible) " +
-                        "VALUES (@transId, @prodId, @prodName, @qty, @price, @visible)", conn))
+                        "INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice, DiscountRate, Visible) " +
+                        "VALUES (@transId, @prodId, @prodName, @qty, @price, @discountRate, @visible)", conn))
                     {
                         cmd.Parameters.AddWithValue("@transId", detail.TransactionID);
                         cmd.Parameters.AddWithValue("@prodId", detail.ProductID);
                         cmd.Parameters.AddWithValue("@prodName", detail.ProductName ?? "");
                         cmd.Parameters.AddWithValue("@qty", detail.Quantity);
                         cmd.Parameters.AddWithValue("@price", detail.UnitPrice);
+                        cmd.Parameters.AddWithValue("@discountRate", detail.DiscountRate);
                         cmd.Parameters.AddWithValue("@visible", detail.Visible);
                         return cmd.ExecuteNonQuery() > 0;
                     }
@@ -232,11 +235,23 @@ namespace WarehouseManagement.Repositories
                 using (var conn = GetConnection())
                 {
                     conn.Open();
-                    // Tính lại TotalAmount từ Details
+                    // Tính lại TotalAmount từ Details (Quantity * Price) - Đây là tổng tiền hàng chưa chiết khấu
+                    // Tính Discount từ Details: Sum(Qty * Price * Rate / 100)
+                    // Final = Total - Discount
+                    // Tuy nhiên DB hiện tại có cột Discount ở bảng Transactions là tổng. 
+                    // Logic cũ: TotalAmount = Sum(SubTotal), Final = TotalAmount - Transaction.Discount (Fixed).
+                    // Logic mới: Transaction.Discount phải được cập nhật = Sum(ItemDiscount).
+                    // SubTotal trong DB là generated (Qty*Price).
+                    
+                    // Cập nhật Discount = SUM(Quantity * UnitPrice * DiscountRate / 100)
+                    // Cập nhật TotalAmount = SUM(Quantity * UnitPrice)
+                    // FinalAmount = TotalAmount - Discount
+                    
                     string query = @"
                         UPDATE Transactions 
                         SET TotalAmount = (SELECT COALESCE(SUM(Quantity * UnitPrice), 0) FROM TransactionDetails WHERE TransactionID = @transId AND Visible=TRUE),
-                            FinalAmount = TotalAmount - Discount
+                            Discount = (SELECT COALESCE(SUM(Quantity * UnitPrice * DiscountRate / 100.0), 0) FROM TransactionDetails WHERE TransactionID = @transId AND Visible=TRUE),
+                            FinalAmount = (SELECT COALESCE(SUM(Quantity * UnitPrice * (1 - DiscountRate / 100.0)), 0) FROM TransactionDetails WHERE TransactionID = @transId AND Visible=TRUE)
                         WHERE TransactionID = @transId";
                         
                     using (var cmd = new MySqlCommand(query, conn))

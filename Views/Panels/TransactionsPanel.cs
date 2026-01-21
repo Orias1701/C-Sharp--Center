@@ -353,8 +353,8 @@ namespace WarehouseManagement.Views.Panels
             // Given "DgvTransactions_CellDoubleClick" exists, maybe single click was just for Actions?
             // "else { OpenTransactionDetail }" was in previous code. Let's keep it but maybe restricted?
             // Actually, usually detail opening is on ID or distinct button. 
-            // I will comment out single-click-open-detail to prevent annoyance, relying on DoubleClick.
-            // OpenTransactionDetail(transaction.TransactionID); 
+            // User feedback: "Why 3 clicks?" -> They expect single click or easier access. Restoring single click.
+             OpenTransactionDetail(transaction.TransactionID); 
         }
 
         private void OpenTransactionDetail(int transactionId)

@@ -82,6 +82,9 @@ namespace WarehouseManagement.Helpers
                     
                     // Inventory Checks Migration
                     Exec("ALTER TABLE InventoryChecks ADD COLUMN Status ENUM('Pending','Completed','Cancelled') DEFAULT 'Pending';");
+
+                    // Percentage Discount Migration
+                    Exec("ALTER TABLE TransactionDetails ADD COLUMN DiscountRate DECIMAL(5, 2) DEFAULT 0;");
                 }
             }
             catch (Exception ex)

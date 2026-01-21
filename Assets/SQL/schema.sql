@@ -112,6 +112,7 @@ CREATE TABLE IF NOT EXISTS TransactionDetails (
     ProductName VARCHAR(255) COMMENT 'Tên SP snapshot',
     Quantity INT NOT NULL COMMENT 'Số lượng',
     UnitPrice DECIMAL(18, 2) COMMENT 'Đơn giá tại thời điểm GD',
+    DiscountRate DECIMAL(5, 2) DEFAULT 0 COMMENT 'Chiết khấu %',
     SubTotal DECIMAL(18, 2) GENERATED ALWAYS AS (Quantity * UnitPrice) STORED COMMENT 'Thành tiền dòng',
     Visible BOOLEAN DEFAULT TRUE COMMENT 'Hiển thị',
     FOREIGN KEY (TransactionID) REFERENCES Transactions (TransactionID) ON DELETE CASCADE,

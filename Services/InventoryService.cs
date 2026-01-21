@@ -136,7 +136,7 @@ namespace WarehouseManagement.Services
             }
         }
 
-        public int ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int supplierId = 0)
+        public int ImportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice, double DiscountRate)> details, string note = "", int supplierId = 0)
         {
             try
             {
@@ -144,7 +144,7 @@ namespace WarehouseManagement.Services
                     throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
 
                 var productIds = new List<int>();
-                foreach (var (productId, quantity, unitPrice) in details)
+                foreach (var (productId, quantity, unitPrice, discountRate) in details)
                 {
                     if (productIds.Contains(productId))
                         throw new ArgumentException($"Sản phẩm ID {productId} bị trùng lặp trong phiếu nhập");
@@ -167,13 +167,14 @@ namespace WarehouseManagement.Services
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                foreach (var (productId, quantity, unitPrice) in details)
+                foreach (var (productId, quantity, unitPrice, discountRate) in details)
                 {
                     if (productId <= 0) throw new ArgumentException("ID sản phẩm không hợp lệ");
                     if (quantity <= 0) throw new ArgumentException("Số lượng nhập phải lớn hơn 0");
                     if (quantity > 999999) throw new ArgumentException("Số lượng quá lớn");
                     if (unitPrice < 0) throw new ArgumentException("Đơn giá không được âm");
                     if (unitPrice > 999999999) throw new ArgumentException("Đơn giá quá lớn");
+                    if (discountRate < 0 || discountRate > 100) throw new ArgumentException("Chiết khấu phải từ 0-100%");
 
                     var product = _productRepo.GetProductById(productId);
                     if (product == null) throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại");
@@ -185,6 +186,7 @@ namespace WarehouseManagement.Services
                         ProductName = product.ProductName,
                         Quantity = quantity,
                         UnitPrice = unitPrice,
+                        DiscountRate = discountRate,
                         Visible = true
                     };
                     _transactionRepo.AddTransactionDetail(detail);
@@ -210,7 +212,7 @@ namespace WarehouseManagement.Services
             }
         }
 
-        public int ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int customerId = 0)
+        public int ExportStockBatch(List<(int ProductId, int Quantity, decimal UnitPrice, double DiscountRate)> details, string note = "", int customerId = 0)
         {
             try
             {
@@ -218,14 +220,14 @@ namespace WarehouseManagement.Services
                     throw new ArgumentException("Danh sách sản phẩm không thể rỗng");
 
                 var productIds = new List<int>();
-                foreach (var (productId, quantity, unitPrice) in details)
+                foreach (var (productId, quantity, unitPrice, discountRate) in details)
                 {
                     if (productIds.Contains(productId))
                         throw new ArgumentException($"Sản phẩm ID {productId} bị trùng lặp trong phiếu xuất");
                     productIds.Add(productId);
                 }
 
-                foreach (var (productId, quantity, unitPrice) in details)
+                foreach (var (productId, quantity, unitPrice, discountRate) in details)
                 {
                     if (!_productRepo.ProductIdExists(productId))
                         throw new ArgumentException($"Sản phẩm ID {productId} không tồn tại trong hệ thống");
@@ -248,13 +250,14 @@ namespace WarehouseManagement.Services
                 };
                 int transId = _transactionRepo.CreateTransaction(transaction);
 
-                foreach (var (productId, quantity, unitPrice) in details)
+                foreach (var (productId, quantity, unitPrice, discountRate) in details)
                 {
                     if (productId <= 0) throw new ArgumentException("ID sản phẩm không hợp lệ");
                     if (quantity <= 0) throw new ArgumentException("Số lượng xuất phải lớn hơn 0");
                     if (quantity > 999999) throw new ArgumentException("Số lượng quá lớn");
                     if (unitPrice < 0) throw new ArgumentException("Đơn giá không được âm");
                     if (unitPrice > 999999999) throw new ArgumentException("Đơn giá quá lớn");
+                    if (discountRate < 0 || discountRate > 100) throw new ArgumentException("Chiết khấu phải từ 0-100%");
 
                     var product = _productRepo.GetProductById(productId);
                     
@@ -265,6 +268,7 @@ namespace WarehouseManagement.Services
                         ProductName = product.ProductName,
                         Quantity = quantity,
                         UnitPrice = unitPrice,
+                        DiscountRate = discountRate,
                         Visible = true
                     };
                     _transactionRepo.AddTransactionDetail(detail);

@@ -24,12 +24,12 @@ namespace WarehouseManagement.Controllers
             return _inventoryService.ExportStock(productId, quantity, unitPrice, note);
         }
 
-        public int ImportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int supplierId = 0)
+        public int ImportBatch(List<(int ProductId, int Quantity, decimal UnitPrice, double DiscountRate)> details, string note = "", int supplierId = 0)
         {
             return _inventoryService.ImportStockBatch(details, note, supplierId);
         }
 
-        public int ExportBatch(List<(int ProductId, int Quantity, decimal UnitPrice)> details, string note = "", int customerId = 0)
+        public int ExportBatch(List<(int ProductId, int Quantity, decimal UnitPrice, double DiscountRate)> details, string note = "", int customerId = 0)
         {
             return _inventoryService.ExportStockBatch(details, note, customerId);
         }

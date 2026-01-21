@@ -23,18 +23,18 @@ namespace WarehouseManagement.Views.Forms
         private TabControl tabControl;
         private CustomComboBox cmbProduct;
         private CustomComboBox cmbSubject; // For Supplier or Customer
-        private CustomTextBox txtQuantity, txtUnitPrice;
+        private CustomTextBox txtQuantity, txtUnitPrice, txtDiscount;
         private CustomTextArea txtNote;
         private DataGridView dgvDetails;
         private CustomButton btnAddDetail, btnRemoveDetail, btnSaveTransaction, btnCancel, btnExportVoucher;
-        private List<(int ProductID, int Quantity, decimal UnitPrice)> _details;
+        private List<(int ProductID, int Quantity, decimal UnitPrice, double DiscountRate)> _details;
         private Panel contentPanel;
 
         public TransactionAllForm()
         {
             InitializeComponent();
             _transactionType = "Import"; // Mặc định là Import
-            _details = new List<(int, int, decimal)>();
+            _details = new List<(int, int, decimal, double)>();
             _inventoryController = new InventoryController();
             _productController = new ProductController();
             _supplierController = new SupplierController();
@@ -96,8 +96,14 @@ namespace WarehouseManagement.Views.Forms
         {
             const int LEFT_MARGIN = 40;
             const int COL_GAP = 20;
-            const int COL_WIDTH = 350; // (800 - 40 - 40 - 20) / 2
             const int FULL_WIDTH = 720; // 800 - 40 - 40
+            
+            // 3 Columns Layout for Row 2
+            const int COL_WIDTH_3 = (FULL_WIDTH - (COL_GAP * 2)) / 3;
+             
+            // 2 Columns Layout for Row 1
+            const int COL_WIDTH_2 = (FULL_WIDTH - COL_GAP) / 2;
+
             int currentY = 20;
             int spacing = UIConstants.Spacing.Margin.Medium;
 
@@ -109,7 +115,7 @@ namespace WarehouseManagement.Views.Forms
                 Text = $"{UIConstants.Icons.User} Nhà cung cấp:", 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = COL_WIDTH,
+                Width = COL_WIDTH_2,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -118,9 +124,9 @@ namespace WarehouseManagement.Views.Forms
             Label lblProduct = new Label 
             { 
                 Text = $"{UIConstants.Icons.Product} Sản phẩm:", 
-                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
+                Left = LEFT_MARGIN + COL_WIDTH_2 + COL_GAP, 
                 Top = currentY, 
-                Width = COL_WIDTH,
+                Width = COL_WIDTH_2,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -130,24 +136,24 @@ namespace WarehouseManagement.Views.Forms
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = COL_WIDTH
+                Width = COL_WIDTH_2
             };
 
             cmbProduct = new CustomComboBox 
             { 
-                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
+                Left = LEFT_MARGIN + COL_WIDTH_2 + COL_GAP, 
                 Top = currentY, 
-                Width = COL_WIDTH
+                Width = COL_WIDTH_2
             };
             currentY += UIConstants.Sizes.InputHeight + spacing;
 
-            // Row 2: Quantity (Left) | Price (Right)
+            // Row 2: Quantity | Price | Discount
             Label lblQuantity = new Label 
             { 
                 Text = $"{UIConstants.Icons.Package} Số lượng:", 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = COL_WIDTH,
+                Width = COL_WIDTH_3,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -155,9 +161,19 @@ namespace WarehouseManagement.Views.Forms
             Label lblPrice = new Label 
             { 
                 Text = $"{UIConstants.Icons.Money} Đơn giá:", 
-                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
+                Left = LEFT_MARGIN + COL_WIDTH_3 + COL_GAP, 
                 Top = currentY, 
-                Width = COL_WIDTH,
+                Width = COL_WIDTH_3,
+                Font = ThemeManager.Instance.FontRegular,
+                TextAlign = ContentAlignment.MiddleLeft
+            };
+
+            Label lblDiscount = new Label 
+            { 
+                Text = $"{UIConstants.Icons.Product} Chiết khấu (%):", 
+                Left = LEFT_MARGIN + (COL_WIDTH_3 + COL_GAP) * 2, 
+                Top = currentY, 
+                Width = COL_WIDTH_3,
                 Font = ThemeManager.Instance.FontRegular,
                 TextAlign = ContentAlignment.MiddleLeft
             };
@@ -167,16 +183,24 @@ namespace WarehouseManagement.Views.Forms
             { 
                 Left = LEFT_MARGIN, 
                 Top = currentY, 
-                Width = COL_WIDTH,
+                Width = COL_WIDTH_3,
                 Placeholder = "Số lượng..."
             };
 
             txtUnitPrice = new CustomTextBox 
             { 
-                Left = LEFT_MARGIN + COL_WIDTH + COL_GAP, 
+                Left = LEFT_MARGIN + COL_WIDTH_3 + COL_GAP, 
                 Top = currentY, 
-                Width = COL_WIDTH,
+                Width = COL_WIDTH_3,
                 Placeholder = "Đơn giá..."
+            };
+
+            txtDiscount = new CustomTextBox 
+            { 
+                Left = LEFT_MARGIN + (COL_WIDTH_3 + COL_GAP) * 2, 
+                Top = currentY, 
+                Width = COL_WIDTH_3,
+                Placeholder = "0"
             };
             currentY += UIConstants.Sizes.InputHeight + spacing;
 
@@ -202,8 +226,7 @@ namespace WarehouseManagement.Views.Forms
             };
             currentY += 60 + spacing;
 
-            // Add/Remove buttons (Centered or Left?) -> Let's keep them Left for flow, or relative to Grid.
-            // Grid is full width. Buttons should probably align with grid or be clearly actionable.
+            // Add/Remove buttons
             btnAddDetail = new CustomButton 
             { 
                 Text = $"{UIConstants.Icons.Add} Thêm", 
@@ -263,25 +286,49 @@ namespace WarehouseManagement.Views.Forms
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
-                HeaderText = "Số lượng", 
+                HeaderText = "SL", 
                 DataPropertyName = "Quantity", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Width = 60,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 4, 30, 4)
+                    Padding = new Padding(5, 4, 5, 4)
                 }
             });
             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
             { 
                 HeaderText = "Đơn giá", 
                 DataPropertyName = "UnitPrice", 
-                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                Width = 100,
                 DefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     Format = "N0",
                     Alignment = DataGridViewContentAlignment.MiddleRight,
-                    Padding = new Padding(10, 4, 30, 4)
+                    Padding = new Padding(5, 4, 5, 4)
+                } 
+            });
+             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "CK(%)", 
+                DataPropertyName = "DiscountRate", 
+                Width = 70,
+                DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N1",
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(5, 4, 5, 4)
+                } 
+            });
+             dgvDetails.Columns.Add(new DataGridViewTextBoxColumn 
+            { 
+                HeaderText = "Thành tiền", // Should be Net Amount
+                DataPropertyName = "TotalAmount", 
+                Width = 120,
+                 DefaultCellStyle = new DataGridViewCellStyle 
+                { 
+                    Format = "N0",
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Padding = new Padding(5, 4, 5, 4)
                 } 
             });
 
@@ -290,7 +337,7 @@ namespace WarehouseManagement.Views.Forms
             {
                 if (col.DefaultCellStyle.Alignment != DataGridViewContentAlignment.NotSet)
                     col.HeaderCell.Style.Alignment = col.DefaultCellStyle.Alignment;
-                col.HeaderCell.Style.Padding = new Padding(10, 4, 10, 4);
+                col.HeaderCell.Style.Padding = new Padding(5, 4, 5, 4);
             }
 
             // Apply Hover Effect
@@ -340,6 +387,8 @@ namespace WarehouseManagement.Views.Forms
             contentPanel.Controls.Add(txtQuantity);
             contentPanel.Controls.Add(lblPrice);
             contentPanel.Controls.Add(txtUnitPrice);
+             contentPanel.Controls.Add(lblDiscount);
+            contentPanel.Controls.Add(txtDiscount);
             contentPanel.Controls.Add(lblNote);
             contentPanel.Controls.Add(txtNote);
             contentPanel.Controls.Add(btnAddDetail);
@@ -373,6 +422,7 @@ namespace WarehouseManagement.Views.Forms
             // Clear inputs
             txtQuantity.Text = "";
             txtUnitPrice.Text = "";
+            txtDiscount.Text = "";
             txtNote.Text = "";
         }
 
@@ -462,12 +512,15 @@ namespace WarehouseManagement.Views.Forms
                 foreach (var detail in _details)
                 {
                     var product = _productController.GetProductById(detail.ProductID);
-                    decimal amount = detail.Quantity * detail.UnitPrice;
+                    // Calculates net amount: Qty * Price * (1 - Discount/100)
+                    decimal amount = detail.Quantity * detail.UnitPrice * (decimal)(1 - detail.DiscountRate / 100.0);
                     totalAmount += amount;
 
                     writer.WriteLine($"│ Sản phẩm: {product?.ProductName ?? "N/A",-35} │");
                     writer.WriteLine($"│   Số lượng: {detail.Quantity,-38} │");
                     writer.WriteLine($"│   Đơn giá: {detail.UnitPrice:N0} ₫{"",-31} │");
+                    if(detail.DiscountRate > 0)
+                        writer.WriteLine($"│   Chiết khấu: {detail.DiscountRate:N1}%{"",-34} │");
                     writer.WriteLine($"│   Thành tiền: {amount:N0} ₫{"",-25} │");
                     writer.WriteLine("├────────────────────────────────────────────────────┤");
                 }
@@ -558,6 +611,25 @@ namespace WarehouseManagement.Views.Forms
                 return;
             }
 
+            double discountRate = 0;
+            if (!string.IsNullOrWhiteSpace(txtDiscount.Text))
+            {
+                 if (!double.TryParse(txtDiscount.Text, out discountRate))
+                {
+                    MessageBox.Show($"{UIConstants.Icons.Warning} Chiết khấu phải là số", "Cảnh báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtDiscount.Focus();
+                    return;
+                }
+                if (discountRate < 0 || discountRate > 100)
+                {
+                    MessageBox.Show($"{UIConstants.Icons.Warning} Chiết khấu phải từ 0 đến 100%", "Cảnh báo", 
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtDiscount.Focus();
+                    return;
+                }
+            }
+
             if (cmbProduct.SelectedValue == null)
             {
                 MessageBox.Show($"{UIConstants.Icons.Warning} Vui lòng chọn sản phẩm hợp lệ từ danh sách", "Cảnh báo", 
@@ -587,20 +659,28 @@ namespace WarehouseManagement.Views.Forms
                 }
             }
 
-            _details.Add((productId, quantity, price));
+            _details.Add((productId, quantity, price, discountRate));
             RefreshDetails();
             txtQuantity.Text = "";
             txtUnitPrice.Text = "";
+            txtDiscount.Text = "";
         }
 
         private void RefreshDetails()
         {
             dgvDetails.DataSource = null;
             var displayList = new List<dynamic>();
-            foreach (var (productId, qty, price) in _details)
+            foreach (var (productId, qty, price, discount) in _details)
             {
                 var product = _productController.GetProductById(productId);
-                displayList.Add(new { ProductName = product.ProductName, Quantity = qty, UnitPrice = price });
+                decimal amount = qty * price * (decimal)(1 - discount / 100.0);
+                displayList.Add(new { 
+                    ProductName = product.ProductName, 
+                    Quantity = qty, 
+                    UnitPrice = price, 
+                    DiscountRate = discount,
+                    TotalAmount = amount
+                });
             }
             dgvDetails.DataSource = displayList;
         }

@@ -616,6 +616,8 @@ BEGIN
     DECLARE v_total DECIMAL(18,2);
     DECLARE v_discount DECIMAL(18,2);
     
+    DECLARE v_rate DECIMAL(5,2);
+    
     SET v_date = '2025-12-09 08:00:00';
 
     WHILE i < 200 DO
@@ -628,6 +630,9 @@ BEGIN
 
         SET v_supplier = NULL;
         SET v_customer = NULL;
+        
+        -- Generate random discount rate between 5% and 15%
+        SET v_rate = FLOOR(5 + RAND() * 11); -- 5 to 15
 
         IF i % 2 = 0 THEN
             SET v_type = 'Import';
@@ -641,33 +646,41 @@ BEGIN
             SET v_customer = FLOOR(1 + RAND() * 4);
         END IF;
 
+        -- Create Transaction
         INSERT INTO Transactions (Type, DateCreated, CreatedByUserID, Note, SupplierID, CustomerID, TotalAmount, Discount, FinalAmount) 
         VALUES (v_type, v_date, v_user, v_note, v_supplier, v_customer, 0, 0, 0);
         SET v_tid = LAST_INSERT_ID();
 
-        INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice)
-        SELECT v_tid, ProductID, ProductName, FLOOR(5 + RAND() * 20), Price
+        -- Create Details with DiscountRate
+        INSERT INTO TransactionDetails (TransactionID, ProductID, ProductName, Quantity, UnitPrice, DiscountRate)
+        SELECT v_tid, ProductID, ProductName, FLOOR(5 + RAND() * 20), Price, v_rate
         FROM Products 
         ORDER BY RAND() 
         LIMIT 3;
 
-        SELECT SUM(Quantity * UnitPrice) INTO v_total 
+        -- Calculate Totals
+        SELECT 
+            SUM(Quantity * UnitPrice),
+            SUM(Quantity * UnitPrice * DiscountRate / 100),
+            SUM(Quantity * UnitPrice * (1 - DiscountRate / 100))
+        INTO v_total, v_discount, v_total -- Reusing v_total for final amount temporarily or just calculating correctly
+        FROM TransactionDetails 
+        WHERE TransactionID = v_tid;
+        
+        -- Recalculate correctly into variables
+        SELECT 
+            COALESCE(SUM(Quantity * UnitPrice), 0),
+            COALESCE(SUM(Quantity * UnitPrice * DiscountRate / 100), 0)
+        INTO v_total, v_discount
         FROM TransactionDetails 
         WHERE TransactionID = v_tid;
 
-        IF (RAND() < 0.3) THEN
-            SET v_discount = v_total * (RAND() * 0.05);
-        ELSE
-            SET v_discount = 0;
-        END IF;
-
-        SET v_total = ROUND(v_total, -3);
-        SET v_discount = ROUND(v_discount, -3);
         UPDATE Transactions 
         SET TotalAmount = v_total,
             Discount = v_discount,
             FinalAmount = v_total - v_discount
         WHERE TransactionID = v_tid;
+        
         SET i = i + 1;
     END WHILE;
 END$$
