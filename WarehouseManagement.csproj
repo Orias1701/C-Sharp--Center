@@ -10,6 +10,7 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>disable</Nullable>
     <StartupObject>WarehouseManagement.Program</StartupObject>
+    <ApplicationIcon>Assets\ICO\appIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
