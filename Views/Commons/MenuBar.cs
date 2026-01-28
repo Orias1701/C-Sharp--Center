@@ -13,6 +13,7 @@ namespace WarehouseManagement.Views.Commons
     /// </summary>
     public class MenuBar : CustomPanel
     {
+        public CustomButton BtnDashboard { get; private set; }
         public CustomButton BtnCategories { get; private set; }
         public CustomButton BtnProducts { get; private set; }
         public CustomButton BtnTransactions { get; private set; }
@@ -47,6 +48,19 @@ namespace WarehouseManagement.Views.Commons
             int btnMargin = 5;
 
             // Navigation buttons (Catalog)
+            BtnDashboard = new CustomButton
+            {
+                Text = $"{UIConstants.Icons.Dashboard} Dashboard",
+                Dock = DockStyle.Top,
+                Height = btnHeight,
+                Margin = new Padding(btnMargin),
+                ButtonStyleType = ButtonStyle.Menu,
+                Font = ThemeManager.Instance.FontBold,
+                BorderRadius = UIConstants.Borders.RadiusMedium,
+                TextAlign = ContentAlignment.MiddleLeft,
+                Padding = new Padding(15, 0, 0, 0)
+            };
+
             BtnCategories = new CustomButton
             {
                 Text = $"{UIConstants.Icons.Category} Danh Mục",
@@ -161,10 +175,12 @@ namespace WarehouseManagement.Views.Commons
             Controls.Add(BtnSuppliers);
             Controls.Add(BtnProducts);
             Controls.Add(BtnCategories);
+            Controls.Add(BtnDashboard);
         }
 
         private void SetupEventHandlers()
         {
+            BtnDashboard.Click += (s, e) => RequestPanelChange(-1); // Dashboard is -1
             BtnCategories.Click += (s, e) => RequestPanelChange(0);
             BtnProducts.Click += (s, e) => RequestPanelChange(1);
             BtnTransactions.Click += (s, e) => RequestPanelChange(2);
@@ -191,6 +207,7 @@ namespace WarehouseManagement.Views.Commons
 
         public void SetSelectedPanel(int panelIndex)
         {
+            BtnDashboard.IsSelected = (panelIndex == -1);
             BtnCategories.IsSelected = (panelIndex == 0);
             BtnProducts.IsSelected = (panelIndex == 1);
             BtnTransactions.IsSelected = (panelIndex == 2);
