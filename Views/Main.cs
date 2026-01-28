@@ -37,7 +37,11 @@ namespace WarehouseManagement.Views
         private MenuBar menuBar;
         private Content content;
 
+        // Public properties for panels to access
+        public ToolsBar ToolsBar => toolsBar;
+
         // Content panels
+        private DashboardPanel dashboardPanel;
         private ProductsPanel productsPanel;
         private CategoriesPanel categoriesPanel;
         private TransactionsPanel transactionsPanel;
@@ -116,6 +120,7 @@ namespace WarehouseManagement.Views
 
             // 5. CREATE CONTENT PANELS
             CreatePanels();
+            content.Controls.Add(dashboardPanel);
             content.Controls.Add(inventoryChecksPanel);
             content.Controls.Add(customersPanel);
             content.Controls.Add(suppliersPanel);
@@ -143,11 +148,18 @@ namespace WarehouseManagement.Views
 
         private void CreatePanels()
         {
+            // Panel -1: Dashboard (default)
+            dashboardPanel = new DashboardPanel
+            {
+                Dock = DockStyle.Fill,
+                Visible = true
+            };
+
             // Panel 0: Categories
             categoriesPanel = new CategoriesPanel
             {
                 Dock = DockStyle.Fill,
-                Visible = true
+                Visible = false
             };
 
             // Panel 1: Products
@@ -236,6 +248,7 @@ namespace WarehouseManagement.Views
             toolsBar.ResetSearch();
 
             // Hide all panels
+            dashboardPanel.Visible = false;
             categoriesPanel.Visible = false;
             productsPanel.Visible = false;
             transactionsPanel.Visible = false;
@@ -249,6 +262,10 @@ namespace WarehouseManagement.Views
             // Show selected panel
             switch (panelIndex)
             {
+                case -1: // Dashboard
+                    dashboardPanel.Visible = true;
+                    dashboardPanel.BringToFront();
+                    break;
                 case 0: // Categories
                     categoriesPanel.Visible = true;
                     categoriesPanel.BringToFront();
@@ -278,6 +295,14 @@ namespace WarehouseManagement.Views
             // Update toolbar state based on panel
             SetToolbarStateForPanel(panelIndex);
         }
+
+        /// <summary>
+        /// Public method để các panel khác có thể gọi để chuyển panel
+        /// </summary>
+        public void ShowPanel(int panelIndex)
+        {
+            OnPanelChangeRequested(this, panelIndex);
+        }
         
         /// <summary>
         /// Set trạng thái toolbar (enable/disable và text) dựa trên panel đang hiển thị
@@ -286,6 +311,10 @@ namespace WarehouseManagement.Views
         {
             switch (panelIndex)
             {
+                case -1: // Dashboard
+                    toolsBar.BtnAdd.Enabled = false;
+                    toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm";
+                    break;
                 case 0: // Categories
                     toolsBar.BtnAdd.Enabled = true;
                     toolsBar.BtnAdd.Text = $"{UIConstants.Icons.Add} Thêm Danh mục";
@@ -347,7 +376,8 @@ namespace WarehouseManagement.Views
             string searchText = toolsBar.GetSearchText();
 
             Control panel = null;
-            if (categoriesPanel.Visible) panel = categoriesPanel;
+            if (dashboardPanel.Visible) return; // Dashboard không có search
+            else if (categoriesPanel.Visible) panel = categoriesPanel;
             else if (productsPanel.Visible) panel = productsPanel;
             else if (transactionsPanel.Visible) panel = transactionsPanel;
             else if (suppliersPanel.Visible) panel = suppliersPanel;
@@ -460,13 +490,25 @@ namespace WarehouseManagement.Views
                 // Staff restrictions here if needed
             }
 
-            // Set initial panel state (Categories is default)
-            int initialPanel = 0; // Categories
+            // Set initial panel state (Dashboard is default)
+            int initialPanel = -1; // Dashboard
             // Logic checked against visible state
             
             // Set menu button state và toolbar state
             menuBar.SetSelectedPanel(initialPanel);
             SetToolbarStateForPanel(initialPanel);
+
+            // Kết nối datetime picker với dashboard reload
+            if (toolsBar.DtpAnchorDate != null)
+            {
+                toolsBar.DtpAnchorDate.ValueChanged += (s, ev) =>
+                {
+                    if (dashboardPanel.Visible)
+                    {
+                        dashboardPanel.LoadDashboard();
+                    }
+                };
+            }
 
             statusUpdateTimer?.Start();
             timeUpdateTimer?.Start();

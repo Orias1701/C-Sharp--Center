@@ -20,6 +20,7 @@ namespace WarehouseManagement.Views.Commons
         public CustomButton BtnUndo { get; private set; }
         public CustomButton BtnSave { get; private set; }
         public CustomButton BtnReport { get; private set; }
+        public CustomDateTimePicker DtpAnchorDate { get; private set; }
         public Label LblChangeStatus { get; private set; }
 
         // Events
@@ -123,6 +124,18 @@ namespace WarehouseManagement.Views.Commons
             };
             currentX += 120 + spacing * 3;
 
+            // DateTimePicker (Right, before status label)
+            DtpAnchorDate = new CustomDateTimePicker
+            {
+                Left = currentX,
+                Top = topOffset,
+                Width = 160,
+                Value = DateTime.Now,
+                CustomFormat = "dd/MM/yyyy",
+                BorderRadius = UIConstants.Borders.RadiusMedium
+            };
+            currentX += 160 + spacing * 3;
+
             // Status label (Right)
             LblChangeStatus = new Label
             {
@@ -138,7 +151,7 @@ namespace WarehouseManagement.Views.Commons
             Controls.AddRange(new Control[]
             {
                 TxtSearch, BtnAdd, BtnTransaction, BtnInventory,
-                BtnUndo, BtnSave, BtnReport, LblChangeStatus
+                BtnUndo, BtnSave, BtnReport, DtpAnchorDate, LblChangeStatus
             });
         }
 

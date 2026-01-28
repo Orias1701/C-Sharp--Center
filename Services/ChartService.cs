@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using WarehouseManagement.Models;
@@ -14,10 +14,13 @@ namespace WarehouseManagement.Services
         private readonly ProductRepository _productRepo;
         private readonly TransactionRepository _transactionRepo;
 
+        private readonly InventoryCheckRepository _inventoryCheckRepo;
+
         public ChartService()
         {
             _productRepo = new ProductRepository();
             _transactionRepo = new TransactionRepository();
+            _inventoryCheckRepo = new InventoryCheckRepository();
         }
 
         /// <summary>
@@ -261,6 +264,110 @@ namespace WarehouseManagement.Services
             {
                 Console.WriteLine($"[ChartService] ERROR: {ex.Message}\n{ex.StackTrace}");
                 throw new Exception("Lỗi khi lấy dữ liệu nhập/xuất theo ngày: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Tính tổng tiền bị thất thoát dựa trên bảng kiểm kê trong khoảng thời gian
+        /// Thất thoát = Sum(Difference * Price) với Difference < 0 (thiếu hàng)
+        /// </summary>
+        public decimal GetTotalLossAmount(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var checks = _inventoryCheckRepo.GetAllChecks();
+                decimal totalLoss = 0;
+
+                foreach (var check in checks)
+                {
+                    // Chỉ tính các phiếu kiểm kê trong khoảng thời gian và đã hoàn thành
+                    if (check.CheckDate >= startDate && check.CheckDate <= endDate && check.Status == "Completed")
+                    {
+                        foreach (var detail in check.Details)
+                        {
+                            // Difference < 0 nghĩa là thiếu hàng (thất thoát)
+                            if (detail.Difference < 0)
+                            {
+                                var product = _productRepo.GetProductById(detail.ProductID);
+                                if (product != null)
+                                {
+                                    // Tính tiền thất thoát = số lượng thiếu * giá
+                                    totalLoss += Math.Abs(detail.Difference) * product.Price;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return totalLoss;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tính tổng tiền thất thoát: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Tính tổng giá trị xuất kho trong khoảng thời gian
+        /// </summary>
+        public decimal GetTotalExportValue(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var transactions = _transactionRepo.GetAllTransactions();
+                decimal totalExport = 0;
+
+                foreach (var transaction in transactions)
+                {
+                    if (transaction.Type == "Export" && 
+                        transaction.DateCreated >= startDate && 
+                        transaction.DateCreated <= endDate &&
+                        transaction.Visible)
+                    {
+                        if (transaction.Details != null && transaction.Details.Count > 0)
+                        {
+                            totalExport += transaction.Details.Sum(d => d.UnitPrice * (decimal)d.Quantity);
+                        }
+                    }
+                }
+
+                return totalExport;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tính tổng giá trị xuất: " + ex.Message);
+            }
+        }
+
+        /// <summary>
+        /// Tính tổng giá trị nhập kho trong khoảng thời gian
+        /// </summary>
+        public decimal GetTotalImportValue(DateTime startDate, DateTime endDate)
+        {
+            try
+            {
+                var transactions = _transactionRepo.GetAllTransactions();
+                decimal totalImport = 0;
+
+                foreach (var transaction in transactions)
+                {
+                    if (transaction.Type == "Import" && 
+                        transaction.DateCreated >= startDate && 
+                        transaction.DateCreated <= endDate &&
+                        transaction.Visible)
+                    {
+                        if (transaction.Details != null && transaction.Details.Count > 0)
+                        {
+                            totalImport += transaction.Details.Sum(d => d.UnitPrice * (decimal)d.Quantity);
+                        }
+                    }
+                }
+
+                return totalImport;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi khi tính tổng giá trị nhập: " + ex.Message);
             }
         }
     }
