@@ -43,7 +43,7 @@ namespace WarehouseManagement.Views.Forms
             };
             btnApprove.FlatAppearance.BorderSize = 0;
             btnApprove.BackColor = UIConstants.SemanticColors.Success; // Green
-            btnApprove.ForeColor = Color.White;
+            btnApprove.ForeColor = UIConstants.TextOnColor.Default;
 
             var btnCancelTrans = new Button
             {
@@ -56,7 +56,7 @@ namespace WarehouseManagement.Views.Forms
             };
             btnCancelTrans.FlatAppearance.BorderSize = 0;
             btnCancelTrans.BackColor = UIConstants.SemanticColors.Error; // Red
-            btnCancelTrans.ForeColor = Color.White;
+            btnCancelTrans.ForeColor = UIConstants.TextOnColor.Default;
 
             var btnExit = new Button
             {
@@ -67,9 +67,9 @@ namespace WarehouseManagement.Views.Forms
                 Cursor = Cursors.Hand,
                 Font = ThemeManager.Instance.FontRegular
             };
-            btnExit.FlatAppearance.BorderColor = Color.Gray;
-            btnExit.BackColor = Color.White;
-            btnExit.ForeColor = Color.Black;
+            btnExit.FlatAppearance.BorderColor = UIConstants.NeutralColors.Border;
+            btnExit.BackColor = UIConstants.ChartColors.Background;
+            btnExit.ForeColor = UIConstants.TextLight.Primary;
 
             // Layout using TableLayoutPanel for buttons
             var tableLayout = new TableLayoutPanel

@@ -19,7 +19,7 @@ namespace WarehouseManagement.UI.Components
         // Shadow properties
         private bool _hasShadow = false;
         private int _shadowSize = 5;
-        private Color _shadowColor = Color.FromArgb(20, 0, 0, 0); // Very subtle shadow
+        private Color _shadowColor = UIConstants.NeutralColors.Shadow;
         private int _shadowOffsetX = 0;
         private int _shadowOffsetY = 0;
 

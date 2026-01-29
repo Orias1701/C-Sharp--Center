@@ -66,9 +66,33 @@ namespace WarehouseManagement.UI
         public static class SemanticColors
         {
             public static readonly Color Success = ColorTranslator.FromHtml("#4CAF50");
+            public static readonly Color SuccessLight = ColorTranslator.FromHtml("#81C784");
             public static readonly Color Warning = ColorTranslator.FromHtml("#FF9800");
             public static readonly Color Error = ColorTranslator.FromHtml("#F44336");
+            public static readonly Color ErrorLight = ColorTranslator.FromHtml("#EF9A9A");
             public static readonly Color Info = ColorTranslator.FromHtml("#2196F3");
+        }
+
+        // Text on colored background (primary/semantic buttons, headers)
+        public static class TextOnColor
+        {
+            public static readonly Color Default = Color.White;
+        }
+
+        // Chart & grid (biểu đồ, lưới)
+        public static class ChartColors
+        {
+            public static readonly Color GridLine = Color.FromArgb(230, 230, 230);
+            public static readonly Color Background = Color.White;
+            public static readonly Color Label = Color.Gray;
+            public static readonly Color LegendBorder = Color.Gray;
+        }
+
+        // Neutral UI (border, shadow)
+        public static class NeutralColors
+        {
+            public static readonly Color Border = Color.Gray;
+            public static readonly Color Shadow = Color.FromArgb(20, 0, 0, 0);
         }
 
         // ========== FONTS ==========

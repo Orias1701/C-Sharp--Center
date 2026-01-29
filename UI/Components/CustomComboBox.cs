@@ -193,7 +193,7 @@ namespace WarehouseManagement.UI.Components
             arrow[1] = new Point(arrow[0].X + arrowSize, arrow[0].Y);
             arrow[2] = new Point(arrow[0].X + arrowSize / 2, arrow[0].Y + arrowSize / 2);
             
-            using (SolidBrush brush = new SolidBrush(Color.White))
+            using (SolidBrush brush = new SolidBrush(UIConstants.TextOnColor.Default))
             {
                 g.FillPolygon(brush, arrow);
             }

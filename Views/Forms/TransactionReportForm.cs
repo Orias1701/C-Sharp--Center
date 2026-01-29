@@ -127,7 +127,7 @@ namespace WarehouseManagement.Views.Forms
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     BackColor = UIConstants.PrimaryColor.Default,
-                    ForeColor = Color.White,
+                    ForeColor = UIConstants.TextOnColor.Default,
                     Font = ThemeManager.Instance.FontBold
                 },
                 RowHeadersVisible = false,
@@ -186,7 +186,7 @@ namespace WarehouseManagement.Views.Forms
             dgvReport.DefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Light;
             dgvReport.DefaultCellStyle.SelectionForeColor = ThemeManager.Instance.TextPrimary;
             dgvReport.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
-            dgvReport.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgvReport.ColumnHeadersDefaultCellStyle.SelectionForeColor = UIConstants.TextOnColor.Default;
             
             dataPanel.Controls.Add(dgvReport);
 
@@ -207,7 +207,7 @@ namespace WarehouseManagement.Views.Forms
                 Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium),
                 Size = new Size(200, 30),
                 Font = ThemeManager.Instance.FontBold,
-                ForeColor = Color.Green
+                ForeColor = UIConstants.SemanticColors.Success
             };
             importChartPanel.Controls.Add(lblImportTitle);
 
@@ -216,7 +216,7 @@ namespace WarehouseManagement.Views.Forms
                 Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium + 30),
                 Size = new Size(CHART_AREA_WIDTH - (UIConstants.Spacing.Padding.Medium * 2), 
                                CHART_HEIGHT - (UIConstants.Spacing.Padding.Medium * 2) - 30),
-                BackColor = Color.White,
+                BackColor = UIConstants.ChartColors.Background,
                 BorderStyle = BorderStyle.None
             };
             importChartPanel.Controls.Add(pictureBoxImport);
@@ -237,7 +237,7 @@ namespace WarehouseManagement.Views.Forms
                 Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium),
                 Size = new Size(200, 30),
                 Font = ThemeManager.Instance.FontBold,
-                ForeColor = Color.Red
+                ForeColor = UIConstants.SemanticColors.Error
             };
             exportChartPanel.Controls.Add(lblExportTitle);
 
@@ -246,7 +246,7 @@ namespace WarehouseManagement.Views.Forms
                 Location = new Point(UIConstants.Spacing.Padding.Medium, UIConstants.Spacing.Padding.Medium + 30),
                 Size = new Size(CHART_AREA_WIDTH - (UIConstants.Spacing.Padding.Medium * 2), 
                                CHART_HEIGHT - (UIConstants.Spacing.Padding.Medium * 2) - 30),
-                BackColor = Color.White,
+                BackColor = UIConstants.ChartColors.Background,
                 BorderStyle = BorderStyle.None
             };
             exportChartPanel.Controls.Add(pictureBoxExport);
@@ -399,7 +399,7 @@ namespace WarehouseManagement.Views.Forms
                     var chartTitle = worksheet.Cell(chartRow, chartCol);
                     chartTitle.Value = "BIỂU ĐỒ NHẬP KHO";
                     chartTitle.Style.Font.Bold = true;
-                    chartTitle.Style.Font.FontColor = ClosedXML.Excel.XLColor.Green;
+                    chartTitle.Style.Font.FontColor = ClosedXML.Excel.XLColor.FromColor(UIConstants.SemanticColors.Success);
                     
                     using (var ms = new System.IO.MemoryStream())
                     {
@@ -428,7 +428,7 @@ namespace WarehouseManagement.Views.Forms
                     var chartTitle = worksheet.Cell(chartRow, chartCol);
                     chartTitle.Value = "BIỂU ĐỒ XUẤT KHO";
                     chartTitle.Style.Font.Bold = true;
-                    chartTitle.Style.Font.FontColor = ClosedXML.Excel.XLColor.Red;
+                    chartTitle.Style.Font.FontColor = ClosedXML.Excel.XLColor.FromColor(UIConstants.SemanticColors.Error);
 
                     using (var ms = new System.IO.MemoryStream())
                     {
@@ -525,7 +525,7 @@ namespace WarehouseManagement.Views.Forms
             cell.Padding = 5;
             if (isHeader)
             {
-                cell.BackgroundColor = iTextSharp.text.BaseColor.LIGHT_GRAY;
+                cell.BackgroundColor = new iTextSharp.text.BaseColor(UIConstants.BackgroundLight.Light.R, UIConstants.BackgroundLight.Light.G, UIConstants.BackgroundLight.Light.B);
             }
             table.AddCell(cell);
         }
@@ -598,7 +598,7 @@ namespace WarehouseManagement.Views.Forms
 
                 Bitmap bitmap = new Bitmap(pictureBoxImport.Width, pictureBoxImport.Height);
                 Graphics g = Graphics.FromImage(bitmap);
-                g.Clear(Color.White);
+                g.Clear(UIConstants.ChartColors.Background);
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
@@ -616,7 +616,7 @@ namespace WarehouseManagement.Views.Forms
                 int spacing = 3;
                 int barWidth = Math.Max(8, (chartWidth - (spacing * (totalBars - 1))) / totalBars);
 
-                Pen gridPen = new Pen(Color.FromArgb(230, 230, 230), 1);
+                Pen gridPen = new Pen(UIConstants.ChartColors.GridLine, 1);
                 Font labelFont = new Font("Segoe UI", 8);
                 int gridLines = 5;
                 for (int i = 0; i <= gridLines; i++)
@@ -627,12 +627,12 @@ namespace WarehouseManagement.Views.Forms
                     decimal value = maxImport * i / gridLines;
                     string label = value >= 1000000 ? $"{value / 1000000:F1}M" : value >= 1000 ? $"{value / 1000:F0}K" : $"{value:F0}";
                     SizeF labelSize = g.MeasureString(label, labelFont);
-                    g.DrawString(label, labelFont, Brushes.Gray, leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
+                    g.DrawString(label, labelFont, new SolidBrush(UIConstants.ChartColors.Label), leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
                 }
 
                 int xPos = leftMargin;
-                Color startColor = Color.FromArgb(76, 175, 80);
-                Color endColor = Color.FromArgb(129, 199, 132);
+                Color startColor = UIConstants.SemanticColors.Success;
+                Color endColor = UIConstants.SemanticColors.SuccessLight;
 
                 for (int i = 0; i < days.Count; i++)
                 {
@@ -665,7 +665,7 @@ namespace WarehouseManagement.Views.Forms
                     {
                         string dayLabel = days[i].Substring(5);
                         SizeF daySize = g.MeasureString(dayLabel, labelFont);
-                        g.DrawString(dayLabel, labelFont, Brushes.Gray, xPos + (barWidth - daySize.Width) / 2, pictureBoxImport.Height - bottomMargin + 5);
+                        g.DrawString(dayLabel, labelFont, new SolidBrush(UIConstants.ChartColors.Label), xPos + (barWidth - daySize.Width) / 2, pictureBoxImport.Height - bottomMargin + 5);
                     }
 
                     xPos += barWidth + spacing;
@@ -689,7 +689,7 @@ namespace WarehouseManagement.Views.Forms
 
                 Bitmap bitmap = new Bitmap(pictureBoxExport.Width, pictureBoxExport.Height);
                 Graphics g = Graphics.FromImage(bitmap);
-                g.Clear(Color.White);
+                g.Clear(UIConstants.ChartColors.Background);
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
@@ -707,7 +707,7 @@ namespace WarehouseManagement.Views.Forms
                 int spacing = 3;
                 int barWidth = Math.Max(8, (chartWidth - (spacing * (totalBars - 1))) / totalBars);
 
-                Pen gridPen = new Pen(Color.FromArgb(230, 230, 230), 1);
+                Pen gridPen = new Pen(UIConstants.ChartColors.GridLine, 1);
                 Font labelFont = new Font("Segoe UI", 8);
                 int gridLines = 5;
                 for (int i = 0; i <= gridLines; i++)
@@ -718,12 +718,12 @@ namespace WarehouseManagement.Views.Forms
                     decimal value = maxExport * i / gridLines;
                     string label = value >= 1000000 ? $"{value / 1000000:F1}M" : value >= 1000 ? $"{value / 1000:F0}K" : $"{value:F0}";
                     SizeF labelSize = g.MeasureString(label, labelFont);
-                    g.DrawString(label, labelFont, Brushes.Gray, leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
+                    g.DrawString(label, labelFont, new SolidBrush(UIConstants.ChartColors.Label), leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
                 }
 
                 int xPos = leftMargin;
-                Color startColor = Color.FromArgb(244, 67, 54);
-                Color endColor = Color.FromArgb(239, 154, 154);
+                Color startColor = UIConstants.SemanticColors.Error;
+                Color endColor = UIConstants.SemanticColors.ErrorLight;
 
                 for (int i = 0; i < days.Count; i++)
                 {
@@ -756,7 +756,7 @@ namespace WarehouseManagement.Views.Forms
                     {
                         string dayLabel = days[i].Substring(5);
                         SizeF daySize = g.MeasureString(dayLabel, labelFont);
-                        g.DrawString(dayLabel, labelFont, Brushes.Gray, xPos + (barWidth - daySize.Width) / 2, pictureBoxExport.Height - bottomMargin + 5);
+                        g.DrawString(dayLabel, labelFont, new SolidBrush(UIConstants.ChartColors.Label), xPos + (barWidth - daySize.Width) / 2, pictureBoxExport.Height - bottomMargin + 5);
                     }
 
                     xPos += barWidth + spacing;

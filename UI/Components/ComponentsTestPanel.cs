@@ -225,7 +225,7 @@ namespace WarehouseManagement.UI.Components
         private Color GetContrastColor(Color bgColor)
         {
             int brightness = (bgColor.R + bgColor.G + bgColor.B) / 3;
-            return brightness > 128 ? Color.Black : Color.White;
+            return brightness > 128 ? UIConstants.TextLight.Primary : UIConstants.TextOnColor.Default;
         }
 
         // ========== FONTS SECTION ==========

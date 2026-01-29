@@ -147,7 +147,7 @@ namespace WarehouseManagement.UI.Components
             // Selected or hover state - use Light color for hover, White for selected
             if (_isSelected)
             {
-                return Color.White;
+                return UIConstants.TextOnColor.Default;
             }
 
             if (_isHovered)

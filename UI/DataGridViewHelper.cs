@@ -41,7 +41,7 @@ namespace WarehouseManagement.Helpers
             
             // Header Selection Colors (keep same as normal header)
             dgv.ColumnHeadersDefaultCellStyle.SelectionBackColor = UIConstants.PrimaryColor.Default;
-            dgv.ColumnHeadersDefaultCellStyle.SelectionForeColor = Color.White;
+            dgv.ColumnHeadersDefaultCellStyle.SelectionForeColor = UIConstants.TextOnColor.Default;
         }
     }
 }
