@@ -1,6 +1,7 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using WarehouseManagement.Helpers;
 using WarehouseManagement.UI;
 using WarehouseManagement.UI.Components;
 
@@ -31,10 +32,10 @@ namespace WarehouseManagement.Views.Commons
             Padding = new Padding(UIConstants.Spacing.Padding.Small);
             Height = 45;
 
-            // Version label (Left)
+            // Version label (Left) - lấy từ assembly, trùng với Version trong .csproj
             lblVersion = new Label
             {
-                Text = "v1.0.0",
+                Text = AppVersion.Display,
                 Dock = DockStyle.Left,
                 Width = 100,
                 TextAlign = ContentAlignment.MiddleLeft,
