@@ -9,17 +9,17 @@ namespace WarehouseManagement.UI
     {
         // ========== COLORS ==========
         
-        // Primary Color - FF847D và các sắc độ
+        // Primary Color - 5A9F68 (xanh lá) và các sắc độ
         public static class PrimaryColor
         {
-            public static readonly Color Default = ColorTranslator.FromHtml("#FF847D");
-            public static readonly Color Active = ColorTranslator.FromHtml("#FF6B62");   // Đậm hơn khi active
-            public static readonly Color Hover = ColorTranslator.FromHtml("#FF9D97");    // Sáng hơn khi hover
-            public static readonly Color Pressed = ColorTranslator.FromHtml("#E6776F");  // Tối hơn khi pressed
-            public static readonly Color Light = ColorTranslator.FromHtml("#FFE5E3");    // Màu nhẹ cho selection
-            public static readonly Color HoverLight = ColorTranslator.FromHtml("#FFF5F5"); // Rất nhạt cho hover hàng
-            public static readonly Color Disabled = ColorTranslator.FromHtml("#FFBFBA"); // Mờ đi khi disabled
-            public static readonly Color Dark = ColorTranslator.FromHtml("#CC6964");     // Rất tối
+            public static readonly Color Default = ColorTranslator.FromHtml("#5A9F68");
+            public static readonly Color Active = ColorTranslator.FromHtml("#4A8F58");   // Đậm hơn khi active
+            public static readonly Color Hover = ColorTranslator.FromHtml("#6EAD7A");   // Sáng hơn khi hover
+            public static readonly Color Pressed = ColorTranslator.FromHtml("#4A8A55"); // Tối hơn khi pressed
+            public static readonly Color Light = ColorTranslator.FromHtml("#E0F2E4");   // Màu nhẹ cho selection
+            public static readonly Color HoverLight = ColorTranslator.FromHtml("#F1F8F2"); // Rất nhạt cho hover hàng
+            public static readonly Color Disabled = ColorTranslator.FromHtml("#A8D4B0"); // Mờ đi khi disabled
+            public static readonly Color Dark = ColorTranslator.FromHtml("#3D6B47");     // Rất tối
         }
 
         // Background Colors - Light Theme

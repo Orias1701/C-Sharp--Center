@@ -6,7 +6,11 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>WarehouseManagement</AssemblyName>
     <RootNamespace>WarehouseManagement</RootNamespace>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <FileVersion>1.0.1.0</FileVersion>
+    <InformationalVersion>1.0.1</InformationalVersion>
     <LangVersion>8.0</LangVersion>
     <Nullable>disable</Nullable>
     <StartupObject>WarehouseManagement.Program</StartupObject>
