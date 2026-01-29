@@ -74,7 +74,7 @@ namespace WarehouseManagement.Views.Panels
             pictureBoxImport = new PictureBox
             {
                 Dock = DockStyle.Fill,
-                BackColor = UIConstants.ChartColors.Background,
+                BackColor = ThemeManager.Instance.ChartBackground,
                 BorderStyle = BorderStyle.None
             };
             importChartPanel.Controls.Add(pictureBoxImport);
@@ -94,7 +94,7 @@ namespace WarehouseManagement.Views.Panels
             pictureBoxPie = new PictureBox
             {
                 Dock = DockStyle.Fill,
-                BackColor = UIConstants.ChartColors.Background,
+                BackColor = ThemeManager.Instance.ChartBackground,
                 BorderStyle = BorderStyle.None
             };
             pieChartPanel.Controls.Add(pictureBoxPie);
@@ -157,7 +157,7 @@ namespace WarehouseManagement.Views.Panels
             pictureBoxExport = new PictureBox
             {
                 Dock = DockStyle.Fill,
-                BackColor = UIConstants.ChartColors.Background,
+                BackColor = ThemeManager.Instance.ChartBackground,
                 BorderStyle = BorderStyle.None
             };
             exportChartPanel.Controls.Add(pictureBoxExport);
@@ -244,6 +244,10 @@ namespace WarehouseManagement.Views.Panels
         private void OnThemeChanged(object sender, EventArgs e)
         {
             ApplyTheme();
+            if (pictureBoxImport != null) pictureBoxImport.BackColor = ThemeManager.Instance.ChartBackground;
+            if (pictureBoxExport != null) pictureBoxExport.BackColor = ThemeManager.Instance.ChartBackground;
+            if (pictureBoxPie != null) pictureBoxPie.BackColor = ThemeManager.Instance.ChartBackground;
+            LoadDashboard();
         }
 
         private void ApplyTheme()
@@ -407,7 +411,7 @@ namespace WarehouseManagement.Views.Panels
 
                 Bitmap bitmap = new Bitmap(pictureBoxImport.Width, pictureBoxImport.Height);
                 Graphics g = Graphics.FromImage(bitmap);
-                g.Clear(UIConstants.ChartColors.Background);
+                g.Clear(ThemeManager.Instance.ChartBackground);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
@@ -425,7 +429,7 @@ namespace WarehouseManagement.Views.Panels
                 int spacing = 3;
                 int barWidth = Math.Max(8, (chartWidth - (spacing * (totalBars - 1))) / totalBars);
 
-                Pen gridPen = new Pen(UIConstants.ChartColors.GridLine, 1);
+                Pen gridPen = new Pen(ThemeManager.Instance.ChartGridLine, 1);
                 Font labelFont = new Font("Segoe UI", 8);
                 int gridLines = 5;
                 for (int i = 0; i <= gridLines; i++)
@@ -436,7 +440,7 @@ namespace WarehouseManagement.Views.Panels
                     decimal value = maxImport * i / gridLines;
                     string label = value >= 1000000 ? $"{value / 1000000:F1}M" : value >= 1000 ? $"{value / 1000:F0}K" : $"{value:F0}";
                     SizeF labelSize = g.MeasureString(label, labelFont);
-                    g.DrawString(label, labelFont, new SolidBrush(UIConstants.ChartColors.Label), leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
+                    g.DrawString(label, labelFont, new SolidBrush(ThemeManager.Instance.ChartLabel), leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
                 }
 
                 int xPos = leftMargin;
@@ -474,7 +478,7 @@ namespace WarehouseManagement.Views.Panels
                     {
                         string dayLabel = days[i].Substring(5);
                         SizeF daySize = g.MeasureString(dayLabel, labelFont);
-                        g.DrawString(dayLabel, labelFont, new SolidBrush(UIConstants.ChartColors.Label), xPos + (barWidth - daySize.Width) / 2, pictureBoxImport.Height - bottomMargin + 5);
+                        g.DrawString(dayLabel, labelFont, new SolidBrush(ThemeManager.Instance.ChartLabel), xPos + (barWidth - daySize.Width) / 2, pictureBoxImport.Height - bottomMargin + 5);
                     }
 
                     xPos += barWidth + spacing;
@@ -498,7 +502,7 @@ namespace WarehouseManagement.Views.Panels
 
                 Bitmap bitmap = new Bitmap(pictureBoxExport.Width, pictureBoxExport.Height);
                 Graphics g = Graphics.FromImage(bitmap);
-                g.Clear(UIConstants.ChartColors.Background);
+                g.Clear(ThemeManager.Instance.ChartBackground);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
@@ -516,7 +520,7 @@ namespace WarehouseManagement.Views.Panels
                 int spacing = 3;
                 int barWidth = Math.Max(8, (chartWidth - (spacing * (totalBars - 1))) / totalBars);
 
-                Pen gridPen = new Pen(UIConstants.ChartColors.GridLine, 1);
+                Pen gridPen = new Pen(ThemeManager.Instance.ChartGridLine, 1);
                 Font labelFont = new Font("Segoe UI", 8);
                 int gridLines = 5;
                 for (int i = 0; i <= gridLines; i++)
@@ -527,7 +531,7 @@ namespace WarehouseManagement.Views.Panels
                     decimal value = maxExport * i / gridLines;
                     string label = value >= 1000000 ? $"{value / 1000000:F1}M" : value >= 1000 ? $"{value / 1000:F0}K" : $"{value:F0}";
                     SizeF labelSize = g.MeasureString(label, labelFont);
-                    g.DrawString(label, labelFont, new SolidBrush(UIConstants.ChartColors.Label), leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
+                    g.DrawString(label, labelFont, new SolidBrush(ThemeManager.Instance.ChartLabel), leftMargin - labelSize.Width - 5, y - labelSize.Height / 2);
                 }
 
                 int xPos = leftMargin;
@@ -565,7 +569,7 @@ namespace WarehouseManagement.Views.Panels
                     {
                         string dayLabel = days[i].Substring(5);
                         SizeF daySize = g.MeasureString(dayLabel, labelFont);
-                        g.DrawString(dayLabel, labelFont, new SolidBrush(UIConstants.ChartColors.Label), xPos + (barWidth - daySize.Width) / 2, pictureBoxExport.Height - bottomMargin + 5);
+                        g.DrawString(dayLabel, labelFont, new SolidBrush(ThemeManager.Instance.ChartLabel), xPos + (barWidth - daySize.Width) / 2, pictureBoxExport.Height - bottomMargin + 5);
                     }
 
                     xPos += barWidth + spacing;
@@ -589,7 +593,7 @@ namespace WarehouseManagement.Views.Panels
 
                 Bitmap bitmap = new Bitmap(pictureBoxPie.Width, pictureBoxPie.Height);
                 Graphics g = Graphics.FromImage(bitmap);
-                g.Clear(UIConstants.ChartColors.Background);
+                g.Clear(ThemeManager.Instance.ChartBackground);
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
 
@@ -600,7 +604,7 @@ namespace WarehouseManagement.Views.Panels
                     Font font = new Font("Segoe UI", 12);
                     string text = "Không có dữ liệu";
                     SizeF textSize = g.MeasureString(text, font);
-                    g.DrawString(text, font, new SolidBrush(UIConstants.ChartColors.Label), 
+                    g.DrawString(text, font, new SolidBrush(ThemeManager.Instance.ChartLabel), 
                         (pictureBoxPie.Width - textSize.Width) / 2, 
                         (pictureBoxPie.Height - textSize.Height) / 2);
                     pictureBoxPie.Image = bitmap;
@@ -619,7 +623,7 @@ namespace WarehouseManagement.Views.Panels
                 Color colorLoss = UIConstants.SemanticColors.Error;
                 Color colorExport = UIConstants.SemanticColors.Info;
                 Color colorImport = UIConstants.SemanticColors.Success;
-                Color backgroundColor = UIConstants.ChartColors.Background;
+                Color backgroundColor = ThemeManager.Instance.ChartBackground;
 
                 // Draw pie slices (vẽ như bình thường)
                 if (totalLoss > 0)
@@ -669,11 +673,11 @@ namespace WarehouseManagement.Views.Panels
         {
             // Color box
             g.FillRectangle(new SolidBrush(color), x, y, 15, 15);
-            g.DrawRectangle(new Pen(UIConstants.ChartColors.LegendBorder, 1), x, y, 15, 15);
+            g.DrawRectangle(new Pen(ThemeManager.Instance.ChartLegendBorder, 1), x, y, 15, 15);
             
             // Label and value
             string text = $"{label}: {value:N0}";
-            g.DrawString(text, font, new SolidBrush(UIConstants.TextLight.Primary), x + 20, y);
+            g.DrawString(text, font, new SolidBrush(ThemeManager.Instance.TextPrimary), x + 20, y);
         }
 
         protected override void Dispose(bool disposing)
