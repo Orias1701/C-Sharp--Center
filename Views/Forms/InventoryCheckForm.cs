@@ -307,7 +307,7 @@ namespace WarehouseManagement.Views.Forms
                     Padding = new Padding(10, 4, 10, 4)
                 }
             };
-            colActual.DefaultCellStyle.BackColor = _isNew ? UIConstants.ChartColors.Background : UIConstants.BackgroundLight.Light;
+            colActual.DefaultCellStyle.BackColor = _isNew ? ThemeManager.Instance.BackgroundDefault : ThemeManager.Instance.BackgroundLight;
             colActual.ReadOnly = !_isNew; 
             dgvDetails.Columns.Add(colActual);
 

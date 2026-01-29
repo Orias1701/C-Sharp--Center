@@ -68,8 +68,8 @@ namespace WarehouseManagement.Views.Forms
                 Font = ThemeManager.Instance.FontRegular
             };
             btnExit.FlatAppearance.BorderColor = UIConstants.NeutralColors.Border;
-            btnExit.BackColor = UIConstants.ChartColors.Background;
-            btnExit.ForeColor = UIConstants.TextLight.Primary;
+            btnExit.BackColor = ThemeManager.Instance.BackgroundDefault;
+            btnExit.ForeColor = ThemeManager.Instance.TextPrimary;
 
             // Layout using TableLayoutPanel for buttons
             var tableLayout = new TableLayoutPanel

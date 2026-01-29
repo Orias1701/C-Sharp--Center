@@ -14,7 +14,7 @@ namespace WarehouseManagement.Views.Forms
         private CheckBox chkShowHidden;
         private CheckBox chkDarkMode;
         private Button btnViewComponents;
-        private Button btnSave, btnCancel;
+        private Button btnExit;
 
         // Static property to share settings across the app
         public static bool ShowHiddenItems { get; set; } = false;
@@ -77,6 +77,7 @@ namespace WarehouseManagement.Views.Forms
                 Font = ThemeManager.Instance.FontRegular,
                 ForeColor = ThemeManager.Instance.TextPrimary
             };
+            chkShowHidden.CheckedChanged += ChkShowHidden_CheckedChanged;
             mainPanel.Controls.Add(chkShowHidden);
             currentY += 40;
 
@@ -126,33 +127,19 @@ namespace WarehouseManagement.Views.Forms
             mainPanel.Controls.Add(btnViewComponents);
             currentY += 60;
 
-            // === ACTION BUTTONS - Centered ===
-            int totalBtnW = 100 + 10 + 100;
-            int startX = LEFT_MARGIN + (INPUT_WIDTH - totalBtnW) / 2;
-
-            btnSave = new Button
+            // === NÚT THOÁT ===
+            btnExit = new Button
             {
-                Text = "💾 Lưu",
-                Left = startX,
-                Top = currentY,
-                Width = 100,
-                Height = 35
-            };
-            btnSave.Click += BtnSave_Click;
-
-            btnCancel = new Button
-            {
-                Text = "❌ Hủy",
-                Left = startX + 110,
+                Text = "Thoát",
+                Left = LEFT_MARGIN + (INPUT_WIDTH - 100) / 2,
                 Top = currentY,
                 Width = 100,
                 Height = 35,
                 CausesValidation = false
             };
-            btnCancel.Click += BtnCancel_Click;
+            btnExit.Click += BtnExit_Click;
 
-            mainPanel.Controls.Add(btnSave);
-            mainPanel.Controls.Add(btnCancel);
+            mainPanel.Controls.Add(btnExit);
 
             Controls.Add(mainPanel);
 
@@ -173,18 +160,37 @@ namespace WarehouseManagement.Views.Forms
 
         private void ApplyTheme()
         {
-            BackColor = ThemeManager.Instance.BackgroundDefault;
-            ForeColor = ThemeManager.Instance.TextPrimary;
-            
-            // Update icon in dark mode checkbox
-            chkDarkMode.Text = ThemeManager.Instance.IsDarkMode 
-                ? $"{UIConstants.Icons.Sun} Chế độ sáng (Light Mode)" 
-                : $"{UIConstants.Icons.Moon} Chế độ tối (Dark Mode)";
+            ThemeManager.Instance.ApplyThemeToForm(this);
+            if (chkDarkMode != null)
+            {
+                chkDarkMode.Text = ThemeManager.Instance.IsDarkMode
+                    ? $"{UIConstants.Icons.Sun} Chế độ sáng (Light Mode)"
+                    : $"{UIConstants.Icons.Moon} Chế độ tối (Dark Mode)";
+                chkDarkMode.ForeColor = ThemeManager.Instance.TextPrimary;
+            }
+            if (chkShowHidden != null)
+                chkShowHidden.ForeColor = ThemeManager.Instance.TextPrimary;
+            if (btnViewComponents != null)
+            {
+                btnViewComponents.BackColor = ThemeManager.Instance.BackgroundDefault;
+                btnViewComponents.ForeColor = ThemeManager.Instance.TextPrimary;
+            }
+            if (btnExit != null)
+            {
+                btnExit.BackColor = ThemeManager.Instance.BackgroundDefault;
+                btnExit.ForeColor = ThemeManager.Instance.TextPrimary;
+            }
         }
 
         private void ChkDarkMode_CheckedChanged(object sender, EventArgs e)
         {
             ThemeManager.Instance.IsDarkMode = chkDarkMode.Checked;
+        }
+
+        private void ChkShowHidden_CheckedChanged(object sender, EventArgs e)
+        {
+            ShowHiddenItems = chkShowHidden.Checked;
+            SettingsChanged?.Invoke(this, EventArgs.Empty);
         }
 
         private void BtnViewComponents_Click(object sender, EventArgs e)
@@ -208,25 +214,9 @@ namespace WarehouseManagement.Views.Forms
             componentsForm.ShowDialog();
         }
 
-        private void BtnSave_Click(object sender, EventArgs e)
+        private void BtnExit_Click(object sender, EventArgs e)
         {
-            // Update static property
-            ShowHiddenItems = chkShowHidden.Checked;
-
-            // Notify all listeners
-            SettingsChanged?.Invoke(this, EventArgs.Empty);
-
-            MessageBox.Show("Cài đặt đã được lưu.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
             DialogResult = DialogResult.OK;
-            Close();
-        }
-
-        private void BtnCancel_Click(object sender, EventArgs e)
-        {
-            // Revert dark mode if changed
-            chkDarkMode.Checked = ThemeManager.Instance.IsDarkMode;
-            
-            DialogResult = DialogResult.Cancel;
             Close();
         }
 

@@ -65,6 +65,18 @@ namespace WarehouseManagement.Views
 
             // Apply theme
             ThemeManager.Instance.ApplyThemeToForm(this);
+            ThemeManager.Instance.ThemeChanged += OnThemeChanged;
+        }
+
+        private void OnThemeChanged(object sender, EventArgs e)
+        {
+            ThemeManager.Instance.ApplyThemeToForm(this);
+            mainZone.BackColor = ThemeManager.Instance.BackgroundDefault;
+            appName.BackColor = ThemeManager.Instance.BackgroundLight;
+            toolsBar.BackColor = ThemeManager.Instance.BackgroundLight;
+            menuBar.BackColor = ThemeManager.Instance.BackgroundLight;
+            footer.BackColor = ThemeManager.Instance.BackgroundLight;
+            content.BackColor = ThemeManager.Instance.BackgroundDefault;
         }
 
         private void InitializeComponent()
@@ -519,6 +531,7 @@ namespace WarehouseManagement.Views
 
         private void Main_FormClosing(object sender, FormClosingEventArgs e)
         {
+            ThemeManager.Instance.ThemeChanged -= OnThemeChanged;
             try
             {
                 statusUpdateTimer?.Stop();

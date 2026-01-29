@@ -121,6 +121,23 @@ namespace WarehouseManagement.UI
         public Color PrimaryLight => UIConstants.PrimaryColor.Light;
         public Color PrimaryDark => UIConstants.PrimaryColor.Dark;
 
+        // Chart colors (nền biểu đồ, lưới, chữ - theo theme)
+        public Color ChartBackground => _isDarkMode
+            ? UIConstants.BackgroundDark.Lighter
+            : UIConstants.ChartColors.Background;
+
+        public Color ChartGridLine => _isDarkMode
+            ? Color.FromArgb(60, 60, 60)
+            : UIConstants.ChartColors.GridLine;
+
+        public Color ChartLabel => _isDarkMode
+            ? UIConstants.TextDark.Secondary
+            : UIConstants.ChartColors.Label;
+
+        public Color ChartLegendBorder => _isDarkMode
+            ? UIConstants.TextDark.Hint
+            : UIConstants.ChartColors.LegendBorder;
+
         // ========== APPLY THEME TO CONTROL ==========
 
         /// <summary>
