@@ -251,7 +251,7 @@ namespace WarehouseManagement.Views.Forms
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     BackColor = UIConstants.PrimaryColor.Default,
-                    ForeColor = Color.White,
+                    ForeColor = UIConstants.TextOnColor.Default,
                     Font = ThemeManager.Instance.FontBold
                 },
                 RowHeadersVisible = false,
@@ -307,7 +307,7 @@ namespace WarehouseManagement.Views.Forms
                     Padding = new Padding(10, 4, 10, 4)
                 }
             };
-            colActual.DefaultCellStyle.BackColor = _isNew ? Color.White : Color.WhiteSmoke;
+            colActual.DefaultCellStyle.BackColor = _isNew ? UIConstants.ChartColors.Background : UIConstants.BackgroundLight.Light;
             colActual.ReadOnly = !_isNew; 
             dgvDetails.Columns.Add(colActual);
 

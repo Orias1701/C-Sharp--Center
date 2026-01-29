@@ -47,7 +47,7 @@ namespace WarehouseManagement.Views.Panels
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     BackColor = UIConstants.PrimaryColor.Default,
-                    ForeColor = Color.White,
+                    ForeColor = UIConstants.TextOnColor.Default,
                     Font = ThemeManager.Instance.FontBold
                 },
                 RowHeadersVisible = false,
@@ -183,7 +183,7 @@ namespace WarehouseManagement.Views.Panels
             Helpers.DataGridViewHelper.ApplySelectionEffect(dgvCategories);
 
             dgvCategories.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
-            dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvCategories.ColumnHeadersDefaultCellStyle.ForeColor = UIConstants.TextOnColor.Default;
         }
 
         public void LoadData()

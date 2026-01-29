@@ -50,7 +50,7 @@ namespace WarehouseManagement.Views.Panels
                 ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle 
                 { 
                     BackColor = UIConstants.PrimaryColor.Default,
-                    ForeColor = Color.White,
+                    ForeColor = UIConstants.TextOnColor.Default,
                     Font = ThemeManager.Instance.FontBold
                 },
                 RowHeadersVisible = false,
@@ -237,7 +237,7 @@ namespace WarehouseManagement.Views.Panels
             Helpers.DataGridViewHelper.ApplySelectionEffect(dgvProducts);
 
             dgvProducts.ColumnHeadersDefaultCellStyle.BackColor = UIConstants.PrimaryColor.Default;
-            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dgvProducts.ColumnHeadersDefaultCellStyle.ForeColor = UIConstants.TextOnColor.Default;
         }
 
         public void LoadData()
@@ -300,7 +300,7 @@ namespace WarehouseManagement.Views.Panels
             if (product.IsLowStock)
             {
                 e.CellStyle.BackColor = UIConstants.SemanticColors.Error;
-                e.CellStyle.ForeColor = Color.White;
+                e.CellStyle.ForeColor = UIConstants.TextOnColor.Default;
                 e.CellStyle.Font = ThemeManager.Instance.FontBold;
             }
             else

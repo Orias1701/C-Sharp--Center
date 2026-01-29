@@ -124,7 +124,7 @@ namespace WarehouseManagement.UI.Components
                 case ButtonStyle.Filled:
                     // Nền PrimaryColor, viền BG (hoặc viền cùng màu)
                     backColor = ThemeManager.Instance.PrimaryDefault;
-                    foreColor = Color.White;
+                    foreColor = UIConstants.TextOnColor.Default;
                     borderColor = ThemeManager.Instance.BackgroundDefault;
                     hasBorder = true;
                     break;
@@ -140,7 +140,7 @@ namespace WarehouseManagement.UI.Components
                 case ButtonStyle.FilledNoOutline:
                     // Nền PrimaryColor, không có viền
                     backColor = ThemeManager.Instance.PrimaryDefault;
-                    foreColor = Color.White;
+                    foreColor = UIConstants.TextOnColor.Default;
                     borderColor = Color.Transparent;
                     hasBorder = false;
                     break;
@@ -155,7 +155,7 @@ namespace WarehouseManagement.UI.Components
                     
                 default:
                     backColor = ThemeManager.Instance.PrimaryDefault;
-                    foreColor = Color.White;
+                    foreColor = UIConstants.TextOnColor.Default;
                     borderColor = ThemeManager.Instance.PrimaryDefault;
                     hasBorder = true;
                     break;
@@ -350,7 +350,7 @@ namespace WarehouseManagement.UI.Components
             if (_buttonStyle == ButtonStyle.Menu)
             {
                 if (_isHovered || _isPressed || _isSelected)
-                    return Color.White;
+                    return UIConstants.TextOnColor.Default;
                 return ThemeManager.Instance.PrimaryDefault;
             }
 
@@ -362,9 +362,9 @@ namespace WarehouseManagement.UI.Components
                     return ThemeManager.Instance.PrimaryDefault;
                 case ButtonStyle.Filled:
                 case ButtonStyle.FilledNoOutline:
-                    return Color.White;
+                    return UIConstants.TextOnColor.Default;
                 default:
-                    return Color.White;
+                    return UIConstants.TextOnColor.Default;
             }
         }
 

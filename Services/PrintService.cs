@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows.Forms;
 using WarehouseManagement.Models;
 using WarehouseManagement.Controllers;
+using WarehouseManagement.UI;
 using System.Drawing.Drawing2D;
 
 namespace WarehouseManagement.Services
@@ -28,8 +29,8 @@ namespace WarehouseManagement.Services
         private Font _arialContentBoldFont = new Font("Arial", 10, FontStyle.Bold);
 
         private Brush _brush = Brushes.Black;
-        private Pen _pen = new Pen(Color.Black, 1);
-        private Pen _gridPen = new Pen(Color.Black, 1);
+        private Pen _pen = new Pen(UIConstants.TextLight.Primary, 1);
+        private Pen _gridPen = new Pen(UIConstants.TextLight.Primary, 1);
 
         // Transaction Data
         private Transaction _transactionToPrint;

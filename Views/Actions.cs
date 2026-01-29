@@ -2,6 +2,7 @@ using System;
 using System.Windows.Forms;
 using WarehouseManagement.Services;
 using WarehouseManagement.Controllers;
+using WarehouseManagement.UI;
 
 namespace WarehouseManagement.Views
 {
@@ -112,13 +113,13 @@ namespace WarehouseManagement.Views
             {
                 string changeText = actionCount == 1 ? "1 change" : $"{actionCount} changes";
                 _lblChangeStatus.Text = changeText;
-                _lblChangeStatus.ForeColor = System.Drawing.Color.Orange;
+                _lblChangeStatus.ForeColor = UIConstants.SemanticColors.Warning;
                 _btnSave.Enabled = true;
             }
             else
             {
                 _lblChangeStatus.Text = "";
-                _lblChangeStatus.ForeColor = System.Drawing.Color.Gray;
+                _lblChangeStatus.ForeColor = UIConstants.TextLight.Hint;
                 _btnSave.Enabled = false;
             }
         }
