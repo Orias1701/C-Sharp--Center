@@ -307,7 +307,7 @@ namespace WarehouseManagement.Views.Forms
                     Padding = new Padding(10, 4, 10, 4)
                 }
             };
-            colActual.DefaultCellStyle.BackColor = _isNew ? ThemeManager.Instance.BackgroundDefault : ThemeManager.Instance.BackgroundLight;
+            colActual.DefaultCellStyle.BackColor = ThemeManager.Instance.BackgroundDefault;
             colActual.ReadOnly = !_isNew; 
             dgvDetails.Columns.Add(colActual);
 
@@ -468,7 +468,7 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            BackColor = ThemeManager.Instance.BackgroundLight;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
             
             // Re-center buttons if needed?
             // Buttons logic (lines 332, 357) uses INPUT_WIDTH/LEFT_MARGIN.

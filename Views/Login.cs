@@ -29,7 +29,7 @@ namespace WarehouseManagement.Views
             MaximizeBox = false;
             MinimizeBox = true;
             FormBorderStyle = FormBorderStyle.FixedSingle;
-            BackColor = ThemeManager.Instance.BackgroundLight;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
             
             // Set active control để focus đúng
             ActiveControl = txtUsername;

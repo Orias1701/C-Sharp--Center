@@ -314,7 +314,7 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            BackColor = ThemeManager.Instance.BackgroundLight;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
             
             AcceptButton = btnClose;
             CancelButton = btnClose;

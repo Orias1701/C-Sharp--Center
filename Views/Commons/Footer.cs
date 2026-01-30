@@ -23,7 +23,7 @@ namespace WarehouseManagement.Views.Commons
         private void InitializeComponent()
         {
             // Panel configuration
-            BackColor = ThemeManager.Instance.BackgroundLight;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
             ShowBorder = false;
             HasShadow = true;
             ShadowSize = 5;
