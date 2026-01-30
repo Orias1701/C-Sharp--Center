@@ -72,7 +72,7 @@ namespace WarehouseManagement.Views.Forms
             contentPanel = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = ThemeManager.Instance.BackgroundLight,
+                BackColor = ThemeManager.Instance.BackgroundDefault,
                 Padding = new Padding(0)
             };
 
@@ -86,7 +86,7 @@ namespace WarehouseManagement.Views.Forms
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            BackColor = ThemeManager.Instance.BackgroundLight;
+            BackColor = ThemeManager.Instance.BackgroundDefault;
 
             Load += TransactionAllForm_Load;
             ResumeLayout(false);

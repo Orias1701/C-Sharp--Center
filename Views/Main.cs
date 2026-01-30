@@ -72,10 +72,10 @@ namespace WarehouseManagement.Views
         {
             ThemeManager.Instance.ApplyThemeToForm(this);
             mainZone.BackColor = ThemeManager.Instance.BackgroundDefault;
-            appName.BackColor = ThemeManager.Instance.BackgroundLight;
-            toolsBar.BackColor = ThemeManager.Instance.BackgroundLight;
-            menuBar.BackColor = ThemeManager.Instance.BackgroundLight;
-            footer.BackColor = ThemeManager.Instance.BackgroundLight;
+            appName.BackColor = ThemeManager.Instance.BackgroundDefault;
+            toolsBar.BackColor = ThemeManager.Instance.BackgroundDefault;
+            menuBar.BackColor = ThemeManager.Instance.BackgroundDefault;
+            footer.BackColor = ThemeManager.Instance.BackgroundDefault;
             content.BackColor = ThemeManager.Instance.BackgroundDefault;
         }
 

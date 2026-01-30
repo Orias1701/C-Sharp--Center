@@ -137,6 +137,7 @@ namespace WarehouseManagement.UI.Components
             BackColor = ThemeManager.Instance.BackgroundDefault;
             _dateTimePicker.BackColor = ThemeManager.Instance.BackgroundDefault;
             _dateTimePicker.ForeColor = ThemeManager.Instance.TextPrimary;
+            _dateTimePicker.Invalidate();
             Invalidate();
         }
 
@@ -249,46 +250,78 @@ namespace WarehouseManagement.UI.Components
     }
 
     /// <summary>
-    /// DateTimePicker helper để bỏ border native
+    /// DateTimePicker vẽ tùy chỉnh: nền và chữ theo theme (dark/light).
+    /// Dùng UserPaint + OnPaint để nền đen chữ trắng khi dark mode.
     /// </summary>
     internal class FlatDateTimePicker : DateTimePicker
     {
+        private const int DROPDOWN_WIDTH = 17;
+
+        public FlatDateTimePicker()
+        {
+            SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
+        }
+
         protected override void OnDropDown(EventArgs eventargs)
         {
             base.OnDropDown(eventargs);
-            Invalidate(); // Refresh on dropdown
+            Invalidate();
         }
 
-        protected override void WndProc(ref Message m)
+        protected override void OnValueChanged(EventArgs eventargs)
         {
-            const int WM_NC_PAINT = 0x85;
-            const int WM_PAINT = 0x0F;
-            
-            // Block WM_NC_PAINT (0x85)
-            if (m.Msg == WM_NC_PAINT)
-                return;
-                
-            base.WndProc(ref m);
-            
-            // Re-paint borders after paint if needed, or ensuring region is correct
-            if (m.Msg == WM_PAINT)
+            base.OnValueChanged(eventargs);
+            Invalidate();
+        }
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+
+            Color backColor = ThemeManager.Instance.BackgroundDefault;
+            Color foreColor = ThemeManager.Instance.TextPrimary;
+            Font textFont = ThemeManager.Instance.FontRegular;
+
+            g.FillRectangle(new SolidBrush(backColor), ClientRectangle);
+
+            string format = string.IsNullOrEmpty(CustomFormat) ? "dd/MM/yyyy" : CustomFormat;
+            string text = Value.ToString(format);
+            SizeF textSize = g.MeasureString(text, textFont);
+            float textY = (ClientRectangle.Height - textSize.Height) / 2;
+            using (var brush = new SolidBrush(foreColor))
             {
-                // Ensure region clips the border
-                // Standard border is usually 1-2px.
-                // We use a region to clip the outer 1px edge
-                using (Graphics g = Graphics.FromHwnd(Handle))
-                {
-                    // No extra painting needed if region cuts it off
-                }
+                g.DrawString(text, textFont, brush, 6, textY);
+            }
+
+            DrawTriangleDown(g, ClientRectangle.Width - DROPDOWN_WIDTH, 0, DROPDOWN_WIDTH, ClientRectangle.Height, foreColor);
+        }
+
+        private void DrawTriangleDown(Graphics g, int x, int y, int w, int h, Color color)
+        {
+            const float sideLength = 7f;
+            float triHeight = sideLength * (float)Math.Sqrt(3) / 2f;
+            float cx = x + w / 2f;
+            float cy = y + h / 2f;
+            float halfBase = sideLength / 2f;
+            PointF[] pts =
+            {
+                new PointF(cx, cy + triHeight / 2f),
+                new PointF(cx - halfBase, cy - triHeight / 2f),
+                new PointF(cx + halfBase, cy - triHeight / 2f)
+            };
+            using (var brush = new SolidBrush(color))
+            {
+                g.FillPolygon(brush, pts);
             }
         }
 
         protected override void OnResize(EventArgs e)
         {
             base.OnResize(e);
-            this.Region = new Region(new Rectangle(2, 2, Width - 4, Height - 4));
+            Invalidate();
         }
-
 
         protected override CreateParams CreateParams
         {
